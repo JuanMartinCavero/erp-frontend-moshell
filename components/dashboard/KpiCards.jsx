@@ -1,106 +1,77 @@
+// src/components/dashboard/KpiCards.jsx
 import React from 'react';
+import { ClipboardList, Settings, AlertTriangle, Truck, TrendingUp } from "lucide-react";
 
 const KpiCards = () => {
   return (
-    <div style={{alignSelf: 'stretch', justifyContent: 'center', alignItems: 'flex-start', gap: 24, display: 'inline-flex'}}>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Card 1: Orders in Progress */}
-      <div style={{flex: '1 1 0', alignSelf: 'stretch', padding: 24, background: 'white', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)', borderRadius: 12, outline: '1px rgba(69, 87, 104, 0.10) solid', outlineOffset: '-1px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 16, display: 'inline-flex'}}>
-        <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 4, display: 'inline-flex'}}>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 124.84, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Orders in Progress</div>
-            </div>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 41.33, height: 32, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#0F172A', fontSize: 24, fontFamily: 'Inter', fontWeight: '700', lineHeight: 32, wordWrap: 'break-word'}}>124</div>
-            </div>
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="text-sm font-medium text-slate-500 mb-1">Orders in Progress</div>
+            <div className="text-2xl font-bold text-slate-900">124</div>
           </div>
-          <div style={{padding: 8, background: '#EFF6FF', borderRadius: 8, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 19, height: 21, background: '#2563EB'}} />
+          <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+            <ClipboardList className="w-5 h-5 text-blue-600" />
           </div>
         </div>
-        <div style={{alignSelf: 'stretch', justifyContent: 'flex-start', alignItems: 'center', gap: 4, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 11.67, height: 7, background: '#059669'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 50.22, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#059669', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>+12.5%</div>
-          </div>
-          <div style={{paddingLeft: 4, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 88.16, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#94A3B8', fontSize: 14, fontFamily: 'Inter', fontWeight: '400', lineHeight: 20, wordWrap: 'break-word'}}>vs last month</div>
-          </div>
+        <div className="flex items-center gap-1 text-sm mt-auto">
+          <TrendingUp className="w-4 h-4 text-emerald-600" />
+          <span className="font-medium text-emerald-600">+12.5%</span>
+          <span className="text-slate-500">vs last month</span>
         </div>
       </div>
 
       {/* Card 2: Active Production Lines */}
-      <div style={{flex: '1 1 0', alignSelf: 'stretch', position: 'relative', background: 'white', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)', borderRadius: 12, outline: '1px rgba(69, 87, 104, 0.10) solid', outlineOffset: '-1px'}}>
-        <div style={{width: 172, left: 25, top: 25, position: 'absolute', justifyContent: 'space-between', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 4, display: 'inline-flex'}}>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 118.84, height: 40, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Active Production<br/>Lines</div>
-            </div>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 66.27, height: 32, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#0F172A', fontSize: 24, fontFamily: 'Inter', fontWeight: '700', lineHeight: 32, wordWrap: 'break-word'}}>18/24</div>
-            </div>
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="text-sm font-medium text-slate-500 mb-1">Active Production<br/>Lines</div>
+            <div className="text-2xl font-bold text-slate-900">18/24</div>
           </div>
-          <div style={{padding: 8, background: '#ECFDF5', borderRadius: 8, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 21.17, height: 20, background: '#059669'}} />
+          <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+            <Settings className="w-5 h-5 text-emerald-600" />
           </div>
         </div>
-        <div style={{width: 172, height: 8, left: 25, top: 117, position: 'absolute', background: '#F1F5F9', overflow: 'hidden', borderRadius: 9999}}>
-          <div style={{width: 129, height: 8, left: 0, top: 0, position: 'absolute', background: '#455768', borderRadius: 9999}} />
-        </div>
-        <div style={{width: 172, left: 25, top: 133, position: 'absolute', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <div style={{width: 138.77, height: 16, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#94A3B8', fontSize: 12, fontFamily: 'Inter', fontWeight: '400', lineHeight: 16, wordWrap: 'break-word'}}>75% Capacity Utilization</div>
+        <div className="flex flex-col gap-2 mt-auto">
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-slate-600 w-[75%] rounded-full"></div>
+          </div>
+          <div className="text-xs text-slate-400">75% Capacity Utilization</div>
         </div>
       </div>
 
       {/* Card 3: Low Stock Alerts */}
-      <div style={{flex: '1 1 0', alignSelf: 'stretch', padding: 24, background: 'white', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)', borderRadius: 12, outline: '1px rgba(69, 87, 104, 0.10) solid', outlineOffset: '-1px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 16, display: 'inline-flex'}}>
-        <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 4, display: 'inline-flex'}}>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 112.77, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Low Stock Alerts</div>
-            </div>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 25.47, height: 32, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#0F172A', fontSize: 24, fontFamily: 'Inter', fontWeight: '700', lineHeight: 32, wordWrap: 'break-word'}}>12</div>
-            </div>
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="text-sm font-medium text-slate-500 mb-1">Low Stock Alerts</div>
+            <div className="text-2xl font-bold text-slate-900">12</div>
           </div>
-          <div style={{padding: 8, background: '#FFFBEB', borderRadius: 8, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 22, height: 19, background: '#D97706'}} />
+          <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
         </div>
-        <div style={{alignSelf: 'stretch', justifyContent: 'flex-start', alignItems: 'center', gap: 4, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 2.33, height: 10.50, background: '#D97706'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 123.13, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#D97706', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Requires Attention</div>
-          </div>
+        <div className="flex items-center text-sm mt-auto">
+          <span className="font-medium text-amber-600">! Requires Attention</span>
         </div>
       </div>
 
       {/* Card 4: Pending Deliveries */}
-      <div style={{flex: '1 1 0', alignSelf: 'stretch', padding: 24, background: 'white', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)', borderRadius: 12, outline: '1px rgba(69, 87, 104, 0.10) solid', outlineOffset: '-1px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 16, display: 'inline-flex'}}>
-        <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 4, display: 'inline-flex'}}>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 124.77, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Pending Deliveries</div>
-            </div>
-            <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-              <div style={{width: 31.17, height: 32, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#0F172A', fontSize: 24, fontFamily: 'Inter', fontWeight: '700', lineHeight: 32, wordWrap: 'break-word'}}>45</div>
-            </div>
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="text-sm font-medium text-slate-500 mb-1">Pending Deliveries</div>
+            <div className="text-2xl font-bold text-slate-900">45</div>
           </div>
-          <div style={{padding: 8, background: '#EEF2FF', borderRadius: 8, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 22, height: 16, background: '#4F46E5'}} />
+          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+            <Truck className="w-5 h-5 text-indigo-600" />
           </div>
         </div>
-        <div style={{alignSelf: 'stretch', justifyContent: 'flex-start', alignItems: 'center', gap: 4, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 87.02, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#059669', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>8 dispatched</div>
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 36.94, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 14, fontFamily: 'Inter', fontWeight: '400', lineHeight: 20, wordWrap: 'break-word'}}>today</div>
-          </div>
+        <div className="flex items-center gap-1 text-sm mt-auto">
+          <span className="font-medium text-emerald-600">8 dispatched</span>
+          <span className="text-slate-500">today</span>
         </div>
       </div>
     </div>

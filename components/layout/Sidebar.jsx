@@ -1,93 +1,53 @@
+// src/components/layout/Sidebar.jsx
 import React from 'react';
+import { LayoutDashboard, ShoppingCart, Package, Factory, ShieldCheck } from "lucide-react";
 
 const Sidebar = () => {
   return (
-    <div style={{width: 256, alignSelf: 'stretch', background: 'white', borderRight: '1px rgba(69, 87, 104, 0.10) solid', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start', display: 'inline-flex'}}>
-      {/* Logo Area */}
-      <div style={{alignSelf: 'stretch', padding: 24, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-        <div style={{width: 40, height: 40, background: '#455768', borderRadius: 8, justifyContent: 'center', alignItems: 'center', display: 'flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 20, height: 20, background: 'white'}} />
-          </div>
+    <aside className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0">
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center shrink-0">
+          <Factory className="w-5 h-5 text-white" />
         </div>
-        <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 4, display: 'inline-flex'}}>
-          <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-            <div style={{width: 72.95, height: 18, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#455768', fontSize: 18, fontFamily: 'Inter', fontWeight: '700', lineHeight: 18, wordWrap: 'break-word'}}>TexFlow</div>
-          </div>
-          <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-            <div style={{width: 84.02, height: 16, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 12, fontFamily: 'Inter', fontWeight: '400', lineHeight: 16, wordWrap: 'break-word'}}>Enterprise ERP</div>
-          </div>
+        <div className="flex flex-col">
+          <span className="text-slate-600 font-bold text-lg leading-tight">TexFlow</span>
+          <span className="text-slate-500 text-xs">Enterprise ERP</span>
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div style={{alignSelf: 'stretch', flex: '1 1 0', padding: 16, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 8, display: 'flex'}}>
-        {/* Dashboard Active */}
-        <div style={{alignSelf: 'stretch', paddingLeft: 12, paddingRight: 12, paddingTop: 8, paddingBottom: 8, background: '#455768', borderRadius: 8, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 18, height: 18, background: 'white'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 73.02, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: 'white', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Dashboard</div>
-          </div>
-        </div>
+      <nav className="flex-1 px-4 flex flex-col gap-2">
+        <a href="#" className="flex items-center gap-3 px-3 py-2 bg-slate-600 text-white rounded-lg font-medium text-sm">
+          <LayoutDashboard className="w-[18px] h-[18px]" />
+          Dashboard
+        </a>
+        <a href="#" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+          <ShoppingCart className="w-[18px] h-[18px]" />
+          Orders
+        </a>
+        <a href="#" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+          <Package className="w-[18px] h-[18px]" />
+          Inventory
+        </a>
+        <a href="#" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+          <Factory className="w-[18px] h-[18px]" />
+          Production
+        </a>
+        <a href="#" className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+          <ShieldCheck className="w-[18px] h-[18px]" />
+          Quality Control
+        </a>
+      </nav>
 
-        {/* Orders */}
-        <div style={{alignSelf: 'stretch', paddingLeft: 12, paddingRight: 12, paddingTop: 8, paddingBottom: 8, borderRadius: 8, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 19.98, height: 20, background: '#475569'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 45.72, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#475569', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Orders</div>
-          </div>
-        </div>
-
-        {/* Inventory */}
-        <div style={{alignSelf: 'stretch', paddingLeft: 12, paddingRight: 12, paddingTop: 8, paddingBottom: 8, borderRadius: 8, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 20, height: 20, background: '#475569'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 63.22, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#475569', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Inventory</div>
-          </div>
-        </div>
-
-        {/* Production */}
-        <div style={{alignSelf: 'stretch', paddingLeft: 12, paddingRight: 12, paddingTop: 8, paddingBottom: 8, borderRadius: 8, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 18.03, height: 18.51, background: '#475569'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 72.92, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#475569', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Production</div>
-          </div>
-        </div>
-
-        {/* Quality Control */}
-        <div style={{alignSelf: 'stretch', paddingLeft: 12, paddingRight: 12, paddingTop: 8, paddingBottom: 8, borderRadius: 8, justifyContent: 'flex-start', alignItems: 'center', gap: 12, display: 'inline-flex'}}>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 16, height: 20, background: '#475569'}} />
-          </div>
-          <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{width: 100.06, height: 20, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#475569', fontSize: 14, fontFamily: 'Inter', fontWeight: '500', lineHeight: 20, wordWrap: 'break-word'}}>Quality Control</div>
+      <div className="p-4">
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+          <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">System Status</div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+            <span className="text-xs text-slate-600">All systems operational</span>
           </div>
         </div>
       </div>
-
-      {/* System Status */}
-      <div style={{alignSelf: 'stretch', padding: 16, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-        <div style={{alignSelf: 'stretch', padding: 16, background: 'rgba(69, 87, 104, 0.05)', borderRadius: 12, outline: '1px rgba(69, 87, 104, 0.10) solid', outlineOffset: '-1px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 8, display: 'flex'}}>
-          <div style={{alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-            <div style={{alignSelf: 'stretch', justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#455768', fontSize: 12, fontFamily: 'Inter', fontWeight: '600', textTransform: 'uppercase', lineHeight: 16, letterSpacing: 0.60, wordWrap: 'break-word'}}>System Status</div>
-          </div>
-          <div style={{alignSelf: 'stretch', justifyContent: 'flex-start', alignItems: 'center', gap: 8, display: 'inline-flex'}}>
-            <div style={{width: 8, height: 8, background: '#10B981', borderRadius: 9999}} />
-            <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-              <div style={{width: 131.47, height: 16, justifyContent: 'center', display: 'flex', flexDirection: 'column', color: '#64748B', fontSize: 12, fontFamily: 'Inter', fontWeight: '400', lineHeight: 16, wordWrap: 'break-word'}}>All systems operational</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </aside>
   );
 };
 

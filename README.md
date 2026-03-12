@@ -1,4 +1,4 @@
-src/
+erp-frontend-moshell/
 ├── assets/
 │   ├── icons/               (Iconos SVG personalizados como placeholders)
 │   └── images/               (Imágenes, logos, avatares - placeholders)
@@ -144,3 +144,13 @@ npm install lucide-react
 
 # Para manejo de rutas (si lo necesitas después)
 npm install react-router-dom
+
+
+# instalar dependencias necesarias
+npm install recharts
+
+npm install -D tailwindcss @tailwindcss/vite tw-animate-css
+
+# Instalar otras dependencias que ya hemos usado
+npm install lucide-react recharts class-variance-authority clsx tailwind-merge
+npm install @radix-ui/react-slot
