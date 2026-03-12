@@ -1,31 +1,26 @@
+// src/features/dashboard/DashboardPage.jsx
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import Header from '../../components/layout/Header';
-import KpiCards from '../../components/dashboard/KpiCards';
-import ProductionChart from '../../components/dashboard/ProductionChart';
+import KpiCards from '../../components/dashboard/KpiCards'; // StatsGrid → KpiCards
+import ProductionChart from '../../components/dashboard/ProductionChart'; // ProductionStatus → ProductionChart
 import MachineWorkload from '../../components/dashboard/MachineWorkload';
-import OrdersTable from '../../components/dashboard/OrdersTable';
+import OrdersTable from '../../components/dashboard/OrdersTable'; // RecentOrders → OrdersTable
 
 const DashboardPage = () => {
   return (
-    <div style={{width: 1280, background: '#F7F7F7', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-      <div style={{alignSelf: 'stretch', height: 1024, overflow: 'hidden', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-        <Sidebar />
-        <div style={{flex: '1 1 0', height: 1040, background: 'white', outline: '1px black solid', outlineOffset: '-1px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-          <Header />
-          
-          {/* Dashboard Content */}
-          <div style={{alignSelf: 'stretch', padding: 32, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 32, display: 'flex'}}>
-            <KpiCards />
-            
-            <div style={{alignSelf: 'stretch', justifyContent: 'center', alignItems: 'flex-start', gap: 32, display: 'inline-flex'}}>
-              <ProductionChart />
-              <MachineWorkload />
-            </div>
-            
-            <OrdersTable />
+    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
+      <Sidebar />
+      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
+          <KpiCards />
+          <div className="flex flex-col lg:flex-row gap-8">
+            <ProductionChart />
+            <MachineWorkload />
           </div>
-        </div>
+          <OrdersTable />
+        </main>
       </div>
     </div>
   );
