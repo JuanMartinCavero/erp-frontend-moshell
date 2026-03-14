@@ -154,3 +154,12 @@ npm install -D tailwindcss @tailwindcss/vite tw-animate-css
 # Instalar otras dependencias que ya hemos usado
 npm install lucide-react recharts class-variance-authority clsx tailwind-merge
 npm install @radix-ui/react-slot
+
+
+# para el login se debe instarlar estas 2
+# ########################################################################
+# instalar react-router-dom
+npm install react-router-dom
+
+# instalar dependencias
+npm install -D @types/react-router-dom
