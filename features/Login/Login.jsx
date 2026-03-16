@@ -1,9 +1,33 @@
 // src/pages/Login.jsx
-import { Lock, User, Eye, ArrowRight, ShieldCheck, FileCheck2, Cpu } from "lucide-react";
+import {
+  Lock,
+  User,
+  Eye,
+  ArrowRight,
+  ShieldCheck,
+  FileCheck2,
+  Cpu,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useState } from "react";
+
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const userData = await login(email, password);
+    if (userData) {
+      navigate("/dashboard");
+    } else {
+      alert("Login failed. Please check your credentials.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F4F5F7] flex items-center justify-center p-4">
@@ -11,49 +35,64 @@ const Login = () => {
         {/* Header Image Area */}
         <div className="h-48 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1701964621103-96fc0dd08d5c?w=800&q=80" 
+          <img
+            src="https://images.unsplash.com/photo-1701964621103-96fc0dd08d5c?w=800&q=80"
             alt="Fabric texture"
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-6 left-8 z-20 text-white">
             <h1 className="text-2xl font-bold tracking-tight">TexFlow ERP</h1>
-            <p className="text-sm font-medium text-gray-200">Next Generation Textile Management</p>
+            <p className="text-sm font-medium text-gray-200">
+              Next Generation Textile Management
+            </p>
           </div>
         </div>
 
         {/* Login Form */}
         <div className="p-8 flex-1">
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900">Secure Enterprise Login</h2>
-            <p className="text-sm text-gray-500 mt-1">Please enter your credentials to access your dashboard</p>
+            <h2 className="text-xl font-bold text-gray-900">
+              Secure Enterprise Login
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Please enter your credentials to access your dashboard
+            </p>
           </div>
 
-          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Email or Username</label>
+              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                Email or Username
+              </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="e.g. j.doe@texflow.com"
+                <input
+                  type="text"
+                  placeholder="admin@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-11 pl-10 pr-4 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:bg-white focus:ring-2 focus:ring-[#42526E] focus:border-transparent transition-colors"
-                  defaultValue="j.doe@texflow.com"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Password</label>
+              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-11 pl-10 pr-10 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:bg-white focus:ring-2 focus:ring-[#42526E] focus:border-transparent transition-colors"
-                  defaultValue="password123"
                 />
-                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
                   <Eye className="h-4 w-4" />
                 </button>
               </div>
@@ -61,13 +100,21 @@ const Login = () => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-gray-300 text-[#42526E] focus:ring-[#42526E]" />
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-300 text-[#42526E] focus:ring-[#42526E]"
+                />
                 <span className="text-gray-600 font-medium">Remember Me</span>
               </label>
-              <a href="#" className="font-semibold text-[#42526E] hover:underline">Forgot Password?</a>
+              <a
+                href="#"
+                className="font-semibold text-[#42526E] hover:underline"
+              >
+                Forgot Password?
+              </a>
             </div>
 
-            <button 
+            <button
               type="submit"
               className="w-full h-12 mt-4 bg-[#42526E] hover:bg-[#344563] text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
             >

@@ -39,7 +39,7 @@ const Sidebar = () => {
           <LayoutDashboard className="w-[18px] h-[18px]" />
           Dashboard
         </NavLink>
-
+          
         <a
           href="#"
           className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm"
