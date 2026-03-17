@@ -1,55 +1,5 @@
-import { useState, useEffect } from "react";
-
-// ── Paleta de colores por grupo ────────────────────────────────────────────────
-const GROUP_STYLES = {
-  "Gerencia General":  { bg: "bg-violet-50", border: "border-violet-200", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500", header: "bg-violet-600" },
-  "Administración":    { bg: "bg-sky-50",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500",    header: "bg-sky-600"    },
-  "Operaciones":       { bg: "bg-emerald-50",border: "border-emerald-200",badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500",header: "bg-emerald-600"},
-};
-
-const NIVEL_BADGE = {
-  alto:  "bg-red-100 text-red-700 border border-red-200",
-  medio: "bg-amber-100 text-amber-700 border border-amber-200",
-  bajo:  "bg-gray-100 text-gray-600 border border-gray-200",
-};
-
-// ── Estado inicial de grupos y roles ─────────────────────────────────────────
-const GRUPOS_INICIALES = [
-  {
-    id: 1,
-    grupo: "Gerencia General",
-    descripcion: "Dirección estratégica y toma de decisiones.",
-    roles: [
-      { id: 1, nombre: "Gerente General",      nivel: "alto",  permisos: 18, usuarios: 1 },
-      { id: 2, nombre: "Asistente de Gerencia", nivel: "alto",  permisos: 12, usuarios: 1 },
-    ],
-  },
-  {
-    id: 2,
-    grupo: "Administración",
-    descripcion: "Gestión administrativa y coordinación interna.",
-    roles: [
-      { id: 3, nombre: "Coordinador Administrativo", nivel: "medio", permisos: 14, usuarios: 1 },
-      { id: 4, nombre: "Asistente Administrativo",   nivel: "medio", permisos: 8,  usuarios: 2 },
-    ],
-  },
-  {
-    id: 3,
-    grupo: "Operaciones",
-    descripcion: "Producción, calidad y operaciones de planta.",
-    roles: [
-      { id: 5,  nombre: "Jefe de Operaciones",              nivel: "alto",  permisos: 16, usuarios: 1 },
-      { id: 6,  nombre: "Asistente de Operaciones",         nivel: "medio", permisos: 10, usuarios: 1 },
-      { id: 7,  nombre: "Programador de Máquinas",          nivel: "bajo",  permisos: 6,  usuarios: 2 },
-      { id: 8,  nombre: "Operador de Máquinas",             nivel: "bajo",  permisos: 5,  usuarios: 8 },
-      { id: 9,  nombre: "Asistente de Operador de Máquinas",nivel: "bajo",  permisos: 4,  usuarios: 6 },
-      { id: 10, nombre: "Contador",                         nivel: "medio", permisos: 9,  usuarios: 1 },
-      { id: 11, nombre: "Supervisor de Paños",              nivel: "bajo",  permisos: 5,  usuarios: 2 },
-      { id: 12, nombre: "Auditor",                          nivel: "medio", permisos: 11, usuarios: 1 },
-      { id: 13, nombre: "Acabador",                         nivel: "bajo",  permisos: 4,  usuarios: 4 },
-    ],
-  },
-];
+import React from "react"; // ← Agrega esta línea
+import { useRoles } from "../../hooks/useRoles";
 
 // ── Modal reutilizable ────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
@@ -67,12 +17,18 @@ function Modal({ title, onClose, children }) {
 }
 
 // ── Formulario de Rol ─────────────────────────────────────────────────────────
-function RolForm({ initial = {}, grupos, onSubmit, onCancel, loading }) {
-  const [form, setForm] = useState({
+function RolForm({ initial = {}, grupos = [], onSubmit, onCancel, loading }) {
+  // Extraer los nombres de los grupos únicos
+  const gruposList = grupos.map(g => ({
+    id: g.grupo,
+    nombre: g.grupo
+  }));
+
+  const [form, setForm] = React.useState({
     nombre:    initial.nombre    || "",
     nivel:     initial.nivel     || "bajo",
     permisos:  initial.permisos  || 1,
-    grupo_id:  initial.grupo_id  || grupos[0]?.id || 1,
+    grupo:     initial.grupo      || gruposList[0]?.nombre || "Gerencia General",
   });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -92,10 +48,10 @@ function RolForm({ initial = {}, grupos, onSubmit, onCancel, loading }) {
         <label className="block text-xs font-medium text-gray-600 mb-1">Grupo / Área</label>
         <select
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          value={form.grupo_id}
-          onChange={e => set("grupo_id", Number(e.target.value))}
+          value={form.grupo}
+          onChange={e => set("grupo", e.target.value)}
         >
-          {grupos.map(g => <option key={g.id} value={g.id}>{g.grupo}</option>)}
+          {gruposList.map(g => <option key={g.id} value={g.nombre}>{g.nombre}</option>)}
         </select>
       </div>
       <div>
@@ -140,6 +96,18 @@ function RolForm({ initial = {}, grupos, onSubmit, onCancel, loading }) {
 
 // ── Tarjeta de Rol ────────────────────────────────────────────────────────────
 function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
+  const GROUP_STYLES = {
+    "Gerencia General":  { bg: "bg-violet-50", border: "border-violet-200", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500", header: "bg-violet-600" },
+    "Administración":    { bg: "bg-sky-50",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500",    header: "bg-sky-600"    },
+    "Operaciones":       { bg: "bg-emerald-50",border: "border-emerald-200",badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500",header: "bg-emerald-600"},
+  };
+  
+  const NIVEL_BADGE = {
+    alto:  "bg-red-100 text-red-700 border border-red-200",
+    medio: "bg-amber-100 text-amber-700 border border-amber-200",
+    bajo:  "bg-gray-100 text-gray-600 border border-gray-200",
+  };
+
   const st = GROUP_STYLES[grupoNombre] || GROUP_STYLES["Operaciones"];
   return (
     <div className={`flex items-center justify-between px-4 py-3 rounded-xl border ${st.border} ${st.bg} group transition-all hover:shadow-sm`}>
@@ -179,7 +147,13 @@ function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
 
 // ── Tarjeta de Grupo ──────────────────────────────────────────────────────────
 function GrupoCard({ grupo, onEditRol, onDeleteRol, onAddRol }) {
-  const [expandido, setExpandido] = useState(true);
+  const GROUP_STYLES = {
+    "Gerencia General":  { bg: "bg-violet-50", border: "border-violet-200", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500", header: "bg-violet-600" },
+    "Administración":    { bg: "bg-sky-50",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500",    header: "bg-sky-600"    },
+    "Operaciones":       { bg: "bg-emerald-50",border: "border-emerald-200",badge: "bg-emerald-100 text-emerald-700",dot: "bg-emerald-500",header: "bg-emerald-600"},
+  };
+
+  const [expandido, setExpandido] = React.useState(true);
   const st = GROUP_STYLES[grupo.grupo] || GROUP_STYLES["Operaciones"];
   const totalUsuarios = grupo.roles.reduce((s, r) => s + r.usuarios, 0);
 
@@ -239,127 +213,49 @@ function GrupoCard({ grupo, onEditRol, onDeleteRol, onAddRol }) {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function RolesPage() {
-  const [grupos, setGrupos]     = useState(GRUPOS_INICIALES);
-  const [busqueda, setBusqueda] = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [toast, setToast]       = useState(null);
+  const {
+    grupos,
+    loading,
+    initialLoading,
+    toast,
+    modalCrear,
+    modalEditar,
+    modalEliminar,
+    setModalCrear,
+    setModalEditar,
+    setModalEliminar,
+    totalRoles,
+    totalUsuarios,
+    handleCrear,
+    handleEditar,
+    handleEliminar,
+  } = useRoles();
 
-  // Modales
-  const [modalCrear, setModalCrear]   = useState(null); // grupo preseleccionado
-  const [modalEditar, setModalEditar] = useState(null); // { rol, grupoId }
-  const [modalEliminar, setModalEliminar] = useState(null); // { rol, grupoId }
+  const [busqueda, setBusqueda] = React.useState("");
 
-  const showToast = (msg, tipo = "ok") => {
-    setToast({ msg, tipo });
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  // Filtro de búsqueda
-  const gruposFiltrados = grupos.map(g => ({
+ // Filtro de búsqueda con validaciones
+const gruposFiltrados = grupos
+  .filter(grupo => grupo && typeof grupo === 'object') // Asegurar que grupo existe
+  .map(g => ({
     ...g,
-    roles: g.roles.filter(r =>
-      r.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    ),
-  })).filter(g => g.roles.length > 0 || busqueda === "");
+    roles: Array.isArray(g.roles) 
+      ? g.roles.filter(r => 
+          r && r.nombre && r.nombre.toLowerCase().includes(busqueda.toLowerCase())
+        )
+      : [] // Si no hay roles, array vacío
+  }))
+  .filter(g => g.roles.length > 0 || busqueda === "");
 
-  // Stats rápidos
-  const totalRoles    = grupos.reduce((s, g) => s + g.roles.length, 0);
-  const totalUsuarios = grupos.reduce((s, g) => s + g.roles.reduce((ss, r) => ss + r.usuarios, 0), 0);
-
-  // ── CRUD handlers ──────────────────────────────────────────────────────────
-  const handleCrear = async (form) => {
-    setLoading(true);
-    try {
-      // POST /api/roles
-      // const res = await fetch("/api/roles", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      // const data = await res.json();
-
-      // CREAR ROL 
-      //*********************************************************** */
-     const res = await fetch("/api/roles", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${localStorage.getItem("token")}`
-  },
-  body: JSON.stringify({
-    nombre:   form.nombre,
-    grupo:    grupos.find(g => g.id === form.grupo_id)?.grupo,
-    nivel:    form.nivel,
-    permisos: form.permisos,
-  })
-});
-const data = await res.json();
-if (!data.success) throw new Error(data.message);
-const nuevoRol = { ...data.data, usuarios: 0 };
-setGrupos(gs => gs.map(g => g.id === form.grupo_id ? { ...g, roles: [...g.roles, nuevoRol] } : g));
-setModalCrear(null);
-showToast("Rol creado correctamente.");
-    } catch {
-      showToast("Error al crear el rol.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditar = async (form) => {
-    setLoading(true);
-    try {
-      // EDITAR ROl
-      //******************************************************** */
-     const res = await fetch(`/api/roles/${modalEditar.rol.id}`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${localStorage.getItem("token")}`
-  },
-  body: JSON.stringify({
-    nombre:   form.nombre,
-    grupo:    grupos.find(g => g.id === form.grupo_id)?.grupo,
-    nivel:    form.nivel,
-    permisos: form.permisos,
-  })
-});
-const data = await res.json();
-if (!data.success) throw new Error(data.message);
-setGrupos(gs => gs.map(g => ({
-  ...g,
-  roles: g.roles.map(r => r.id === modalEditar.rol.id ? { ...r, ...data.data } : r),
-})));
-setModalEditar(null);
-showToast("Rol actualizado correctamente.");
-    } catch {
-      showToast("Error al actualizar el rol.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEliminar = async () => {
-    setLoading(true);
-    try {
-      // ELIMINAR ROL
-      //********************************************************* */
-    const res = await fetch(`/api/roles/${modalEliminar.rol.id}`, {
-  method: "DELETE",
-  headers: {
-    "Authorization": `Bearer ${localStorage.getItem("token")}`
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando roles...</p>
+        </div>
+      </div>
+    );
   }
-});
-const data = await res.json();
-if (!data.success) throw new Error(data.message);
-setGrupos(gs => gs.map(g => ({
-  ...g,
-  roles: g.roles.filter(r => r.id !== modalEliminar.rol.id),
-})));
-setModalEliminar(null);
-showToast("Rol eliminado.");
-    } catch {
-      showToast("Error al eliminar.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -379,7 +275,7 @@ showToast("Rol eliminado.");
           <p className="text-sm text-gray-500 mt-0.5">Administra los roles y niveles de acceso por área.</p>
         </div>
         <button
-          onClick={() => setModalCrear(grupos[0])}
+          onClick={() => setModalCrear(grupos[0] || { grupo: "Gerencia General" })}
           className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -418,15 +314,21 @@ showToast("Rol eliminado.");
 
       {/* Grupos de roles */}
       <div className="space-y-4">
-        {gruposFiltrados.map(grupo => (
-          <GrupoCard
-            key={grupo.id}
-            grupo={grupo}
-            onEditRol={(rol) => setModalEditar({ rol, grupoId: grupo.id })}
-            onDeleteRol={(rol) => setModalEliminar({ rol, grupoId: grupo.id })}
-            onAddRol={(g) => setModalCrear(g)}
-          />
-        ))}
+        {gruposFiltrados.length > 0 ? (
+        gruposFiltrados.map(grupo => (
+  <GrupoCard
+    key={grupo.id} // ← AHORA SÍ: cada rol tiene ID único
+    grupo={grupo}
+    onEditRol={(rol) => setModalEditar({ rol, grupoId: grupo.grupo })}
+    onDeleteRol={(rol) => setModalEliminar({ rol, grupoId: grupo.grupo })}
+    onAddRol={(g) => setModalCrear(g)}
+  />
+))
+        ) : (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+            <p className="text-gray-500">No hay roles para mostrar</p>
+          </div>
+        )}
       </div>
 
       {/* Modal: Crear rol */}
@@ -434,7 +336,7 @@ showToast("Rol eliminado.");
         <Modal title="Nuevo Rol" onClose={() => setModalCrear(null)}>
           <RolForm
             grupos={grupos}
-            initial={{ grupo_id: modalCrear.id }}
+            initial={{ grupo: modalCrear.grupo }}
             onSubmit={handleCrear}
             onCancel={() => setModalCrear(null)}
             loading={loading}
@@ -447,7 +349,10 @@ showToast("Rol eliminado.");
         <Modal title="Editar Rol" onClose={() => setModalEditar(null)}>
           <RolForm
             grupos={grupos}
-            initial={{ ...modalEditar.rol, grupo_id: modalEditar.grupoId }}
+            initial={{ 
+              ...modalEditar.rol, 
+              grupo: modalEditar.rol.grupo 
+            }}
             onSubmit={handleEditar}
             onCancel={() => setModalEditar(null)}
             loading={loading}
