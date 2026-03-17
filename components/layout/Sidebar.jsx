@@ -7,6 +7,7 @@ import {
   Factory,
   ShieldCheck,
   ShieldUser,
+  Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -39,7 +40,7 @@ const Sidebar = () => {
           <LayoutDashboard className="w-[18px] h-[18px]" />
           Dashboard
         </NavLink>
-          
+
         <a
           href="#"
           className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm"
@@ -80,6 +81,20 @@ const Sidebar = () => {
         >
           <ShieldUser className="w-[18px] h-[18px]" />
           Roles
+        </NavLink>
+
+        <NavLink
+          to="/admin/users"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm ${
+              isActive
+                ? "bg-slate-600 text-white"
+                : "text-slate-600 hover:bg-slate-50"
+            }`
+          }
+        >
+          <Users className="w-[18px] h-[18px]" />
+          Users
         </NavLink>
       </nav>
 
