@@ -1,17 +1,35 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';              // ← Cambiado: desde pages/Login.jsx
-import Dashboard from './features/dashboard/DashboardPage';      // ← Cambiado: desde pages/Dashboard.jsx
+import Layout from "./components/layout/Layout";
+
+import Login from "./features/Login/Login";
+import DashboardPage from "./features/dashboard/DashboardPage";
+import RolesPage from "./features/roles/RolesPage";
+import UsersPage from "./features/users/Pages/UsersPage";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Login sin layout */}
+      <Route path="/" element={<Login />} />
+
+      {/* Rutas protegidas */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Rutas con Sidebar y Header */}
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/roles" element={<RolesPage />} />
+        <Route path="/admin/users" element={<UsersPage />} />
+      </Route>
+    </Routes>
   );
 }
 
