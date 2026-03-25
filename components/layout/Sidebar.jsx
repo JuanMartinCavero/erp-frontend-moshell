@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   ShieldUser,
   Users,
+  CircleUserRound,
   LogOut,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -105,11 +106,26 @@ const Sidebar = () => {
           <Users className="w-[18px] h-[18px]" />
           Users
         </NavLink>
+
+        <NavLink
+          to="/admin/clients"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm ${
+              isActive
+                ? "bg-slate-600 text-white"
+                : "text-slate-600 hover:bg-slate-50"
+            }`
+          }
+        >
+          <CircleUserRound className="w-[18px] h-[18px]" />
+          Clientes
+        </NavLink>
       </nav>
       <div className="mt-auto px-4 mb-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 text-red-700 bg-red-100 hover:bg-red-200 rounded-xl font-medium text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          className="w-full flex items-center gap-2 px-3 py-2 text-red-700 bg-red-100 hover:bg-red-200 rounded-xl font-medium text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
           <LogOut className="w-[18px] h-[18px]" />
           Logout
         </button>
