@@ -5,6 +5,7 @@ import axios from "axios";
 // Configuración de axios
 const api = axios.create({
   baseURL: "http://localhost:8000/api",
+  withCredentials: false,  // No enviar cookies, usaremos token en headers
 });
 
 // Interceptor para agregar el token
