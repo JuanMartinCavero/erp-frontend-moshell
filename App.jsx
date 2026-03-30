@@ -7,6 +7,7 @@ import Login from "./features/Login/Login";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
+import ClientsPage from "./features/clients/pages/ClientsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/admin/roles" element={<RolesPage />} />
         <Route path="/admin/users" element={<UsersPage />} />
+        <Route path="/admin/clients" element={<ClientsPage />} />
       </Route>
     </Routes>
   );
