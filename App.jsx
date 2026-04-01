@@ -8,6 +8,7 @@ import DashboardPage from "./features/dashboard/DashboardPage";
 import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
 import ClientsPage from "./features/clients/pages/ClientsPage";
+import OrdersPage from "./features/pedidos/pages/OrderPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -30,6 +31,7 @@ function App() {
         <Route path="/admin/roles" element={<RolesPage />} />
         <Route path="/admin/users" element={<UsersPage />} />
         <Route path="/admin/clients" element={<ClientsPage />} />
+        <Route path="admin/orders" element={<OrdersPage />} />
       </Route>
     </Routes>
   );

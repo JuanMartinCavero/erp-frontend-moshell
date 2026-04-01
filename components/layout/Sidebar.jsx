@@ -10,6 +10,7 @@ import {
   Users,
   CircleUserRound,
   LogOut,
+  ShoppingBasket 
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -28,15 +29,6 @@ const Sidebar = () => {
       icon: <LayoutDashboard className="w-[18px] h-[18px]" />,
       // Siempre visible
       visible: true,
-    },
-    {
-      name: "Orders",
-      path: "/orders",
-      icon: <ShoppingCart className="w-[18px] h-[18px]" />,
-      // Permisos necesarios: tener al menos uno de estos
-      requiredPermissions: ["purchase-order.create", "purchase-order.approve", "purchase-order.report"],
-      // O nivel mínimo de rol
-      minRoleLevel: 12,
     },
     {
       name: "Inventory",
@@ -80,7 +72,15 @@ const Sidebar = () => {
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     },
+    {
+      name: "Pedidos",
+      path: "/admin/orders",
+      icon: <ShoppingCart className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["client.manage"],
+      minRoleLevel: 12,
+    }
   ];
+
 
   // Función para verificar si un item debe mostrarse
   const isMenuItemVisible = (item) => {
