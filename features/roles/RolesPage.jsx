@@ -1,11 +1,13 @@
-import React from "react"; // ← Agrega esta línea
+import React, { useState, useEffect } from "react";
 import { useRoles } from "../../hooks/useRoles";
+import { Shield, Plus, X, Check, Trash2, Edit2, Layers, AlertCircle } from "lucide-react";
+import api from "../../services/api";
 
 // ── Modal reutilizable ────────────────────────────────────────────────────────
-function Modal({ title, onClose, children }) {
+function Modal({ title, onClose, children, size = "max-w-lg" }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className={`bg-white rounded-2xl shadow-2xl w-full ${size} mx-4 overflow-hidden`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h3 className="text-base font-semibold text-gray-800">{title}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none">&times;</button>
@@ -18,11 +20,7 @@ function Modal({ title, onClose, children }) {
 
 // ── Formulario de Rol ─────────────────────────────────────────────────────────
 function RolForm({ initial = {}, grupos = [], onSubmit, onCancel, loading }) {
-  // Extraer los nombres de los grupos únicos
-  const gruposList = grupos.map(g => ({
-    id: g.grupo,
-    nombre: g.grupo
-  }));
+  const gruposList = grupos.map(g => ({ id: g.grupo, nombre: g.grupo }));
 
   const [form, setForm] = React.useState({
     nombre:    initial.nombre    || "",
@@ -67,13 +65,14 @@ function RolForm({ initial = {}, grupos = [], onSubmit, onCancel, loading }) {
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Número de permisos</label>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Número de permisos (1-20)</label>
         <input
           type="number" min="1" max="20"
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
           value={form.permisos}
           onChange={e => set("permisos", Number(e.target.value))}
         />
+        <p className="text-xs text-gray-400 mt-1">Define el nivel jerárquico del rol. Los permisos con nivel mínimo ≤ este número estarán disponibles por defecto.</p>
       </div>
       <div className="flex gap-3 pt-2">
         <button
@@ -94,8 +93,230 @@ function RolForm({ initial = {}, grupos = [], onSubmit, onCancel, loading }) {
   );
 }
 
+// ── Modal de Gestión de Permisos por Rol ──────────────────────────────────────
+function RolePermissionsModal({ role, onClose, onPermissionChange }) {
+  const [loading, setLoading] = useState(true);
+  const [assigning, setAssigning] = useState(false);
+  const [rolePermissions, setRolePermissions] = useState([]);
+  const [availablePermissions, setAvailablePermissions] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]);
+
+  useEffect(() => {
+    if (role) {
+      fetchRolePermissions();
+      fetchAllPermissions();
+    }
+  }, [role]);
+
+  const fetchRolePermissions = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/roles/${role.id}/permissions`);
+      if (response.data.success) {
+        setRolePermissions(response.data.data.specific_permissions || []);
+      }
+    } catch (error) {
+      console.error("Error fetching role permissions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllPermissions = async () => {
+    try {
+      const response = await api.get("/permissions");
+      if (response.data.success) {
+        const allPerms = [];
+        Object.values(response.data.data).forEach(modulePerms => {
+          allPerms.push(...modulePerms);
+        });
+        setAllPermissions(allPerms);
+      }
+    } catch (error) {
+      console.error("Error fetching all permissions:", error);
+    }
+  };
+
+  // Actualizar permisos disponibles (excluyendo los ya asignados)
+  useEffect(() => {
+    const rolePermIds = rolePermissions.map(p => p.id);
+    const available = allPermissions.filter(p => !rolePermIds.includes(p.id));
+    setAvailablePermissions(available);
+  }, [rolePermissions, allPermissions]);
+
+  const assignPermission = async (permissionId) => {
+    setAssigning(true);
+    try {
+      const response = await api.post(`/roles/${role.id}/permissions`, {
+        permission_id: permissionId,
+        motivo: "Asignado desde la gestión de roles"
+      });
+      if (response.data.success) {
+        await fetchRolePermissions();
+        if (onPermissionChange) onPermissionChange();
+      } else {
+        alert(response.data.message || "Error al asignar permiso");
+      }
+    } catch (error) {
+      console.error("Error assigning permission:", error);
+      alert(error.response?.data?.message || "Error al asignar permiso");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  const removePermission = async (permissionId) => {
+    try {
+      const response = await api.delete(`/roles/${role.id}/permissions/${permissionId}`);
+      if (response.data.success) {
+        await fetchRolePermissions();
+        if (onPermissionChange) onPermissionChange();
+      } else {
+        alert(response.data.message || "Error al remover permiso");
+      }
+    } catch (error) {
+      console.error("Error removing permission:", error);
+      alert(error.response?.data?.message || "Error al remover permiso");
+    }
+  };
+
+  const groupPermissionsByModule = (perms) => {
+    const grouped = {};
+    perms.forEach(perm => {
+      if (!grouped[perm.modulo]) grouped[perm.modulo] = [];
+      grouped[perm.modulo].push(perm);
+    });
+    return grouped;
+  };
+
+  if (loading) {
+    return (
+      <Modal title={`Permisos de ${role?.nombre}`} onClose={onClose} size="max-w-4xl">
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <Modal title={`Permisos de ${role?.nombre}`} onClose={onClose} size="max-w-4xl">
+      <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+        {/* Info del rol */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-sm font-medium text-gray-900">{role?.nombre}</p>
+              <p className="text-xs text-gray-500">Nivel jerárquico: {role?.permisos}/20</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Grupo: {role?.grupo}</p>
+              <p className="text-xs text-gray-500">Nivel: {role?.nivel}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Permisos específicos asignados al rol */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Shield size={16} className="text-purple-500" />
+            Permisos Específicos Asignados
+            {rolePermissions.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-600 text-xs rounded-full">
+                {rolePermissions.length}
+              </span>
+            )}
+          </h3>
+          {rolePermissions.length === 0 ? (
+            <p className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+              Este rol no tiene permisos específicos asignados. Solo tiene los permisos por su nivel jerárquico.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {Object.entries(groupPermissionsByModule(rolePermissions)).map(([modulo, perms]) => (
+                <div key={modulo} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 uppercase">
+                    {modulo}
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {perms.map(perm => (
+                      <div key={perm.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                        <div>
+                          <div className="font-medium text-gray-900 text-sm">{perm.nombre}</div>
+                          <div className="text-xs text-gray-500">{perm.slug}</div>
+                        </div>
+                        <button
+                          onClick={() => removePermission(perm.id)}
+                          className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Permisos disponibles para asignar */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <Plus size={16} className="text-indigo-500" />
+            Permisos Disponibles para Asignar
+          </h3>
+          {availablePermissions.length === 0 ? (
+            <p className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+              No hay más permisos disponibles para asignar a este rol.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {availablePermissions.map((perm) => (
+                <div key={perm.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors">
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900 text-sm">{perm.nombre}</div>
+                    <div className="text-xs text-gray-500">
+                      {perm.modulo} • {perm.slug}
+                      {perm.nivel_minimo && <span className="ml-2 text-indigo-500">Req. nivel {perm.nivel_minimo}</span>}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => assignPermission(perm.id)}
+                    disabled={assigning}
+                    className="px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {assigning ? "Asignando..." : "Asignar"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Nota sobre jerarquía */}
+        <div className="bg-blue-50 rounded-lg p-3">
+          <p className="text-xs text-blue-700">
+            <strong>Nota:</strong> Los permisos con nivel mínimo ≤ {role?.permisos} ya están disponibles por jerarquía.
+            Los permisos específicos que asignes aquí son adicionales y pueden dar acceso a funcionalidades que normalmente no estarían disponibles por nivel.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-100">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+        >
+          Cerrar
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Tarjeta de Rol ────────────────────────────────────────────────────────────
-function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
+function RolCard({ rol, grupoNombre, onEdit, onDelete, onManagePermissions }) {
   const GROUP_STYLES = {
     "Gerencia General":  { bg: "bg-violet-50", border: "border-violet-200", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500", header: "bg-violet-600" },
     "Administración":    { bg: "bg-sky-50",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500",    header: "bg-sky-600"    },
@@ -109,11 +330,12 @@ function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
   };
 
   const st = GROUP_STYLES[grupoNombre] || GROUP_STYLES["Operaciones"];
+  
   return (
     <div className={`flex items-center justify-between px-4 py-3 rounded-xl border ${st.border} ${st.bg} group transition-all hover:shadow-sm`}>
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${st.dot}`} />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-gray-800 truncate">{rol.nombre}</p>
           <p className="text-xs text-gray-500">{rol.permisos} permisos · {rol.usuarios} usuario{rol.usuarios !== 1 ? "s" : ""}</p>
         </div>
@@ -123,22 +345,25 @@ function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
           {rol.nivel}
         </span>
         <button
+          onClick={() => onManagePermissions(rol)}
+          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-purple-600 transition-all p-1 rounded"
+          title="Gestionar permisos"
+        >
+          <Shield size={14} />
+        </button>
+        <button
           onClick={() => onEdit(rol)}
           className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-indigo-600 transition-all p-1 rounded"
           title="Editar"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-1.414a2 2 0 01.586-1.414z"/>
-          </svg>
+          <Edit2 size={14} />
         </button>
         <button
           onClick={() => onDelete(rol)}
           className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all p-1 rounded"
           title="Eliminar"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>
-          </svg>
+          <Trash2 size={14} />
         </button>
       </div>
     </div>
@@ -146,7 +371,7 @@ function RolCard({ rol, grupoNombre, onEdit, onDelete }) {
 }
 
 // ── Tarjeta de Grupo ──────────────────────────────────────────────────────────
-function GrupoCard({ grupo, onEditRol, onDeleteRol, onAddRol }) {
+function GrupoCard({ grupo, onEditRol, onDeleteRol, onAddRol, onManagePermissions }) {
   const GROUP_STYLES = {
     "Gerencia General":  { bg: "bg-violet-50", border: "border-violet-200", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500", header: "bg-violet-600" },
     "Administración":    { bg: "bg-sky-50",    border: "border-sky-200",    badge: "bg-sky-100 text-sky-700",       dot: "bg-sky-500",    header: "bg-sky-600"    },
@@ -194,15 +419,14 @@ function GrupoCard({ grupo, onEditRol, onDeleteRol, onAddRol }) {
               grupoNombre={grupo.grupo}
               onEdit={onEditRol}
               onDelete={onDeleteRol}
+              onManagePermissions={onManagePermissions}
             />
           ))}
           <button
             onClick={() => onAddRol(grupo)}
             className="w-full mt-1 py-2 text-xs font-medium text-gray-500 hover:text-indigo-600 border border-dashed border-gray-300 hover:border-indigo-400 rounded-xl transition-colors flex items-center justify-center gap-1.5"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
+            <Plus size={14} />
             Agregar rol a {grupo.grupo}
           </button>
         </div>
@@ -232,19 +456,18 @@ export default function RolesPage() {
   } = useRoles();
 
   const [busqueda, setBusqueda] = React.useState("");
+  const [permissionModalRole, setPermissionModalRole] = React.useState(null);
 
- // Filtro de búsqueda con validaciones
-const gruposFiltrados = grupos
-  .filter(grupo => grupo && typeof grupo === 'object') // Asegurar que grupo existe
-  .map(g => ({
-    ...g,
-    roles: Array.isArray(g.roles) 
-      ? g.roles.filter(r => 
-          r && r.nombre && r.nombre.toLowerCase().includes(busqueda.toLowerCase())
-        )
-      : [] // Si no hay roles, array vacío
-  }))
-  .filter(g => g.roles.length > 0 || busqueda === "");
+  // Filtro de búsqueda
+  const gruposFiltrados = grupos
+    .filter(grupo => grupo && typeof grupo === 'object')
+    .map(g => ({
+      ...g,
+      roles: Array.isArray(g.roles) 
+        ? g.roles.filter(r => r && r.nombre && r.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+        : []
+    }))
+    .filter(g => g.roles.length > 0 || busqueda === "");
 
   if (initialLoading) {
     return (
@@ -272,15 +495,13 @@ const gruposFiltrados = grupos
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Gestión de Roles</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Administra los roles y niveles de acceso por área.</p>
+          <p className="text-sm text-gray-500 mt-0.5">Administra los roles, niveles de acceso y permisos por rol.</p>
         </div>
         <button
           onClick={() => setModalCrear(grupos[0] || { grupo: "Gerencia General" })}
           className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
-          </svg>
+          <Plus size={18} />
           Nuevo Rol
         </button>
       </div>
@@ -315,15 +536,16 @@ const gruposFiltrados = grupos
       {/* Grupos de roles */}
       <div className="space-y-4">
         {gruposFiltrados.length > 0 ? (
-        gruposFiltrados.map(grupo => (
-  <GrupoCard
-    key={grupo.id} // ← AHORA SÍ: cada rol tiene ID único
-    grupo={grupo}
-    onEditRol={(rol) => setModalEditar({ rol, grupoId: grupo.grupo })}
-    onDeleteRol={(rol) => setModalEliminar({ rol, grupoId: grupo.grupo })}
-    onAddRol={(g) => setModalCrear(g)}
-  />
-))
+          gruposFiltrados.map(grupo => (
+            <GrupoCard
+              key={grupo.grupo}
+              grupo={grupo}
+              onEditRol={(rol) => setModalEditar({ rol, grupoId: grupo.grupo })}
+              onDeleteRol={(rol) => setModalEliminar({ rol, grupoId: grupo.grupo })}
+              onAddRol={(g) => setModalCrear(g)}
+              onManagePermissions={(rol) => setPermissionModalRole(rol)}
+            />
+          ))
         ) : (
           <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
             <p className="text-gray-500">No hay roles para mostrar</p>
@@ -383,6 +605,17 @@ const gruposFiltrados = grupos
             </button>
           </div>
         </Modal>
+      )}
+
+      {/* Modal: Gestión de permisos por rol */}
+      {permissionModalRole && (
+        <RolePermissionsModal
+          role={permissionModalRole}
+          onClose={() => setPermissionModalRole(null)}
+          onPermissionChange={() => {
+            // Opcional: refrescar datos si es necesario
+          }}
+        />
       )}
     </div>
   );
