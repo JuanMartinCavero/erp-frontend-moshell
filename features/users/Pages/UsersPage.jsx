@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Search, Bell, Moon, Filter, Edit2, Trash2, Shield, X, Check, AlertCircle, Plus } from "lucide-react";
+import { Search, Bell, Moon, Filter, Edit2, Trash2, Shield, X, Check, AlertCircle, Plus, Save } from "lucide-react";
 import axios from "axios";
 
 // Configuración de axios
 const api = axios.create({
   baseURL: "http://localhost:8000/api",
-  withCredentials: false,  // No enviar cookies, usaremos token en headers
+  withCredentials: false,
 });
 
 // Interceptor para agregar el token
@@ -61,7 +61,45 @@ const UsersPage = () => {
     role_id: ""
   });
   const [creatingUser, setCreatingUser] = useState(false);
+  
+  // Modal de editar usuario
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUserForm, setEditUserForm] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    role_id: "",
+    estado: 1
+  });
+  const [updatingUser, setUpdatingUser] = useState(false);
+  
+  // Modal de crear permiso
+  const [showCreatePermissionModal, setShowCreatePermissionModal] = useState(false);
+  const [newPermission, setNewPermission] = useState({
+    nombre: "",
+    slug: "",
+    modulo: "",
+    descripcion: "",
+    nivel_minimo: null
+  });
+  const [creatingPermission, setCreatingPermission] = useState(false);
+  const [permissionModules, setPermissionModules] = useState([]);
 
+
+// Modal de editar permiso
+const [showEditPermissionModal, setShowEditPermissionModal] = useState(false);
+const [editingPermission, setEditingPermission] = useState(null);
+const [editPermissionForm, setEditPermissionForm] = useState({
+  nombre: "",
+  slug: "",
+  modulo: "",
+  descripcion: "",
+  nivel_minimo: null,
+  estado: 1
+});
+const [updatingPermission, setUpdatingPermission] = useState(false);
+  
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -74,6 +112,7 @@ const UsersPage = () => {
       return;
     }
     fetchAllData();
+    fetchPermissionModules();
   }, []);
 
   const fetchAllData = async () => {
@@ -129,6 +168,19 @@ const UsersPage = () => {
     }
   };
 
+  // Fetch módulos de permisos para el selector
+  const fetchPermissionModules = async () => {
+    try {
+      const response = await api.get("/permissions/modules");
+      if (response.data.success) {
+        setPermissionModules(Object.keys(response.data.data));
+      }
+    } catch (err) {
+      console.error("Error fetching permission modules:", err);
+      setPermissionModules(["compras", "produccion", "calidad", "inventario", "ventas", "finanzas", "usuarios", "reportes","administracion"]);
+    }
+  };
+
   // Fetch permisos de un usuario específico
   const fetchUserPermissions = async (userId) => {
     try {
@@ -138,7 +190,6 @@ const UsersPage = () => {
         setUserPermissions(data.additional_permissions || []);
         setUserRolePermissions(data.role_effective_permissions || []);
         
-        // Filtrar permisos disponibles (no asignados al usuario)
         const userPermIds = (data.additional_permissions || []).map(p => p.id);
         const available = permissions.filter(p => !userPermIds.includes(p.id));
         setAvailablePermissions(available);
@@ -157,6 +208,124 @@ const UsersPage = () => {
     setShowPermissionsModal(true);
     await fetchUserPermissions(user.id);
   };
+
+  // Abrir modal de editar usuario
+  const openEditUserModal = (user) => {
+    setEditingUser(user);
+    setEditUserForm({
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      role_id: user.role_id,
+      estado: user.estado
+    });
+    setShowEditUserModal(true);
+  };
+
+  // Actualizar usuario
+  const updateUser = async (e) => {
+    e.preventDefault();
+    setUpdatingUser(true);
+    try {
+      const response = await api.put(`/users/${editingUser.id}`, editUserForm);
+      if (response.data.id) {
+        alert("Usuario actualizado exitosamente");
+        setShowEditUserModal(false);
+        setEditingUser(null);
+        await fetchUsers();
+      }
+    } catch (err) {
+      console.error("Error updating user:", err);
+      alert(err.response?.data?.message || "Error al actualizar usuario");
+    } finally {
+      setUpdatingUser(false);
+    }
+  };
+
+  // Crear nuevo permiso
+  const createPermission = async (e) => {
+    e.preventDefault();
+    setCreatingPermission(true);
+    try {
+      const response = await api.post("/permissions", newPermission);
+      if (response.data.success) {
+        alert("Permiso creado exitosamente");
+        setShowCreatePermissionModal(false);
+        setNewPermission({
+          nombre: "",
+          slug: "",
+          modulo: "",
+          descripcion: "",
+          nivel_minimo: null
+        });
+        await fetchPermissions();
+      } else {
+        alert(response.data.message || "Error al crear permiso");
+      }
+    } catch (err) {
+      console.error("Error creating permission:", err);
+      alert(err.response?.data?.message || "Error al crear permiso");
+    } finally {
+      setCreatingPermission(false);
+    }
+  };
+
+
+// Abrir modal de editar permiso
+const openEditPermissionModal = (permission) => {
+  setEditingPermission(permission);
+  setEditPermissionForm({
+    nombre: permission.nombre,
+    slug: permission.slug,
+    modulo: permission.modulo,
+    descripcion: permission.descripcion || "",
+    nivel_minimo: permission.nivel_minimo,
+    estado: permission.estado ? 1 : 0
+  });
+  setShowEditPermissionModal(true);
+   console.log("showEditPermissionModal:", true); // ← Para debug
+};
+
+// Actualizar permiso
+const updatePermission = async (e) => {
+  e.preventDefault();
+  setUpdatingPermission(true);
+  try {
+    const response = await api.put(`/permissions/${editingPermission.id}`, editPermissionForm);
+    if (response.data.success) {
+      alert("Permiso actualizado exitosamente");
+      setShowEditPermissionModal(false);
+      setEditingPermission(null);
+      await fetchPermissions();
+    } else {
+      alert(response.data.message || "Error al actualizar permiso");
+    }
+  } catch (err) {
+    console.error("Error updating permission:", err);
+    alert(err.response?.data?.message || "Error al actualizar permiso");
+  } finally {
+    setUpdatingPermission(false);
+  }
+};
+
+
+// Eliminar/Desactivar permiso
+const deletePermission = async (permission) => {
+  if (confirm(`¿Estás seguro de eliminar el permiso "${permission.nombre}"?`)) {
+    try {
+      const response = await api.delete(`/permissions/${permission.id}`);
+      if (response.data.success) {
+        alert(response.data.message);
+        await fetchPermissions();
+      } else {
+        alert(response.data.message || "Error al eliminar permiso");
+      }
+    } catch (err) {
+      console.error("Error deleting permission:", err);
+      alert(err.response?.data?.message || "Error al eliminar permiso");
+    }
+  }
+};
 
   // Asignar permiso
   const assignPermission = async (permissionId) => {
@@ -276,42 +445,26 @@ const UsersPage = () => {
     currentPage * itemsPerPage
   );
 
-  // Stats calculados desde datos reales
+  // Stats calculados
   const stats = [
-    {
-      label: "TOTAL USUARIOS",
-      value: users.length.toString(),
-    },
-    {
-      label: "USUARIOS ACTIVOS",
-      value: users.filter(u => u.estado === 1).length.toString(),
-      subtext: "Activos",
-    },
-    {
-      label: "ROLES",
-      value: getFlatRoles().length.toString(),
-    },
-    {
-      label: "PERMISOS TOTALES",
-      value: permissions.length.toString(),
-      subtext: "Disponibles",
-    },
+    { label: "TOTAL USUARIOS", value: users.length.toString() },
+    { label: "USUARIOS ACTIVOS", value: users.filter(u => u.estado === 1).length.toString(), subtext: "Activos" },
+    { label: "ROLES", value: getFlatRoles().length.toString() },
+    { label: "PERMISOS TOTALES", value: permissions.length.toString(), subtext: "Disponibles" },
   ];
 
-  // Obtener color de avatar basado en nombre
+  // Obtener color de avatar
   const getAvatarColor = (nombre) => {
     const colors = ["bg-blue-500", "bg-orange-500", "bg-teal-500", "bg-purple-500", "bg-pink-500", "bg-green-500"];
     const index = nombre ? nombre.length % colors.length : 0;
     return colors[index];
   };
 
-  // Agrupar permisos por módulo para visualización
+  // Agrupar permisos por módulo
   const groupPermissionsByModule = (perms) => {
     const grouped = {};
     perms.forEach(perm => {
-      if (!grouped[perm.modulo]) {
-        grouped[perm.modulo] = [];
-      }
+      if (!grouped[perm.modulo]) grouped[perm.modulo] = [];
       grouped[perm.modulo].push(perm);
     });
     return grouped;
@@ -334,10 +487,7 @@ const UsersPage = () => {
         <div className="text-center">
           <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
             Reintentar
           </button>
         </div>
@@ -354,11 +504,13 @@ const UsersPage = () => {
           <p className="text-sm text-gray-500 mt-1">Administra los usuarios y sus permisos en el sistema</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg">
-            <Bell size={20} />
-          </button>
-          <button className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg">
-            <Moon size={20} />
+          <button
+            onClick={() => setShowCreatePermissionModal(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 flex items-center gap-2"
+            title="Crear nuevo permiso"
+          >
+            <Plus size={18} />
+            <span>Nuevo Permiso</span>
           </button>
           <button
             onClick={() => setShowNewUserModal(true)}
@@ -393,7 +545,7 @@ const UsersPage = () => {
               placeholder="Buscar por nombre, apellido o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <select
@@ -440,7 +592,7 @@ const UsersPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nivel</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
-               </tr>
+              </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {paginatedUsers.length === 0 ? (
@@ -490,6 +642,7 @@ const UsersPage = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button 
+                          onClick={() => openEditUserModal(user)}
                           className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" 
                           title="Editar usuario"
                         >
@@ -528,7 +681,7 @@ const UsersPage = () => {
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -556,7 +709,7 @@ const UsersPage = () => {
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded disabled:opacity-50"
               >
                 Siguiente
               </button>
@@ -565,7 +718,305 @@ const UsersPage = () => {
         )}
       </div>
 
-      {/* Modal de Permisos */}
+      {/* Modal de Editar Usuario */}
+      {showEditUserModal && editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Editar Usuario</h2>
+              <button onClick={() => setShowEditUserModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={updateUser} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                <input
+                  type="text"
+                  value={editUserForm.nombre}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, nombre: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Apellido *</label>
+                <input
+                  type="text"
+                  value={editUserForm.apellido}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, apellido: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={editUserForm.email}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
+                <select
+                  value={editUserForm.role_id}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, role_id: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="">Seleccionar rol</option>
+                  {getFlatRoles().map(role => (
+                    <option key={role.id} value={role.id}>
+                      {role.nombre} (Nivel {role.permisos}/20)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select
+                  value={editUserForm.estado}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, estado: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value={1}>Activo</option>
+                  <option value={0}>Inactivo</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditUserModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingUser}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {updatingUser ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Crear Permiso */}
+      {showCreatePermissionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Crear Nuevo Permiso</h2>
+              <button onClick={() => setShowCreatePermissionModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={createPermission} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Permiso *</label>
+                <input
+                  type="text"
+                  value={newPermission.nombre}
+                  onChange={(e) => setNewPermission({ ...newPermission, nombre: e.target.value })}
+                  placeholder="Ej: Aprobar Órdenes de Compra"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug *</label>
+                <input
+                  type="text"
+                  value={newPermission.slug}
+                  onChange={(e) => setNewPermission({ ...newPermission, slug: e.target.value })}
+                  placeholder="Ej: purchase-order.approve"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">Identificador único. Usa formato: modulo.accion</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Módulo *</label>
+                <select
+                  value={newPermission.modulo}
+                  onChange={(e) => setNewPermission({ ...newPermission, modulo: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="">Seleccionar módulo</option>
+                  {permissionModules.map(mod => (
+                    <option key={mod} value={mod}>{mod}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nivel Mínimo Requerido</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={newPermission.nivel_minimo || ""}
+                  onChange={(e) => setNewPermission({ ...newPermission, nivel_minimo: e.target.value ? parseInt(e.target.value) : null })}
+                  placeholder="Opcional"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">Nivel mínimo que debe tener el rol para obtener este permiso automáticamente</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <textarea
+                  value={newPermission.descripcion}
+                  onChange={(e) => setNewPermission({ ...newPermission, descripcion: e.target.value })}
+                  rows={3}
+                  placeholder="Describe qué hace este permiso..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCreatePermissionModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingPermission}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {creatingPermission ? "Creando..." : "Crear Permiso"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+{/* Modal de Editar Permiso */}
+{showEditPermissionModal && editingPermission && (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" 
+    style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+    onClick={(e) => {
+      if (e.target === e.currentTarget) {
+        setShowEditPermissionModal(false);
+      }
+    }}
+  >
+    <div className="bg-white rounded-lg w-full max-w-md mx-4 shadow-xl">
+      <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 className="text-xl font-semibold text-gray-900">Editar Permiso</h2>
+        <button onClick={() => setShowEditPermissionModal(false)} className="text-gray-400 hover:text-gray-600">
+          <X size={24} />
+        </button>
+      </div>
+
+      <form onSubmit={updatePermission} className="p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Permiso *</label>
+          <input
+            type="text"
+            value={editPermissionForm.nombre}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, nombre: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Slug *</label>
+          <input
+            type="text"
+            value={editPermissionForm.slug}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, slug: e.target.value })}
+            placeholder="Ej: modulo.accion"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+          <p className="text-xs text-gray-400 mt-1">Identificador único. Usa formato: modulo.accion</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Módulo *</label>
+          <select
+            value={editPermissionForm.modulo}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, modulo: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          >
+            <option value="">Seleccionar módulo</option>
+            {permissionModules.map(mod => (
+              <option key={mod} value={mod}>{mod}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nivel Mínimo Requerido</label>
+          <input
+            type="number"
+            min="1"
+            max="20"
+            value={editPermissionForm.nivel_minimo || ""}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, nivel_minimo: e.target.value ? parseInt(e.target.value) : null })}
+            placeholder="Opcional"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <p className="text-xs text-gray-400 mt-1">Nivel mínimo que debe tener el rol para obtener este permiso automáticamente</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+          <textarea
+            value={editPermissionForm.descripcion}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, descripcion: e.target.value })}
+            rows={3}
+            placeholder="Describe qué hace este permiso..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+          <select
+            value={editPermissionForm.estado}
+            onChange={(e) => setEditPermissionForm({ ...editPermissionForm, estado: parseInt(e.target.value) })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value={1}>Activo</option>
+            <option value={0}>Inactivo</option>
+          </select>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => setShowEditPermissionModal(false)}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={updatingPermission}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {updatingPermission ? "Guardando..." : "Guardar Cambios"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+      {/* Modal de Permisos de Usuario */}
       {showPermissionsModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-4xl max-h-[85vh] overflow-hidden">
@@ -649,39 +1100,58 @@ const UsersPage = () => {
                 )}
               </div>
 
-              {/* Permisos disponibles para asignar */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <Plus size={16} className="text-indigo-500" />
-                  Permisos Disponibles para Asignar
-                </h3>
-                {availablePermissions.length === 0 ? (
-                  <p className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
-                    No hay más permisos disponibles para asignar
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {availablePermissions.map((perm) => (
-                      <div key={perm.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors">
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900 text-sm">{perm.nombre}</div>
-                          <div className="text-xs text-gray-500">
-                            {perm.modulo} • {perm.slug}
-                            {perm.nivel_minimo && <span className="ml-2 text-indigo-500">Req. nivel {perm.nivel_minimo}</span>}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => assignPermission(perm.id)}
-                          disabled={assigningPermission}
-                          className="px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
-                        >
-                          {assigningPermission ? "Asignando..." : "Asignar"}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          {/* Permisos disponibles para asignar */}
+<div>
+  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+    <Plus size={16} className="text-indigo-500" />
+    Permisos Disponibles para Asignar
+  </h3>
+  {availablePermissions.length === 0 ? (
+    <p className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+      No hay más permisos disponibles para asignar
+    </p>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      {availablePermissions.map((perm) => (
+        <div key={perm.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors">
+          <div className="flex-1">
+            <div className="font-medium text-gray-900 text-sm">{perm.nombre}</div>
+            <div className="text-xs text-gray-500">
+              {perm.modulo} • {perm.slug}
+              {perm.nivel_minimo && <span className="ml-2 text-indigo-500">Req. nivel {perm.nivel_minimo}</span>}
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            {/* Botón Editar */}
+            <button
+              onClick={() => openEditPermissionModal(perm)}
+              className="p-1 text-gray-400 hover:text-indigo-600 rounded transition-colors"
+              title="Editar permiso"
+            >
+              <Edit2 size={14} />
+            </button>
+            {/* Botón Eliminar */}
+            <button
+              onClick={() => deletePermission(perm)}
+              className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+              title="Eliminar permiso"
+            >
+              <Trash2 size={14} />
+            </button>
+            {/* Botón Asignar */}
+            <button
+              onClick={() => assignPermission(perm.id)}
+              disabled={assigningPermission}
+              className="px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {assigningPermission ? "Asignando..." : "Asignar"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
             </div>
 
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
@@ -753,7 +1223,7 @@ const UsersPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
                 <select
                   value={newUser.role_id}
-                  onChange={(e) => setNewUser({ ...newUser, role_id: e.target.value })}
+                  onChange={(e) => setNewUser({ ...newUser, role_id: parseInt(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
                 >
