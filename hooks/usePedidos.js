@@ -7,7 +7,7 @@ import {
   getPedidoDetalle,
   getPedidosStats,
   updatePedido,
-  deletePedido,
+  deletePedido as deletePedidoApi,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -16,19 +16,24 @@ export default function usePedidos() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
+  const refreshPedidos = () => fetchPedidos();
 
   // Obtener pedidos
   const fetchPedidos = async (params = {}) => {
     setLoading(true);
     try {
       const res = await getPedidos(params);
-      setPedidos(res.data.data || res.data);
-      setPagination(res.data.meta || null);
+      setPedidos(res.data.data);
+      setPagination({
+        current_page: res.data.current_page,
+        last_page: res.data.last_page,
+        total: res.data.total,
+      });
     } catch (error) {
-      setError('Error al cargar pedidos');
-      console.log("Error al obtener pedidos:", error);
+      setError("Error al cargar pedidos");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Crear pedido
@@ -36,7 +41,7 @@ export default function usePedidos() {
     setLoading(true);
     try {
       const res = await createPedido(data);
-      setPedidos((prev) => [res.data, ...prev]);
+      await fetchPedidos();
       return res.data;
     } catch (error) {
       console.log("Error al crear pedido:", error.response?.data);
@@ -54,6 +59,7 @@ export default function usePedidos() {
       return res.data;
     } catch (error) {
       console.log("Error en reorden:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -97,11 +103,11 @@ export default function usePedidos() {
     setLoading(true);
     setError(null);
     try {
-      await deletePedido(id);
-      setPedidos(prev => prev.filter(p => p.id !== id));
+      await deletePedidoApi(id);
+      setPedidos((prev) => prev.filter((p) => p.id !== id));
       return true;
     } catch (error) {
-      setError('Error al eliminar pedido');
+      setError("Error al eliminar pedido");
       throw error;
     } finally {
       setLoading(false);
@@ -114,10 +120,10 @@ export default function usePedidos() {
     setError(null);
     try {
       const res = await updatePedido(id, data);
-      setPedidos(prev => prev.map(p => p.id === id ? res.data : p));
+      setPedidos((prev) => prev.map((p) => (p.id === id ? res.data : p)));
       return res.data;
     } catch (error) {
-      setError('Error al actualizar pedido');
+      setError("Error al actualizar pedido");
       throw error;
     } finally {
       setLoading(false);
@@ -130,6 +136,7 @@ export default function usePedidos() {
     loading,
     error,
     pagination,
+    refreshPedidos,
     fetchPedidos,
     addPedido,
     fetchReorden,

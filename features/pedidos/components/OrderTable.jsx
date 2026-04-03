@@ -1,6 +1,6 @@
 import OrderRow from "./OrderRow";
 
-export default function OrderTable({ pedidos, loading }) {
+export default function OrderTable({ pedidos, loading , handleReorden}) {
   if (loading) {
     return <p className="p-6">Cargando pedidos...</p>;
   }
@@ -9,7 +9,8 @@ export default function OrderTable({ pedidos, loading }) {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-slate-50 dark:bg-primary/5 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider">
-            <th className="px-6 py-4">ID Pedido</th>
+            <th className="px-6 py-4">N° Pedido</th>
+            <th className="px-6 py-4">Tipo Pedido</th>
             <th className="px-6 py-4">Cliente</th>
             <th className="px-6 py-4">Fecha Solicitud</th>
             <th className="px-6 py-4">Fecha Comprometida</th>
@@ -21,7 +22,7 @@ export default function OrderTable({ pedidos, loading }) {
 
         <tbody className="divide-y divide-slate-200 dark:divide-primary/10 text-sm">
           {pedidos.map((pedido, i) => (
-            <OrderRow key={i} pedido={pedido} />
+            <OrderRow key={i} pedido={pedido} handleReorden={handleReorden}/>
           ))}
         </tbody>
       </table>
