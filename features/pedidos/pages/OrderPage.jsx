@@ -16,8 +16,14 @@ import usePedidos from "../../../hooks/usePedidos";
 export default function OrderPage() {
   const navigate = useNavigate();
 
-  const { pedidos, fetchPedidos, fetchReorden, loading, pagination } =
-    usePedidos();
+  const {
+    pedidos,
+    fetchPedidos,
+    fetchReorden,
+    addPedido,
+    loading,
+    pagination,
+  } = usePedidos();
 
   const [filtro, setFiltro] = useState("todos");
   const [tipoCliente, setTipoCliente] = useState("todos");
@@ -87,6 +93,8 @@ export default function OrderPage() {
           <ReordenModal
             data={reordenData}
             onClose={() => setOpenReordenModal(false)}
+            addPedido={addPedido}
+            refreshPedidos={fetchPedidos}
           />
         )}
 

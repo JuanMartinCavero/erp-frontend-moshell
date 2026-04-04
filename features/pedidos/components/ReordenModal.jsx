@@ -1,5 +1,36 @@
-export default function ReordenModal({ data, onClose }) {
+import { useState } from "react";
+
+export default function ReordenModal({
+  data,
+  onClose,
+  addPedido,
+  refreshPedidos,
+}) {
   if (!data) return null;
+
+  const [fechaEntrega, setFechaEntrega] = useState("");
+
+  const handleCrearPedido = async () => {
+    try {
+      const hoy = new Date().toISOString().split("T")[0];
+
+      const nuevoPedido = {
+        cliente_id: data.cliente_id,
+        tipo_pedido: data.tipo_pedido,
+        fecha_pedido: hoy,
+        fecha_entrega: fechaEntrega,
+        items: data.items,
+      };
+
+      await addPedido(nuevoPedido);
+
+      refreshPedidos();
+
+      onClose();
+    } catch (error) {
+      console.log("Error creando reorden:", error);
+    }
+  };
 
   const total = data.items.reduce(
     (acc, item) => acc + item.precio_unitario * item.cantidad,
@@ -48,6 +79,20 @@ export default function ReordenModal({ data, onClose }) {
               </span>
             </div>
           </div>
+        </div>
+
+        <div className="px-6 py-4 border-b">
+          <label className="text-sm text-slate-600 block mb-1">
+            Fecha de entrega
+          </label>
+
+          <input
+            type="date"
+            min={new Date().toISOString().split("T")[0]}
+            value={fechaEntrega}
+            onChange={(e) => setFechaEntrega(e.target.value)}
+            className="border rounded-lg px-3 py-2 w-full"
+          />
         </div>
 
         {/* TABLA PRODUCTOS */}
@@ -105,7 +150,7 @@ export default function ReordenModal({ data, onClose }) {
           <div className="text-sm">
             <span className="text-slate-500">Total estimado + IGV:</span>
             <span className="ml-2 font-bold text-lg text-slate-800">
-              ${data.items.reduce((acc, item) => acc + item.total, 0)}
+              ${total.toFixed(2)}
             </span>
           </div>
 
@@ -117,7 +162,10 @@ export default function ReordenModal({ data, onClose }) {
               Cancelar
             </button>
 
-            <button className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+            <button
+              onClick={handleCrearPedido}
+              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
+            >
               Crear Pedido
             </button>
           </div>
