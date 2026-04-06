@@ -1,28 +1,52 @@
-export default function OrderPagination() {
+export default function OrderPagination({ pagination, fetchPedidos }) {
+  if (!pagination) return null;
+
+  const { current_page, last_page } = pagination;
+
+  const goToPage = (page) => {
+    fetchPedidos({ page });
+  };
+
   return (
-    <div className="p-6 border-t border-slate-200 dark:border-primary/10 flex items-center justify-between">
-      <p className="text-xs text-slate-500">Mostrando 1 a 5</p>
+    <div className="p-6 border-t border-slate-200 flex items-center justify-between">
+      <p className="text-xs text-slate-500">
+        Página {current_page} de {last_page}
+      </p>
 
-      <div className="flex items-center gap-2">
-        <button className="size-8 flex items-center justify-center rounded border text-slate-400">
-          <span className="material-symbols-outlined text-sm">
-            chevron_left
-          </span>
+      <div className="flex gap-2">
+
+        <button
+          disabled={current_page === 1}
+          onClick={() => goToPage(current_page - 1)}
+          className="size-8 border rounded"
+        >
+          ←
         </button>
 
-        <button className="size-8 bg-primary text-white rounded text-xs font-bold">
-          1
+        {Array.from({ length: last_page }, (_, i) => {
+          const page = i + 1;
+
+          return (
+            <button
+              key={page}
+              onClick={() => goToPage(page)}
+              className={`size-8 border rounded ${
+                current_page === page ? "bg-blue-500 text-white" : ""
+              }`}
+            >
+              {page}
+            </button>
+          );
+        })}
+
+        <button
+          disabled={current_page === last_page}
+          onClick={() => goToPage(current_page + 1)}
+          className="size-8 border rounded"
+        >
+          →
         </button>
 
-        <button className="size-8 border rounded text-xs font-bold">2</button>
-
-        <button className="size-8 border rounded text-xs font-bold">3</button>
-
-        <button className="size-8 flex items-center justify-center rounded border text-slate-400">
-          <span className="material-symbols-outlined text-sm">
-            chevron_right
-          </span>
-        </button>
       </div>
     </div>
   );
