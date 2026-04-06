@@ -11,6 +11,7 @@ import ClientsPage from "./features/clients/pages/ClientsPage";
 import OrdersPage from "./features/pedidos/pages/OrderPage";
 import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta importación
 import  QualityControl  from "./features/quality/QualityControl";
+import Pipeline from "./features/production/production";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="admin/orders" element={<OrdersPage />} />
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
         <Route path="/quality" element={<QualityControl />} />
+        <Route path="/production" element={<Pipeline />} />
       </Route>
     </Routes>
   );
