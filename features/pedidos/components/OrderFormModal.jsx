@@ -12,38 +12,40 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     fecha_pedido: new Date().toISOString().split('T')[0],
     fecha_entrega: '',
     descripcion: '',
-    items: [{ producto: '', talla: '', color: '', cantidad: 1, precio_unitario: 0, peso: 0 }],
+    items: [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
   });
 
   useEffect(() => {
     if (isOpen) {
       fetchClientes();
       if (editData) {
-        // Load edit data
         setFormData({
           cliente_id: editData.cliente_id,
           tipo_pedido: editData.tipo_pedido,
           fecha_pedido: editData.fecha_pedido,
           fecha_entrega: editData.fecha_entrega,
           descripcion: editData.descripcion || '',
-          items: editData.items || [{ producto: '', talla: '', color: '', cantidad: 1, precio_unitario: 0 , peso: 0 }],
+          items: editData.items || [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
         });
       } else {
-        // Reset for new
         setFormData({
           cliente_id: '',
           tipo_pedido: 'Producción',
           fecha_pedido: new Date().toISOString().split('T')[0],
           fecha_entrega: '',
           descripcion: '',
-          items: [{ producto: '', talla: '', color: '', cantidad: 1, precio_unitario: 0 , peso: 0}],
+          items: [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
         });
       }
     }
   }, [isOpen, editData]);
 
   const calculateTotals = () => {
-    const subtotal = formData.items.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
+    const subtotal = formData.items.reduce((sum, item) => {
+      const cantidad = parseFloat(item.cantidad) || 0;
+      const precio = parseFloat(item.precio_unitario) || 0;
+      return sum + (cantidad * precio);
+    }, 0);
     const igv = Math.round(subtotal * 0.18 * 100) / 100;
     const total = Math.round((subtotal + igv) * 100) / 100;
     return { subtotal, igv, total };
@@ -53,13 +55,31 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.cliente_id || formData.items.some(item => !item.producto || item.cantidad <= 0 || item.precio_unitario <= 0)) {
+    // Validar que los campos numéricos tengan valores válidos
+    const itemsValid = formData.items.every(item => {
+      const cantidad = parseFloat(item.cantidad);
+      const precio = parseFloat(item.precio_unitario);
+      return item.producto && cantidad > 0 && precio > 0;
+    });
+
+    if (!formData.cliente_id || !itemsValid) {
       alert('Completa todos los campos requeridos');
       return;
     }
 
+    // Convertir valores para enviar
+    const dataToSend = {
+      ...formData,
+      items: formData.items.map(item => ({
+        ...item,
+        cantidad: parseFloat(item.cantidad) || 0,
+        precio_unitario: parseFloat(item.precio_unitario) || 0,
+        peso: parseFloat(item.peso) || 0,
+      }))
+    };
+
     try {
-      await addPedido(formData);
+      await addPedido(dataToSend);
       onClose();
     } catch (error) {
       console.error('Error:', error);
@@ -69,7 +89,7 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { producto: '', talla: '', color: '', cantidad: 1, precio_unitario: 0 , peso: 0}]
+      items: [...formData.items, { producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }]
     });
   };
 
@@ -86,11 +106,21 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     setFormData({ ...formData, items: newItems });
   };
 
+  // Función para duplicar un producto con diferentes talla/color
+  const duplicateItem = (index) => {
+  const itemToDuplicate = { ...formData.items[index] };
+
+  const newItems = [...formData.items];
+  newItems.splice(index + 1, 0, itemToDuplicate);
+
+  setFormData({ ...formData, items: newItems });
+};
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-bold text-gray-900">
@@ -190,49 +220,55 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
               {formData.items.map((item, index) => (
                 <div key={index} className="flex gap-3 p-4 bg-gray-50 rounded-lg items-end">
                   <input
-                    placeholder="Producto"
+                    type="text"
+                    placeholder="Ej: Chompa Algodón"
                     value={item.producto}
                     onChange={(e) => updateItem(index, 'producto', e.target.value)}
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
                   />
                   <input
-                    placeholder="Talla"
+                    type="text"
+                    placeholder="Talla (S,M,L,XL)"
                     value={item.talla}
                     onChange={(e) => updateItem(index, 'talla', e.target.value)}
                     className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
+                    type="text"
                     placeholder="Color"
                     value={item.color}
                     onChange={(e) => updateItem(index, 'color', e.target.value)}
                     className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
-                    type="number"
-                    placeholder="Cant"
+                    type="text"
+                    placeholder="Cantidad"
                     value={item.cantidad}
-                    onChange={(e) => updateItem(index, 'cantidad', parseInt(e.target.value) || 1)}
+                    onChange={(e) => updateItem(index, 'cantidad', e.target.value)}
                     className="w-20 p-3 border border-gray-300 rounded-lg focus:ring-2"
-                    min="1"
                   />
                   <input
-                    type="number"
-                    placeholder="Precio"
+                    type="text"
+                    placeholder="Precio unit."
                     value={item.precio_unitario}
-                    onChange={(e) => updateItem(index, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => updateItem(index, 'precio_unitario', e.target.value)}
                     className="w-28 p-3 border border-gray-300 rounded-lg focus:ring-2"
-                    step="0.01"
-                    min="0"
                   />
                   <input
-                    type="number"
+                    type="text"
                     placeholder="Peso (kg)"
                     value={item.peso}
-                    onChange={(e) => updateItem(index, 'peso', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => updateItem(index, 'peso', e.target.value)}
                     className="w-28 p-3 border border-gray-300 rounded-lg focus:ring-2"
-                    step="0.01"
-                    min="0"
                   />
+                  <button
+                    type="button"
+                    onClick={() => duplicateItem(index)}
+                    className="px-3 py-3 text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
+                    title="Duplicar para otra talla/color"
+                  >
+                    📋
+                  </button>
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
@@ -245,7 +281,7 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             </div>
 
             {/* Totals */}
-            {formData.items.length > 0 && (
+            {formData.items.length > 0 && formData.items.some(item => item.cantidad && item.precio_unitario) && (
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Subtotal:</span>
@@ -285,4 +321,3 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     </div>
   );
 }
-

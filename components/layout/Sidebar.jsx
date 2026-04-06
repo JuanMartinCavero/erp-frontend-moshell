@@ -15,6 +15,7 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { usePermissions } from "../../hooks/usePermissions"; // ← Importar
+import logo from "../../src/logo.png";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -123,12 +124,10 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 overflow-y-auto">
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center shrink-0">
-          <Factory className="w-5 h-5 text-white" />
-        </div>
+       <img src={logo} alt="Moshell Logo" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
           <span className="text-slate-600 font-bold text-lg leading-tight">
-            TexFlow
+            Moshell
           </span>
           <span className="text-slate-500 text-xs">Enterprise ERP</span>
         </div>

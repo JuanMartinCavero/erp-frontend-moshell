@@ -31,6 +31,8 @@ export default function OrderPage() {
   const [reordenData, setReordenData] = useState(null);
   const [openReordenModal, setOpenReordenModal] = useState(false);
 
+  const [estadoActivo, setEstadoActivo] = useState("Todos");
+
   useEffect(() => {
     fetchPedidos();
   }, []);
@@ -45,7 +47,7 @@ export default function OrderPage() {
     return true;
   });
 
-  const total = pedidos.length;
+  const total = pagination ? pagination.total : pedidos.length;
   const nacionales = pedidos.filter((p) => !p.es_internacional).length;
   const internacionales = pedidos.filter((p) => p.es_internacional).length;
 
@@ -82,7 +84,9 @@ export default function OrderPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <OrderFilters />
+        <OrderFilters  estadoActivo={estadoActivo}
+  setEstadoActivo={setEstadoActivo}
+  fetchPedidos={fetchPedidos} />
 
         <OrderTable
           pedidos={pedidosFiltrados}
@@ -98,7 +102,7 @@ export default function OrderPage() {
           />
         )}
 
-        <OrderPagination pagination={pagination} />
+        <OrderPagination pagination={pagination} fetchPedidos={fetchPedidos} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
