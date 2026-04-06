@@ -1,4 +1,4 @@
-export default function OrderRow({ pedido, handleReorden }) {
+export default function OrderRow({ pedido, handleReorden, onSelectPedido }) {
   const iniciales = pedido.cliente?.nombre
     ?.split(" ")
     .map((p) => p[0])
@@ -6,7 +6,10 @@ export default function OrderRow({ pedido, handleReorden }) {
     .slice(0, 2);
 
   return (
-    <tr className="hover:bg-slate-50 transition-colors group">
+    <tr
+      onClick={() => onSelectPedido(pedido)}
+      className="hover:bg-slate-50 transition-colors group"
+    >
       <td className="px-6 py-4 font-bold text-primary">
         {pedido.numero_pedido}
       </td>
