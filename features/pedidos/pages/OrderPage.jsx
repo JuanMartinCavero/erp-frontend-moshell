@@ -33,9 +33,17 @@ export default function OrderPage() {
 
   const [estadoActivo, setEstadoActivo] = useState("Todos");
 
+  const [selectedPedido, setSelectedPedido] = useState(null);
+
   useEffect(() => {
     fetchPedidos();
   }, []);
+
+  useEffect(() => {
+  if (pedidos.length > 0 && !selectedPedido) {
+    setSelectedPedido(pedidos[0]);
+  }
+}, [pedidos]);
 
   const pedidosFiltrados = pedidos.filter((p) => {
     if (filtro === "nacionales" && p.es_internacional) return false;
@@ -50,6 +58,8 @@ export default function OrderPage() {
   const total = pagination ? pagination.total : pedidos.length;
   const nacionales = pedidos.filter((p) => !p.es_internacional).length;
   const internacionales = pedidos.filter((p) => p.es_internacional).length;
+
+  const recentPedidos = pedidos.slice(0, 5);
 
   const handleReorden = async (pedido) => {
     try {
@@ -92,6 +102,7 @@ export default function OrderPage() {
           pedidos={pedidosFiltrados}
           loading={loading}
           handleReorden={handleReorden}
+          onSelectPedido={setSelectedPedido}
         />
         {openReordenModal && (
           <ReordenModal
@@ -106,8 +117,8 @@ export default function OrderPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <OrderActivity />
-        <OrderQuickView />
+        <OrderActivity recentPedidos={recentPedidos} />
+        <OrderQuickView selectedPedido={selectedPedido} />
       </div>
     </div>
   );
