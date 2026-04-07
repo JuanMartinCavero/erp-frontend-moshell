@@ -10,17 +10,18 @@ import {
   Users,
   CircleUserRound,
   LogOut,
-  ShoppingBasket 
+  ShoppingBasket,
+  FileText  // ← Agregado para Ficha Técnica
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { usePermissions } from "../../hooks/usePermissions"; // ← Importar
+import { usePermissions } from "../../hooks/usePermissions";
 import logo from "../../src/logo.png";
 
 const Sidebar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { hasAnyPermission, hasRoleLevel, loading } = usePermissions(); // ← Obtener permisos
+  const { hasAnyPermission, hasRoleLevel, loading } = usePermissions();
 
   // Configuración de qué permisos necesita cada opción del menú
   const menuItems = [
@@ -28,8 +29,14 @@ const Sidebar = () => {
       name: "Dashboard",
       path: "/dashboard",
       icon: <LayoutDashboard className="w-[18px] h-[18px]" />,
-      // Siempre visible
       visible: true,
+    },
+    {
+      name: "Ficha Técnica",  // ← Nueva pestaña
+      path: "/FichaTecnica",
+      icon: <FileText className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["tech-sheet.view", "production.manage"],
+      minRoleLevel: 8,
     },
     {
       name: "Inventory",
@@ -56,7 +63,7 @@ const Sidebar = () => {
       name: "Roles",
       path: "/admin/roles",
       icon: <ShieldUser className="w-[18px] h-[18px]" />,
-      requiredPermissions: ["role.manage"], // Solo admins
+      requiredPermissions: ["role.manage"],
       minRoleLevel: 18,
     },
     {
@@ -81,7 +88,6 @@ const Sidebar = () => {
       minRoleLevel: 12,
     }
   ];
-
 
   // Función para verificar si un item debe mostrarse
   const isMenuItemVisible = (item) => {
@@ -124,7 +130,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 overflow-y-auto">
       <div className="p-6 flex items-center gap-3">
-       <img src={logo} alt="Moshell Logo" className="w-10 h-10 object-contain" />
+        <img src={logo} alt="Moshell Logo" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
           <span className="text-slate-600 font-bold text-lg leading-tight">
             Moshell
@@ -139,7 +145,7 @@ const Sidebar = () => {
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm ${
+              `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
                 isActive
                   ? "bg-slate-600 text-white"
                   : "text-slate-600 hover:bg-slate-50"
