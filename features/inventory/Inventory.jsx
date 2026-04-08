@@ -1,269 +1,291 @@
 // src/features/inventory/Inventory.jsx
 import React from "react";
-import { 
-  Package, 
-  Truck, 
-  PlusSquare, 
-  History, 
-  Users, 
-  ShoppingCart, 
-  BarChart, 
-  AlertTriangle,
-  Plus,
+import {
+  Package,
+  FileText,
+  Bell,
+  Settings,
   Download,
-  ListFilter,
-  LayoutGrid
-} from "lucide-react";
-import { Card, CardContent } from "../../../erp-frontend-moshell/components/ui/Card";
-import { Badge } from "../../../erp-frontend-moshell/components/ui/Badge";
+  Calendar,
+  TrendingUp,
+  AlertTriangle,
+  ChevronDown,
+} from 'lucide-react';
 
 export function Inventory() {
+  const statsCards = [
+    {
+      icon: Package,
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+      title: 'Textiles en Stock',
+      value: '142,500',
+      subtitle: 'unidades',
+      change: '+7% vs mes pasado',
+      changeColor: 'text-emerald-600'
+    },
+    {
+      icon: FileText,
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+      title: 'Órdenes Pedidas',
+      value: '38,210',
+      subtitle: 'órdenes',
+      change: '12 órdenes nuevas',
+      changeColor: 'text-gray-600'
+    },
+    {
+      icon: TrendingUp,
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      title: 'Total Vendido',
+      value: '104,290',
+      subtitle: 'unidades',
+      change: 'Meta 95%',
+      changeColor: 'text-emerald-600'
+    },
+    {
+      icon: AlertTriangle,
+      iconBg: 'bg-red-50',
+      iconColor: 'text-red-600',
+      title: 'Pre-Alertas',
+      value: '8',
+      subtitle: 'lotes',
+      change: 'Ver detalles de incidencias',
+      changeColor: 'text-red-600'
+    },
+  ];
+
+  const tableData = [
+    {
+      date: '24\nOct\n2023',
+      docId: 'SKU-2023-0042',
+      material: 'Pique Polo Shirt',
+      lot: '72\n2334',
+      entry: '+1,500',
+      entryColor: 'text-emerald-600',
+      exit: '0',
+      balance: '5,420',
+      location: 'Nave A-12',
+      status: 'DISPONIBLE',
+      statusColor: 'bg-emerald-50 text-emerald-700'
+    },
+    {
+      date: '24\nOct\n2023',
+      docId: 'SKU-2023-0041',
+      material: 'Denim\nIndigo Stretch',
+      lot: 'DR\n2238',
+      entry: '0',
+      entryColor: 'text-gray-400',
+      exit: '-650',
+      exitColor: 'text-red-600',
+      balance: '100',
+      location: 'Sede B - Estante 4',
+      status: '',
+      statusColor: ''
+    },
+    {
+      date: '23\nOct\n2023',
+      docId: 'SKU-POL-0011',
+      material: 'Polyester\nFiber',
+      lot: 'RS\n1112',
+      entry: '0',
+      entryColor: 'text-gray-400',
+      exit: '-12.5',
+      exitColor: 'text-red-600',
+      balance: '6,870',
+      location: 'Nave B-05',
+      status: 'PENDIENTE',
+      statusColor: 'bg-amber-50 text-amber-700'
+    },
+    {
+      date: '23\nOct\n2023',
+      docId: 'SKU-2023-0037',
+      material: 'Hilo\nAlgodón 20/2 Bag',
+      lot: 'IGH\n2411',
+      entry: '+500',
+      entryColor: 'text-emerald-600',
+      exit: '0',
+      exitColor: '',
+      balance: '1,500',
+      location: 'Taller\nP. Baja',
+      status: 'DISPONIBLE',
+      statusColor: 'bg-emerald-50 text-emerald-700'
+    },
+    {
+      date: '22\nOct\n2023',
+      docId: 'SKU-DEN-0004',
+      material: 'Lona Ópalo\nPremium',
+      lot: 'MGH\n4435',
+      entry: '0',
+      entryColor: 'text-gray-400',
+      exit: '-850',
+      exitColor: 'text-red-600',
+      balance: '2,165',
+      location: 'Nave A-03',
+      status: 'DISPONIBLE',
+      statusColor: 'bg-emerald-50 text-emerald-700'
+    },
+  ];
+
   return (
-    <div className="p-8 overflow-y-auto">
-      {/* Metric Cards */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-start mb-2">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600">
-                <Package className="w-4 h-4" />
-              </div>
-              <Badge variant="success" className="bg-emerald-50 text-emerald-700">+2%</Badge>
-            </div>
-            <p className="text-sm font-medium text-gray-500 mb-1">Total SKUs</p>
-            <h3 className="text-2xl font-bold text-gray-900">1,240</h3>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-start mb-2">
-              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-bold text-red-600">+5 alerts</span>
-            </div>
-            <p className="text-sm font-medium text-gray-500 mb-1">Low Stock Alerts</p>
-            <h3 className="text-2xl font-bold text-gray-900">12</h3>
-          </CardContent>
-        </Card>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Top Bar */}
+      <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Kardex de Inventario</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Monitoreo en tiempo real de entradas y salidas de textiles.</p>
+          </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-start mb-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
-                <Truck className="w-4 h-4" />
-              </div>
-              <Badge variant="secondary">Pending</Badge>
-            </div>
-            <p className="text-sm font-medium text-gray-500 mb-1">Warehouse Receptions</p>
-            <h3 className="text-2xl font-bold text-gray-900">08</h3>
-          </CardContent>
-        </Card>
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+              <Calendar className="w-4 h-4" />
+              <span>Últimas 30 días</span>
+            </button>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-start mb-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <ShoppingCart className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-bold text-emerald-600">82% fill</span>
-            </div>
-            <p className="text-sm font-medium text-gray-500 mb-1">Purchase Orders</p>
-            <h3 className="text-2xl font-bold text-gray-900">34</h3>
-          </CardContent>
-        </Card>
-      </div>
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+              <Download className="w-4 h-4" />
+              <span>Exportar Data</span>
+            </button>
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <button className="bg-[#42526E] hover:bg-[#344563] text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Material Entry
-          </button>
-          <button className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2">
-            <Download className="w-4 h-4" /> Export Data
-          </button>
+            <button className="relative p-2 text-gray-400 hover:text-gray-600">
+              <Bell className="w-5 h-5" />
+            </button>
+
+            <button className="p-2 text-gray-400 hover:text-gray-600">
+              <Settings className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-900">Administrador Moshell</div>
+                <div className="text-xs text-gray-500">Admin</div>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-400 to-slate-600"></div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1">
-          <button className="p-1.5 bg-gray-100 rounded text-gray-900">
-            <ListFilter className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 text-gray-400 hover:text-gray-900">
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      </header>
 
-      <div className="flex gap-6">
-        {/* Main Table Area */}
-        <div className="flex-1 space-y-6">
-          <Card>
-            <div className="p-6 pb-0 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Current Inventory</h3>
-              <div className="flex gap-3">
-                <Badge variant="destructive" className="bg-red-50 text-red-700">● Low Pigment</Badge>
-                <Badge variant="warning" className="bg-amber-50 text-amber-700">● Low Thread</Badge>
-              </div>
-            </div>
-            <div className="p-0 mt-6 overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-[10px] text-gray-500 uppercase font-bold border-y border-gray-100 bg-gray-50/50">
-                  <tr>
-                    <th className="px-6 py-4 tracking-wider">Material Info</th>
-                    <th className="px-6 py-4 tracking-wider">Category</th>
-                    <th className="px-6 py-4 tracking-wider">Stock</th>
-                    <th className="px-6 py-4 tracking-wider">Min Level</th>
-                    <th className="px-6 py-4 tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  <tr className="hover:bg-gray-50/50">
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-gray-900">Crimson Reactive Dye (RG-4)</p>
-                      <p className="text-xs text-gray-500">SKU: CHM-PIG-0042</p>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">Pigments</td>
-                    <td className="px-6 py-4 font-bold text-gray-900">12.5 kg</td>
-                    <td className="px-6 py-4 text-gray-500 font-medium">50 kg</td>
-                    <td className="px-6 py-4">
-                      <Badge variant="destructive" className="bg-red-50 text-red-700 font-bold uppercase">Low Stock</Badge>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50">
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-gray-900">Egyptian Cotton Thread 40/2</p>
-                      <p className="text-xs text-gray-500">SKU: YRN-COT-2011</p>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">Yarn</td>
-                    <td className="px-6 py-4 font-bold text-gray-900">420 Spools</td>
-                    <td className="px-6 py-4 text-gray-500 font-medium">200 Spools</td>
-                    <td className="px-6 py-4">
-                      <Badge variant="success" className="bg-emerald-50 text-emerald-700 font-bold uppercase">Optimal</Badge>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50">
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-gray-900">Polyester Fiber - Snow White</p>
-                      <p className="text-xs text-gray-500">SKU: YRN-POL-5541</p>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">Synthetics</td>
-                    <td className="px-6 py-4 font-bold text-gray-900">85 Spools</td>
-                    <td className="px-6 py-4 text-gray-500 font-medium">100 Spools</td>
-                    <td className="px-6 py-4">
-                      <Badge variant="warning" className="bg-amber-50 text-amber-700 font-bold uppercase">Reorder</Badge>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="p-4 border-t border-gray-100 text-center">
-                <button className="text-sm font-bold text-gray-600 hover:text-gray-900">View All Materials (1,240)</button>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-6">Recent Kardex Transactions</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                      <Truck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900">Reception - PO #9921</p>
-                      <p className="text-xs text-gray-500">Global Chemical Corp • 14:20 PM</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-emerald-600">+250 kg</p>
-                    <p className="text-xs text-gray-500">Indigo Pigment</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
-                      <Package className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900">Issue to Production #221-B</p>
-                      <p className="text-xs text-gray-500">Dyeing Dept • 11:05 AM</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-red-600">-15.5 kg</p>
-                    <p className="text-xs text-gray-500">Crimson Reactive Dye</p>
-                  </div>
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto p-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-4 gap-5 mb-6">
+          {statsCards.map((card, index) => (
+            <div key={index} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+              <div className="flex items-start justify-between mb-3">
+                <div className={`p-2.5 rounded-lg ${card.iconBg}`}>
+                  <card.icon className={`w-5 h-5 ${card.iconColor}`} />
                 </div>
               </div>
+              <div className="text-xs text-gray-600 mb-1">{card.title}</div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <div className="text-3xl font-semibold text-gray-900">{card.value}</div>
+                <div className="text-xs text-gray-500">{card.subtitle}</div>
+              </div>
+              <div className={`text-xs ${card.changeColor}`}>{card.change}</div>
             </div>
-          </Card>
+          ))}
         </div>
 
-        {/* Right Sidebar Area */}
-        <div className="w-80 space-y-6">
-          <Card>
-            <div className="p-6 border-b border-gray-100">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-gray-400" /> Pending Receptions
-              </h3>
+        {/* Filters Bar */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex gap-3">
+            <div className="relative">
+              <select className="appearance-none pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent cursor-pointer">
+                <option>Tipo de Material</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
-            <div className="p-6 space-y-6">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-bold text-sm text-gray-900">SHIP-2023-014</p>
-                  <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-[10px]">IN TRANSIT</Badge>
-                </div>
-                <p className="text-sm font-semibold text-gray-700 mb-0.5">Fine Cotton Trading Co.</p>
-                <p className="text-xs text-gray-500 mb-2">2,000kg Pima Cotton Bales</p>
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <History className="w-3 h-3" /> ETA: Oct 28, 2023
-                </p>
-              </div>
-              <div className="pt-6 border-t border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-bold text-sm text-gray-900">SHIP-2023-018</p>
-                  <Badge variant="warning" className="text-[10px]">DELAYED</Badge>
-                </div>
-                <p className="text-sm font-semibold text-gray-700 mb-0.5">Synthetic Fibers Inc.</p>
-                <p className="text-xs text-gray-500 mb-2">450 Spools Recycled Poly</p>
-                <p className="text-xs text-red-500 flex items-center gap-1 font-medium">
-                  <AlertTriangle className="w-3 h-3" /> ETA: Pending Update
-                </p>
-              </div>
-              <button className="w-full py-2 bg-gray-100 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-200 transition-colors">
-                Manage Receptions
-              </button>
-            </div>
-          </Card>
 
-          <Card>
-            <div className="p-6 flex items-center justify-between">
-              <h3 className="font-bold text-gray-900">Top Suppliers</h3>
-              <a href="#" className="text-xs font-bold text-gray-500 hover:text-gray-900">View List</a>
+            <div className="relative">
+              <select className="appearance-none pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent cursor-pointer">
+                <option>Atención</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
-            <div className="px-6 pb-6 space-y-4">
-              {[
-                { name: "Global Chemicals", desc: "Pigments & Auxiliaries", rating: 4.9, initial: "GC" },
-                { name: "Modern Textiles", desc: "Cotton & Linens", rating: 4.7, initial: "MT" },
-                { name: "EuroLink Logistics", desc: "Freight & Customs", rating: 4.2, initial: "EL" },
-              ].map((sup, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 font-bold flex items-center justify-center text-sm">
-                    {sup.initial}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">{sup.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{sup.desc}</p>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm font-bold text-gray-700">
-                    <span className="text-amber-400">★</span> {sup.rating}
-                  </div>
-                </div>
-              ))}
+
+            <div className="relative">
+              <select className="appearance-none pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent cursor-pointer">
+                <option>Next Block</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
-          </Card>
+          </div>
+
+          <button className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+            Limpiar Filtros
+          </button>
+        </div>
+
+        {/* Inventory Table */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">FECHA</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DOCUMENTO<br />SALIDA</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">MATERIAL</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">LOTE</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ENTRADA</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SALIDA</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SALDO</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">UBICACIÓN</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {tableData.map((row, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-900 whitespace-pre-line leading-tight">{row.date}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm font-medium text-purple-600">{row.docId}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-900 whitespace-pre-line">{row.material}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-600 whitespace-pre-line leading-tight">{row.lot}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className={`text-sm font-medium ${row.entryColor}`}>{row.entry}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className={`text-sm font-medium ${row.exitColor || 'text-gray-900'}`}>{row.exit}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm font-semibold text-gray-900">{row.balance}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-700 whitespace-pre-line leading-tight">{row.location}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      {row.status && (
+                        <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold ${row.statusColor}`}>
+                          {row.status}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="text-sm text-gray-600">Mostrando 1 de 24 registros</div>
+            <div className="flex gap-1">
+              <button className="px-3 py-1.5 bg-purple-600 text-white rounded text-sm font-medium">1</button>
+              <button className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">2</button>
+              <button className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">3</button>
+              <button className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">Siguiente</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
