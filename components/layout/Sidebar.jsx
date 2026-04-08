@@ -11,6 +11,7 @@ import {
   CircleUserRound,
   LogOut,
   ShoppingBasket,
+  Barcode,
   FileText  // ← Agregado para Ficha Técnica
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -84,6 +85,13 @@ const Sidebar = () => {
       name: "Pedidos",
       path: "/admin/orders",
       icon: <ShoppingCart className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["client.manage"],
+      minRoleLevel: 12,
+    },
+    {
+       name: "Etiquetas", 
+      path: "/barcodes",
+      icon: <Barcode className="w-[18px] h-[18px]" />,
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     }
