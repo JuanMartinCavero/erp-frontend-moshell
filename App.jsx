@@ -16,6 +16,8 @@ import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
+
 function App() {
   return (
     <Routes>
@@ -40,6 +42,8 @@ function App() {
         <Route path="/quality" element={<QualityControl />} />
         <Route path="/production" element={<Pipeline />} />
         <Route path="/FichaTecnica" element={<FichaTecnica />} />
+        <Route path="/barcodes" element={<BarcodePage />} />
+
       </Route>
     </Routes>
   );
