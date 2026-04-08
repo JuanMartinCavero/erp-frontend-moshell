@@ -124,7 +124,10 @@ const Sidebar = () => {
   };
 
   // Filtrar los items visibles
-  const visibleMenuItems = menuItems.filter(item => isMenuItemVisible(item));
+  //const visibleMenuItems = menuItems.filter(item => isMenuItemVisible(item));
+  const visibleMenuItems = React.useMemo(() => {
+    return menuItems.filter(item => isMenuItemVisible(item));
+  }, [loading, hasAnyPermission, hasRoleLevel]);
 
   const handleLogout = async () => {
     await logout();
