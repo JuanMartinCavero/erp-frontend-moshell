@@ -19,7 +19,6 @@ export function Inventory() {
 
   const handleBuscar = async () => {
     if (!codigo) return;
-    await buscarMaterial(codigo);
     try {
       await buscarMaterial(codigo);
     } catch (error) {
