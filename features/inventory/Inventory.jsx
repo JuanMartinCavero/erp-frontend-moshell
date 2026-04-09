@@ -19,7 +19,12 @@ export function Inventory() {
 
   const handleBuscar = async () => {
     if (!codigo) return;
-    await buscarMaterial(codigo);
+    try {
+      await buscarMaterial(codigo);
+    } catch (error) {
+      // Podrías usar un toast o alerta aquí
+      console.error("Material no encontrado");
+    }
   };
 
   return (

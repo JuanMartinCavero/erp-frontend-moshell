@@ -12,7 +12,8 @@ import {
   LogOut,
   ShoppingBasket,
   Barcode,
-  FileText  // ← Agregado para Ficha Técnica
+  FileText,  // ← Agregado para Ficha Técnica
+  ShoppingBag   // ← Agrega este ícono para Compras
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -46,6 +47,14 @@ const Sidebar = () => {
       requiredPermissions: ["inventory.adjust", "inventory.transfer", "inventory.kardex"],
       minRoleLevel: 8,
     },
+    // ↓ Compras agregado
+{
+  name: "Compras",
+  path: "/compras",
+  icon: <ShoppingBag className="w-[18px] h-[18px]" />,
+  requiredPermissions: ["purchase.manage", "purchase.view"],
+  minRoleLevel: 8,
+},
     {
       name: "Production",
       path: "/production",
@@ -115,7 +124,10 @@ const Sidebar = () => {
   };
 
   // Filtrar los items visibles
-  const visibleMenuItems = menuItems.filter(item => isMenuItemVisible(item));
+  //const visibleMenuItems = menuItems.filter(item => isMenuItemVisible(item));
+  const visibleMenuItems = React.useMemo(() => {
+    return menuItems.filter(item => isMenuItemVisible(item));
+  }, [loading, hasAnyPermission, hasRoleLevel]);
 
   const handleLogout = async () => {
     await logout();

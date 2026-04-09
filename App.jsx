@@ -10,6 +10,7 @@ import UsersPage from "./features/users/Pages/UsersPage";
 import ClientsPage from "./features/clients/pages/ClientsPage";
 import OrdersPage from "./features/pedidos/pages/OrderPage";
 import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta importación
+import { Compras } from "./features/purchasing/Compras";//compras de insumos o materiasles
 import  QualityControl  from "./features/quality/QualityControl";
 import Pipeline from "./features/production/production";
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
@@ -43,7 +44,7 @@ function App() {
         <Route path="/production" element={<Pipeline />} />
         <Route path="/FichaTecnica" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
-
+        <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
       </Route>
     </Routes>
   );
