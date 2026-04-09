@@ -13,8 +13,11 @@ import { useKardex } from "../../hooks/usekardex";
 export function Inventory() {
   const [codigo, setCodigo] = useState("");
   const { material, buscarMaterial } = useMaterial();
+
   const { kardex, loading, refetch } = useKardex(material?.id);
-  
+
+  const { obtenerMateriales } = useMaterial();
+  const [materiales, setMateriales] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
   const handleBuscar = async () => {
@@ -25,6 +28,21 @@ export function Inventory() {
       // Podrías usar un toast o alerta aquí
       console.error("Material no encontrado");
     }
+  };
+
+  // Obtener todos los materiales al montar el componente
+  useEffect(() => {
+    const fetchMateriales = async () => {
+      const data = await obtenerMateriales();
+      setMateriales(Array.isArray(data) ? data : []);
+    };
+    fetchMateriales();
+  }, []);
+
+  // Función para refrescar después de registrar un material
+  const handleRefresh = async () => {
+    const data = await obtenerMateriales();
+    setMateriales(Array.isArray(data) ? data : []);
   };
 
   return (
@@ -51,13 +69,15 @@ export function Inventory() {
         </div>
 
         <FiltersBar />
-        <InventoryTable data={kardex} />
+
+        <InventoryTable data={materiales} />
+
         <Pagination />
       </div>
       <RegisterMaterialModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onRefresh={refetch}
+        onRefresh={handleRefresh}
       />
     </div>
   );
