@@ -6,6 +6,7 @@ export const getKardexPorMaterial = async (materialId) => {
 };
 
 export const registrarMovimiento = async (data) => {
-  const response = await axiosClient.post(`/kardex/movimiento`, data);
+  // CORREGIDO: cambiar /kardex/movimiento a /kardex
+  const response = await axiosClient.post(`/kardex`, data);
   return response.data;
 };
