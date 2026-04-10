@@ -63,7 +63,8 @@ export default function BarcodeScan({
             cameraId,
             {
               fps: 10,
-              qrbox: { width: 320, height: 120 },
+              qrbox: { width: 300, height: 120 },
+              aspectRatio: 2.5,
             },
             handleScanCode,
             handleScanError,

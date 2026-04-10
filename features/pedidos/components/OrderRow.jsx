@@ -5,6 +5,19 @@ export default function OrderRow({ pedido, handleReorden, onSelectPedido }) {
     .join("")
     .slice(0, 2);
 
+  const moneda = pedido?.cliente?.moneda_preferida ?? "PEN";
+
+  const localeMap = {
+    PEN: "es-PE",
+    USD: "en-US",
+    EUR: "de-DE",
+  };
+
+  const totalFormateado = new Intl.NumberFormat(localeMap[moneda] || "es-PE", {
+    style: "currency",
+    currency: moneda,
+  }).format(pedido.total);
+
   return (
     <tr
       onClick={() => onSelectPedido(pedido)}
@@ -40,7 +53,7 @@ export default function OrderRow({ pedido, handleReorden, onSelectPedido }) {
 
       <td className="px-6 py-4">{pedido.fecha_entrega}</td>
 
-      <td className="px-6 py-4 font-semibold">${pedido.total}</td>
+      <td className="px-6 py-4 font-semibold">{totalFormateado}</td>
 
       <td className="px-6 py-4">
         <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">

@@ -1,18 +1,27 @@
-import { useState, useEffect } from 'react';
-import usePedidos from '../../../hooks/usePedidos';
-import useClients from '../../../hooks/useClients';
+import { useState, useEffect } from "react";
+import usePedidos from "../../../hooks/usePedidos";
+import useClients from "../../../hooks/useClients";
 
 export default function OrderFormModal({ isOpen, onClose, editData = null }) {
   const { addPedido, loading } = usePedidos();
   const { clientes, fetchClientes, loading: clientsLoading } = useClients();
 
   const [formData, setFormData] = useState({
-    cliente_id: '',
-    tipo_pedido: 'Producción',
-    fecha_pedido: new Date().toISOString().split('T')[0],
-    fecha_entrega: '',
-    descripcion: '',
-    items: [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
+    cliente_id: "",
+    tipo_pedido: "Producción",
+    fecha_pedido: new Date().toISOString().split("T")[0],
+    fecha_entrega: "",
+    descripcion: "",
+    items: [
+      {
+        producto: "",
+        talla: "",
+        color: "",
+        cantidad: "",
+        precio_unitario: "",
+        peso: "",
+      },
+    ],
   });
 
   useEffect(() => {
@@ -24,17 +33,35 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
           tipo_pedido: editData.tipo_pedido,
           fecha_pedido: editData.fecha_pedido,
           fecha_entrega: editData.fecha_entrega,
-          descripcion: editData.descripcion || '',
-          items: editData.items || [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
+          descripcion: editData.descripcion || "",
+          items: editData.items || [
+            {
+              producto: "",
+              talla: "",
+              color: "",
+              cantidad: "",
+              precio_unitario: "",
+              peso: "",
+            },
+          ],
         });
       } else {
         setFormData({
-          cliente_id: '',
-          tipo_pedido: 'Producción',
-          fecha_pedido: new Date().toISOString().split('T')[0],
-          fecha_entrega: '',
-          descripcion: '',
-          items: [{ producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }],
+          cliente_id: "",
+          tipo_pedido: "Producción",
+          fecha_pedido: new Date().toISOString().split("T")[0],
+          fecha_entrega: "",
+          descripcion: "",
+          items: [
+            {
+              producto: "",
+              talla: "",
+              color: "",
+              cantidad: "",
+              precio_unitario: "",
+              peso: "",
+            },
+          ],
         });
       }
     }
@@ -44,7 +71,7 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     const subtotal = formData.items.reduce((sum, item) => {
       const cantidad = parseFloat(item.cantidad) || 0;
       const precio = parseFloat(item.precio_unitario) || 0;
-      return sum + (cantidad * precio);
+      return sum + cantidad * precio;
     }, 0);
     const igv = Math.round(subtotal * 0.18 * 100) / 100;
     const total = Math.round((subtotal + igv) * 100) / 100;
@@ -56,47 +83,57 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validar que los campos numéricos tengan valores válidos
-    const itemsValid = formData.items.every(item => {
+    const itemsValid = formData.items.every((item) => {
       const cantidad = parseFloat(item.cantidad);
       const precio = parseFloat(item.precio_unitario);
       return item.producto && cantidad > 0 && precio > 0;
     });
 
     if (!formData.cliente_id || !itemsValid) {
-      alert('Completa todos los campos requeridos');
+      alert("Completa todos los campos requeridos");
       return;
     }
 
     // Convertir valores para enviar
     const dataToSend = {
       ...formData,
-      items: formData.items.map(item => ({
+      items: formData.items.map((item) => ({
         ...item,
         cantidad: parseFloat(item.cantidad) || 0,
         precio_unitario: parseFloat(item.precio_unitario) || 0,
         peso: parseFloat(item.peso) || 0,
-      }))
+      })),
     };
 
     try {
       await addPedido(dataToSend);
       onClose();
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { producto: '', talla: '', color: '', cantidad: '', precio_unitario: '', peso: '' }]
+      items: [
+        ...formData.items,
+        {
+          producto: "",
+          talla: "",
+          color: "",
+          cantidad: "",
+          precio_unitario: "",
+          peso: "",
+        },
+      ],
     });
   };
 
   const removeItem = (index) => {
     setFormData({
       ...formData,
-      items: formData.items.filter((_, i) => i !== index)
+      items: formData.items.filter((_, i) => i !== index),
     });
   };
 
@@ -108,13 +145,13 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
 
   // Función para duplicar un producto con diferentes talla/color
   const duplicateItem = (index) => {
-  const itemToDuplicate = { ...formData.items[index] };
+    const itemToDuplicate = { ...formData.items[index] };
 
-  const newItems = [...formData.items];
-  newItems.splice(index + 1, 0, itemToDuplicate);
+    const newItems = [...formData.items];
+    newItems.splice(index + 1, 0, itemToDuplicate);
 
-  setFormData({ ...formData, items: newItems });
-};
+    setFormData({ ...formData, items: newItems });
+  };
 
   if (!isOpen) return null;
 
@@ -124,9 +161,9 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-bold text-gray-900">
-              {editData ? 'Editar Pedido' : 'Nuevo Pedido'}
+              {editData ? "Editar Pedido" : "Nuevo Pedido"}
             </h3>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -143,7 +180,9 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             </label>
             <select
               value={formData.cliente_id}
-              onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, cliente_id: e.target.value })
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               disabled={clientsLoading}
             >
@@ -159,10 +198,14 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
           {/* Tipo Pedido */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Tipo Pedido <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Tipo Pedido <span className="text-red-500">*</span>
+              </label>
               <select
                 value={formData.tipo_pedido}
-                onChange={(e) => setFormData({ ...formData, tipo_pedido: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, tipo_pedido: e.target.value })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
               >
                 <option value="Producción">Producción</option>
@@ -171,11 +214,15 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Fecha Pedido <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Fecha Pedido <span className="text-red-500">*</span>
+              </label>
               <input
                 type="date"
                 value={formData.fecha_pedido}
-                onChange={(e) => setFormData({ ...formData, fecha_pedido: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, fecha_pedido: e.target.value })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
                 required
               />
@@ -183,20 +230,28 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Fecha Entrega</label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Fecha Entrega
+            </label>
             <input
               type="date"
               value={formData.fecha_entrega}
-              onChange={(e) => setFormData({ ...formData, fecha_entrega: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, fecha_entrega: e.target.value })
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Descripción</label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Descripción
+            </label>
             <textarea
               value={formData.descripcion}
-              onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, descripcion: e.target.value })
+              }
               rows="3"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary resize-vertical"
               placeholder="Notas especiales del pedido..."
@@ -206,7 +261,9 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
           {/* Items Table */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <label className="text-lg font-bold text-gray-900">Items del Pedido</label>
+              <label className="text-lg font-bold text-gray-900">
+                Items del Pedido
+              </label>
               <button
                 type="button"
                 onClick={addItem}
@@ -218,49 +275,62 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
 
             <div className="space-y-3">
               {formData.items.map((item, index) => (
-                <div key={index} className="flex gap-3 p-4 bg-gray-50 rounded-lg items-end">
+                <div
+                  key={index}
+                  className="flex gap-3 p-4 bg-gray-50 rounded-lg items-end"
+                >
                   <input
                     type="text"
                     placeholder="Ej: Chompa Algodón"
                     value={item.producto}
-                    onChange={(e) => updateItem(index, 'producto', e.target.value)}
+                    onChange={(e) =>
+                      updateItem(index, "producto", e.target.value)
+                    }
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
                   />
                   <input
                     type="text"
                     placeholder="Talla (S,M,L,XL)"
                     value={item.talla}
-                    onChange={(e) => updateItem(index, 'talla', e.target.value)}
+                    onChange={(e) => updateItem(index, "talla", e.target.value)}
                     className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
                     type="text"
                     placeholder="Color"
                     value={item.color}
-                    onChange={(e) => updateItem(index, 'color', e.target.value)}
+                    onChange={(e) => updateItem(index, "color", e.target.value)}
                     className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
                     type="text"
                     placeholder="Cantidad"
                     value={item.cantidad}
-                    onChange={(e) => updateItem(index, 'cantidad', e.target.value)}
+                    onChange={(e) =>
+                      updateItem(index, "cantidad", e.target.value)
+                    }
                     className="w-20 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
                     type="text"
                     placeholder="Precio unit."
                     value={item.precio_unitario}
-                    onChange={(e) => updateItem(index, 'precio_unitario', e.target.value)}
+                    onChange={(e) =>
+                      updateItem(index, "precio_unitario", e.target.value)
+                    }
                     className="w-28 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
-                  <input
-                    type="text"
-                    placeholder="Peso (kg)"
-                    value={item.peso}
-                    onChange={(e) => updateItem(index, 'peso', e.target.value)}
-                    className="w-28 p-3 border border-gray-300 rounded-lg focus:ring-2"
-                  />
+                  {formData.tipo_pedido === "Producción" && (
+                    <input
+                      type="text"
+                      placeholder="Peso (kg)"
+                      value={item.peso}
+                      onChange={(e) =>
+                        updateItem(index, "peso", e.target.value)
+                      }
+                      className="w-28 p-3 border border-gray-300 rounded-lg focus:ring-2"
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => duplicateItem(index)}
@@ -281,22 +351,25 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             </div>
 
             {/* Totals */}
-            {formData.items.length > 0 && formData.items.some(item => item.cantidad && item.precio_unitario) && (
-              <div className="pt-4 border-t border-gray-200">
-                <div className="flex justify-between text-lg font-bold text-gray-900">
-                  <span>Subtotal:</span>
-                  <span>S/. {subtotal.toFixed(2)}</span>
+            {formData.items.length > 0 &&
+              formData.items.some(
+                (item) => item.cantidad && item.precio_unitario,
+              ) && (
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex justify-between text-lg font-bold text-gray-900">
+                    <span>Subtotal:</span>
+                    <span>S/. {subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg">
+                    <span>IGV (18%):</span>
+                    <span>S/. {igv.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-2xl font-black text-primary mt-2">
+                    <span>Total:</span>
+                    <span>S/. {total.toFixed(2)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-lg">
-                  <span>IGV (18%):</span>
-                  <span>S/. {igv.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-2xl font-black text-primary mt-2">
-                  <span>Total:</span>
-                  <span>S/. {total.toFixed(2)}</span>
-                </div>
-              </div>
-            )}
+              )}
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -310,10 +383,12 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.cliente_id || formData.items.length === 0}
+              disabled={
+                loading || !formData.cliente_id || formData.items.length === 0
+              }
               className="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Guardando...' : 'Crear Pedido'}
+              {loading ? "Guardando..." : "Crear Pedido"}
             </button>
           </div>
         </form>

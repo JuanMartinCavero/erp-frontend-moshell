@@ -40,10 +40,10 @@ export default function OrderPage() {
   }, []);
 
   useEffect(() => {
-  if (pedidos.length > 0 && !selectedPedido) {
-    setSelectedPedido(pedidos[0]);
-  }
-}, [pedidos]);
+    if (pedidos.length > 0 && !selectedPedido) {
+      setSelectedPedido(pedidos[0]);
+    }
+  }, [pedidos]);
 
   const pedidosFiltrados = pedidos.filter((p) => {
     if (filtro === "nacionales" && p.es_internacional) return false;
@@ -94,9 +94,11 @@ export default function OrderPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <OrderFilters  estadoActivo={estadoActivo}
-  setEstadoActivo={setEstadoActivo}
-  fetchPedidos={fetchPedidos} />
+        <OrderFilters
+          estadoActivo={estadoActivo}
+          setEstadoActivo={setEstadoActivo}
+          fetchPedidos={fetchPedidos}
+        />
 
         <OrderTable
           pedidos={pedidosFiltrados}
