@@ -121,11 +121,16 @@ export default function BarcodeGenerate() {
 
           {/* Código de barras */}
           {barcode ? (
-            <img
-              src={barcode}
-              alt="Código de barras"
-              className="h-12 w-full object-contain"
-            />
+            <>
+              <img
+                src={barcode}
+                alt="Código de barras"
+                className="h-12 w-full object-contain"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                {selectedMaterial?.codigo || "Código no disponible"}
+              </p>
+            </>
           ) : (
             <p className="text-xs text-gray-400">
               Código de barras no generado

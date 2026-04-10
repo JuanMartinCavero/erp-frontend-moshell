@@ -1,7 +1,7 @@
 // AGREGADO: Modal para crear orden de compra
 import React, { useState } from "react";
 import { X, Plus, Trash2 } from "lucide-react";
-import axiosClient from "../../erp-frontend-moshell/services/axiosClient";
+import axiosClient from "../services/axiosClient";
 
 export function OrdenCompraModal({ onClose, onSuccess }) {
   const [orden, setOrden] = useState({
