@@ -1,18 +1,42 @@
+// MODIFICADO: Tabla dinámica con datos del backend
+import React from "react";
+import axiosClient from "../../../services/axiosClient";
+
 const ESTADO_STYLES = {
-  Pendiente:        "bg-amber-100 text-amber-700",
-  "Recibido parcial":"bg-blue-100 text-blue-700",
-  Completado:       "bg-green-100 text-green-700",
-  Cancelado:        "bg-gray-100 text-gray-500",
-}
+  pendiente: "bg-amber-100 text-amber-700",
+  aprobada: "bg-blue-100 text-blue-700",
+  recibida: "bg-green-100 text-green-700",
+  anulada: "bg-gray-100 text-gray-500",
+};
 
-const ordenes = [
-  { id: "OC-2024-001", proveedor: "Textiles del Sur",  insumos: "Hilo Algodón, Poliéster", monto: "€1,250.00", estado: "Pendiente",         entrega: "15/10/2023" },
-  { id: "OC-2024-002", proveedor: "Fibras Globales",   insumos: "Elastano, Lycra",          monto: "€3,400.00", estado: "Recibido parcial",  entrega: "12/10/2023" },
-  { id: "OC-2024-003", proveedor: "Telas & Avíos",     insumos: "Botones, Cremalleras",     monto: "€850.00",   estado: "Completado",        entrega: "10/10/2023" },
-  { id: "OC-2024-004", proveedor: "Hilos Premium",     insumos: "Hilo 30/1 Ne",             monto: "€2,100.00", estado: "Cancelado",         entrega: "08/10/2023" },
-]
+export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
+  
+  // AGREGADO: Actualizar estado de una orden
+  const handleUpdateEstado = async (id, nuevoEstado) => {
+    try {
+      await axiosClient.patch(`/ordenes-compra/${id}/estado`, { estado: nuevoEstado });
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error actualizando estado:", error);
+      alert("Error al actualizar estado");
+    }
+  };
 
-export function OrdenesTable() {
+  // AGREGADO: Función segura para formatear montos
+  const formatearMonto = (monto) => {
+    if (!monto && monto !== 0) return '0.00';
+    const numero = typeof monto === 'string' ? parseFloat(monto) : monto;
+    return isNaN(numero) ? '0.00' : numero.toFixed(2);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-8 text-center">
+        Cargando órdenes...
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -29,26 +53,63 @@ export function OrdenesTable() {
               <th className="px-6 py-3">Monto Total</th>
               <th className="px-6 py-3">Estado</th>
               <th className="px-6 py-3">Entrega Est.</th>
+              <th className="px-6 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {ordenes.map((orden) => (
-              <tr key={orden.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-blue-600 font-medium text-xs">{orden.id}</td>
-                <td className="px-6 py-4 text-gray-800 font-medium">{orden.proveedor}</td>
-                <td className="px-6 py-4 text-gray-500">{orden.insumos}</td>
-                <td className="px-6 py-4 font-semibold text-gray-900">{orden.monto}</td>
-                <td className="px-6 py-4">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ESTADO_STYLES[orden.estado]}`}>
-                    {orden.estado}
-                  </span>
+            {ordenes.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-8 text-center text-gray-400">
+                  No hay órdenes de compra registradas
                 </td>
-                <td className="px-6 py-4 text-gray-500">{orden.entrega}</td>
               </tr>
-            ))}
+            ) : (
+              ordenes.map((orden) => {
+                // Calcular total de forma segura
+                let montoTotal = 0;
+                if (orden.detalles && Array.isArray(orden.detalles)) {
+                  montoTotal = orden.detalles.reduce((sum, d) => {
+                    const total = d.total || (d.cantidad_conos * d.precio_unitario);
+                    const numTotal = typeof total === 'string' ? parseFloat(total) : total;
+                    return sum + (isNaN(numTotal) ? 0 : numTotal);
+                  }, 0);
+                }
+                
+                return (
+                  <tr key={orden.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-blue-600 font-medium text-xs">{orden.orden_id}</td>
+                    <td className="px-6 py-4 text-gray-800 font-medium">{orden.proveedor_nombre || orden.proveedor?.nombre || '-'}</td>
+                    <td className="px-6 py-4 text-gray-500">
+                      {orden.detalles?.map(d => d.titulo).join(', ') || '-'}
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-gray-900">
+                      {orden.moneda || 'PEN'} {formatearMonto(montoTotal)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ESTADO_STYLES[orden.estado] || 'bg-gray-100'}`}>
+                        {orden.estado || 'pendiente'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">{orden.fecha_entrega || '-'}</td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={orden.estado || 'pendiente'}
+                        onChange={(e) => handleUpdateEstado(orden.id, e.target.value)}
+                        className="text-xs border rounded px-2 py-1"
+                      >
+                        <option value="pendiente">Pendiente</option>
+                        <option value="aprobada">Aprobada</option>
+                        <option value="recibida">Recibida</option>
+                        <option value="anulada">Anulada</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }
