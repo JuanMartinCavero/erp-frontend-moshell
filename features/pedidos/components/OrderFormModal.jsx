@@ -12,6 +12,7 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     fecha_pedido: new Date().toISOString().split("T")[0],
     fecha_entrega: "",
     descripcion: "",
+    estado_pago: "Falta cancelar",
     items: [
       {
         producto: "",
@@ -75,10 +76,13 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     }, 0);
     const igv = Math.round(subtotal * 0.18 * 100) / 100;
     const total = Math.round((subtotal + igv) * 100) / 100;
-    return { subtotal, igv, total };
+
+    const monto_adelanto = Math.round(total * 0.5 * 100) / 100;
+    const saldo = Math.round((total - monto_adelanto) * 100) / 100;
+    return { subtotal, igv, total, monto_adelanto, saldo };
   };
 
-  const { subtotal, igv, total } = calculateTotals();
+  const { subtotal, igv, total, monto_adelanto, saldo } = calculateTotals();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +101,7 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     // Convertir valores para enviar
     const dataToSend = {
       ...formData,
+      estado_pago: formData.estado_pago,
       items: formData.items.map((item) => ({
         ...item,
         cantidad: parseFloat(item.cantidad) || 0,
@@ -151,6 +156,16 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     newItems.splice(index + 1, 0, itemToDuplicate);
 
     setFormData({ ...formData, items: newItems });
+  };
+
+  const getSaldo = () => {
+    const total = calculateTotals().total;
+
+    if (formData.estado_pago === "Cancelado") return 0;
+
+    if (formData.estado_pago === "Canceló 50%") return total * 0.5;
+
+    return total;
   };
 
   if (!isOpen) return null;
@@ -258,6 +273,24 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Estado de Pago
+            </label>
+
+            <select
+              value={formData.estado_pago}
+              onChange={(e) =>
+                setFormData({ ...formData, estado_pago: e.target.value })
+              }
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            >
+              <option value="Falta cancelar">Falta cancelar</option>
+              <option value="Canceló 50%">Canceló 50%</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
           {/* Items Table */}
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -348,6 +381,27 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
                   </button>
                 </div>
               ))}
+            </div>
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
+              <div className="flex justify-between">
+                <span>Total:</span>
+                <span>S/. {total.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Adelanto (50%):</span>
+                <span>S/. {monto_adelanto.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Estado:</span>
+                <span>{formData.estado_pago}</span>
+              </div>
+
+              <div className="flex justify-between font-bold">
+                <span>Saldo:</span>
+                <span>S/. {saldo.toFixed(2)}</span>
+              </div>
             </div>
 
             {/* Totals */}

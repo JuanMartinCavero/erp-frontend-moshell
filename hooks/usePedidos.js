@@ -8,6 +8,8 @@ import {
   getPedidosStats,
   updatePedido,
   deletePedido as deletePedidoApi,
+  updateEstadoPago,
+  registrarPago,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -43,9 +45,6 @@ export default function usePedidos() {
       const res = await createPedido(data);
       await fetchPedidos();
       return res.data;
-    } catch (error) {
-      console.log("Error al crear pedido:", error.response?.data);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -130,6 +129,39 @@ export default function usePedidos() {
     }
   };
 
+  const hookUpdateEstadoPago = async (id, estado_pago) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await updateEstadoPago(id, estado_pago);
+      await fetchPedidos();
+    } catch (error) {
+      setError("Error al actualizar estado de pago");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const hookRegistrarPago = async (id, monto) => {
+    setLoading(true);
+    try {
+      const res = await registrarPago(id, monto);
+
+      setPedidos((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...res.data } : p)),
+      );
+
+      return res.data;
+    } catch (error) {
+      setError("Error al registrar pago");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     pedidos,
     stats,
@@ -145,5 +177,7 @@ export default function usePedidos() {
     fetchStats,
     deletePedido,
     updatePedido: updatePedidoHook,
+    hookUpdateEstadoPago,
+    hookRegistrarPago,
   };
 }

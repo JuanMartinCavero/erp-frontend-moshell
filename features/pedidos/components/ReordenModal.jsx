@@ -1,4 +1,5 @@
 import { useState } from "react";
+import usePedidos from "../../../hooks/usePedidos";
 
 export default function ReordenModal({
   data,
@@ -8,7 +9,13 @@ export default function ReordenModal({
 }) {
   if (!data) return null;
 
+  const { updatePedidoHook } = usePedidos();
+
   const [fechaEntrega, setFechaEntrega] = useState("");
+
+  const [editIndex, setEditIndex] = useState(null);
+  const [items, setItems] = useState(data.items);
+  const [editedItem, setEditedItem] = useState(null);
 
   const handleCrearPedido = async () => {
     try {
@@ -19,7 +26,7 @@ export default function ReordenModal({
         tipo_pedido: data.tipo_pedido,
         fecha_pedido: hoy,
         fecha_entrega: fechaEntrega,
-        items: data.items,
+        items: items,
       };
 
       await addPedido(nuevoPedido);
@@ -32,7 +39,37 @@ export default function ReordenModal({
     }
   };
 
-  const total = data.items.reduce(
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setEditedItem({ ...items[index] });
+  };
+
+  const handleChange = (field, value) => {
+    setEditedItem((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    try {
+      const updatedItems = [...items];
+      updatedItems[editIndex] = editedItem;
+      setItems(updatedItems);
+      await updatePedidoHook(data.id, {
+        ...data,
+        items: updatedItems,
+      });
+
+      setEditIndex(null);
+      setEditedItem(null);
+    } catch (error) {
+      console.log("Error actualizando item", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditIndex(null);
+    setEditedItem(null);
+  };
+  const total = items.reduce(
     (acc, item) => acc + item.precio_unitario * item.cantidad,
     0,
   );
@@ -107,11 +144,12 @@ export default function ReordenModal({
                 <th className="px-3 py-2 text-center">Cantidad</th>
                 <th className="px-3 py-2 text-right">Precio</th>
                 <th className="px-3 py-2 text-right">Subtotal</th>
+                <th className="px-3 py-2 text-center">Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {data.items.map((item, index) => {
+              {items.map((item, index) => {
                 const subtotal = item.precio_unitario * item.cantidad;
 
                 return (
@@ -121,14 +159,49 @@ export default function ReordenModal({
                   >
                     <td className="px-3 py-2 font-medium">{item.producto}</td>
 
-                    <td className="px-3 py-2 text-center">{item.color}</td>
+                    <td className="px-3 py-2 text-center">
+                      {editIndex === index ? (
+                        <input
+                          value={editedItem.color}
+                          onChange={(e) =>
+                            handleChange("color", e.target.value)
+                          }
+                          className="border rounded px-2 py-1 w-20"
+                        />
+                      ) : (
+                        item.color
+                      )}
+                    </td>
 
-                    <td className="px-3 py-2 text-center">{item.talla}</td>
+                    <td className="px-3 py-2 text-center">
+                      {editIndex === index ? (
+                        <input
+                          value={editedItem.talla}
+                          onChange={(e) =>
+                            handleChange("talla", e.target.value)
+                          }
+                          className="border rounded px-2 py-1 w-20"
+                        />
+                      ) : (
+                        item.talla
+                      )}
+                    </td>
 
                     <td className="px-3 py-2 text-center">{item.peso}</td>
 
-                    <td className="px-3 py-2 text-center font-medium">
-                      {item.cantidad}
+                    <td className="px-3 py-2 text-center">
+                      {editIndex === index ? (
+                        <input
+                          type="number"
+                          value={editedItem.cantidad}
+                          onChange={(e) =>
+                            handleChange("cantidad", Number(e.target.value))
+                          }
+                          className="border rounded px-2 py-1 w-16 text-center"
+                        />
+                      ) : (
+                        item.cantidad
+                      )}
                     </td>
 
                     <td className="px-3 py-2 text-right">
@@ -137,6 +210,33 @@ export default function ReordenModal({
 
                     <td className="px-3 py-2 text-right font-semibold">
                       ${subtotal}
+                    </td>
+
+                    <td className="px-3 py-2 text-center flex justify-center gap-2">
+                      {editIndex === index ? (
+                        <>
+                          <button
+                            onClick={handleSave}
+                            className="text-green-600 hover:text-green-800"
+                          >
+                            ✔
+                          </button>
+
+                          <button
+                            onClick={handleCancel}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            ✖
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleEdit(index)}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          ✏️
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

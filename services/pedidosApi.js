@@ -38,3 +38,11 @@ export const updatePedido = (id, data) => {
 export const deletePedido = (id) => {
   return axiosClient.delete(`/pedidos/${id}`);
 };
+
+export const updateEstadoPago = (id, estado_pago) => {
+  return axiosClient.put(`/pedidos/${id}/estado-pago`, { estado_pago });
+};
+
+export const registrarPago = (id, monto) => {
+  return axiosClient.put(`/pedidos/${id}/pago`, { monto });
+};

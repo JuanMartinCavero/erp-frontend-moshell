@@ -15,6 +15,7 @@ export default function OrderTable({ pedidos, loading , handleReorden, onSelectP
             <th className="px-6 py-4">Fecha Solicitud</th>
             <th className="px-6 py-4">Fecha Comprometida</th>
             <th className="px-6 py-4">Monto Total</th>
+            <th className="px-6 py-4">Estado de Pago</th>
             <th className="px-6 py-4">Estado</th>
             <th className="px-6 py-4 text-right">Acciones</th>
           </tr>
