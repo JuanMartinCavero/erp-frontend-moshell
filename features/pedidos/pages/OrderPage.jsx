@@ -10,6 +10,7 @@ import OrderQuickView from "../../pedidos/components/OrderQuickView";
 import OrderTabs from "../../pedidos/components/OrderTabs";
 import OrderClientTabs from "../../pedidos/components/OrderClientTabs";
 import ReordenModal from "../../pedidos/components/ReordenModal";
+import OrderFormModal from "../../pedidos/components/OrderFormModal";
 
 import usePedidos from "../../../hooks/usePedidos";
 
@@ -34,6 +35,7 @@ export default function OrderPage() {
   const [estadoActivo, setEstadoActivo] = useState("Todos");
 
   const [selectedPedido, setSelectedPedido] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPedidos();
@@ -71,13 +73,14 @@ export default function OrderPage() {
       console.log("Error reorden:", error);
     }
   };
+  const handleAddPedido = async (data) => {
+    await addPedido(data);
+    await fetchPedidos();
+  };
 
   return (
     <div className="p-8 space-y-8">
-      <OrderHeader />
-
-      <OrderStats />
-
+      <OrderHeader onOpenModal={() => setIsModalOpen(true)} /> <OrderStats />
       <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-3">
         <OrderTabs
           filtro={filtro}
@@ -92,7 +95,6 @@ export default function OrderPage() {
           setTipoCliente={setTipoCliente}
         />
       </div>
-
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <OrderFilters
           estadoActivo={estadoActivo}
@@ -117,11 +119,15 @@ export default function OrderPage() {
 
         <OrderPagination pagination={pagination} fetchPedidos={fetchPedidos} />
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <OrderActivity recentPedidos={recentPedidos} />
         <OrderQuickView selectedPedido={selectedPedido} />
       </div>
+      <OrderFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleAddPedido}
+      />
     </div>
   );
 }

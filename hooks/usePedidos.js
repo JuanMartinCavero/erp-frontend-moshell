@@ -45,6 +45,9 @@ export default function usePedidos() {
       const res = await createPedido(data);
       await fetchPedidos();
       return res.data;
+    } catch (error) {
+      setError("Error al crear pedido");
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -134,10 +137,35 @@ export default function usePedidos() {
     setError(null);
 
     try {
+      // Optimistic update
+      setPedidos((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                estado_pago,
+                adelanto_50:
+                  estado_pago === "Cancelado"
+                    ? p.total
+                    : estado_pago === "Canceló 50%"
+                      ? p.total * 0.5
+                      : 0,
+                saldo:
+                  estado_pago === "Cancelado"
+                    ? 0
+                    : estado_pago === "Canceló 50%"
+                      ? p.total * 0.5
+                      : p.total,
+              }
+            : p,
+        ),
+      );
+
       await updateEstadoPago(id, estado_pago);
-      await fetchPedidos();
+      await fetchPedidos(); // Sync
     } catch (error) {
       setError("Error al actualizar estado de pago");
+      await fetchPedidos(); // Revert
       throw error;
     } finally {
       setLoading(false);

@@ -3,8 +3,10 @@ import usePedidos from "../../../hooks/usePedidos";
 
 export default function PagoModal({ isOpen, onClose, pedido }) {
   const [estadoPago, setEstadoPago] = useState("");
-  const [loading, setLoading] = useState(false);
+  // Removed local loading to use hook's global loading
+  const [showSuccess, setShowSuccess] = useState(false);
   const { hookUpdateEstadoPago } = usePedidos();
+  const [successMessage, setSuccessMessage] = useState('');
   useEffect(() => {
     if (pedido) {
       setEstadoPago(pedido.estado_pago);
@@ -40,13 +42,14 @@ export default function PagoModal({ isOpen, onClose, pedido }) {
 
   const handleSubmit = async () => {
     try {
-      setLoading(true);
-
       await hookUpdateEstadoPago(pedido.id, estadoPago);
-
-      onClose();
-    } finally {
-      setLoading(false);
+      
+      setSuccessMessage('¡Estado actualizado! Se refleja en la tabla.');
+      setTimeout(() => {
+        onClose();
+      }, 1200);
+    } catch (error) {
+      alert('Error al actualizar pago');
     }
   };
 
@@ -97,11 +100,10 @@ export default function PagoModal({ isOpen, onClose, pedido }) {
           </button>
 
           <button
-            disabled={loading}
             onClick={handleSubmit}
             className="flex-1 bg-blue-600 text-white rounded py-2"
           >
-            {loading ? "Guardando..." : "Actualizar"}
+            Actualizar
           </button>
         </div>
       </div>

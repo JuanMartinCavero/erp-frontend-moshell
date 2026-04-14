@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import usePedidos from "../../../hooks/usePedidos";
 import useClients from "../../../hooks/useClients";
 
-export default function OrderFormModal({ isOpen, onClose, editData = null }) {
+export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = null }) {
   const { addPedido, loading } = usePedidos();
   const { clientes, fetchClientes, loading: clientsLoading } = useClients();
 
@@ -84,6 +84,8 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
 
   const { subtotal, igv, total, monto_adelanto, saldo } = calculateTotals();
 
+  const [successMessage, setSuccessMessage] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validar que los campos numéricos tengan valores válidos
@@ -111,9 +113,10 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
     };
 
     try {
-      await addPedido(dataToSend);
+      await onSuccess(dataToSend);
       onClose();
     } catch (error) {
+      alert("Error al crear. Inténtalo de nuevo.");
       console.error("Error:", error);
     }
   };
@@ -442,9 +445,14 @@ export default function OrderFormModal({ isOpen, onClose, editData = null }) {
               }
               className="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Guardando..." : "Crear Pedido"}
+              {loading ? "Actualizando lista..." : "Crear Pedido"}
             </button>
           </div>
+          {successMessage && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-center font-semibold mb-4 animate-pulse">
+              {successMessage}
+            </div>
+          )}
         </form>
       </div>
     </div>
