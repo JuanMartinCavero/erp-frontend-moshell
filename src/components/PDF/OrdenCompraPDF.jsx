@@ -1,212 +1,211 @@
-import React from "react";
-import { Document, Page, View, StyleSheet } from "@react-pdf/renderer";
-
-import { Heading } from "../pdfx/heading/pdfx-heading";
-import { Text } from "../pdfx/text/pdfx-text";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "../pdfx/table/pdfx-table";
+import React from 'react';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 30,
     fontSize: 10,
-    fontFamily: "Helvetica",
-    backgroundColor: "#ffffff",
+    fontFamily: 'Helvetica',
   },
-
-  headerBox: {
+  header: {
+    textAlign: 'center',
     marginBottom: 20,
-    paddingBottom: 10,
-    borderBottom: "1 solid #e5e7eb",
   },
-
   title: {
     fontSize: 18,
-    marginBottom: 6,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
-
-  infoGrid: {
-    marginTop: 10,
-    gap: 4,
-  },
-
-  infoRow: {
-    flexDirection: "row",
+  subtitle: {
+    fontSize: 12,
     marginBottom: 3,
   },
-
-  label: {
-    width: 120,
-    fontWeight: 700,
-    color: "#333",
-  },
-
-  value: {
-    flex: 1,
-    color: "#111",
-  },
-
   section: {
     marginBottom: 15,
   },
-
-  totalBox: {
-    marginTop: 15,
-    padding: 10,
-    borderTop: "1 solid #000",
-    textAlign: "right",
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    backgroundColor: '#f0f0f0',
+    padding: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  label: {
+    width: 100,
+    fontWeight: 'bold',
+  },
+  value: {
+    flex: 1,
+  },
+  table: {
+    width: '100%',
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#e0e0e0',
+    padding: 5,
+    fontWeight: 'bold',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    padding: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  colInsumo: { width: '25%' },
+  colCalidad: { width: '20%' },
+  colColor: { width: '15%' },
+  colCantidad: { width: '10%', textAlign: 'right' },
+  colPrecio: { width: '15%', textAlign: 'right' },
+  colTotal: { width: '15%', textAlign: 'right' },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+    padding: 5,
+  },
+  totalText: {
+    fontWeight: 'bold',
+    fontSize: 11,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    right: 30,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#666',
   },
 });
 
-export default function OrdenCompraPDF({ orden }) {
-  console.log("PDF data:", orden);
-
-  const detalles = (orden.detalles || []).map((d) => {
-    const cantidad = Number(d.cantidad_conos || 0);
-    const precio = Number(d.precio_unitario || 0);
-    const total = cantidad * precio;
-
-    return {
-      ...d,
-      cantidad_conos: cantidad,
-      precio_unitario: precio,
-      total,
-    };
+const OrdenCompraPDF = ({ orden }) => {
+  const detalles = orden.detalles || [];
+  
+  let subtotalCalculado = 0;
+  detalles.forEach(detalle => {
+    const cantidad = Number(detalle.cantidad_conos) || 0;
+    const precio = Number(detalle.precio_unitario) || 0;
+    subtotalCalculado += cantidad * precio;
   });
-
-  const montoTotal = detalles.reduce((sum, d) => sum + d.total, 0);
+  
+  const subtotal = subtotalCalculado > 0 ? subtotalCalculado : (Number(orden.subtotal) || 0);
+  const igv = subtotal * 0.18;
+  const total = subtotal + igv;
 
   const formatFecha = (fecha) => {
-    if (!fecha) return "-";
-    return new Date(fecha).toLocaleDateString("es-PE");
+    if (!fecha) return '-';
+    return new Date(fecha).toLocaleDateString('es-PE');
+  };
+
+  const getEstadoColor = (estado) => {
+    switch (estado) {
+      case 'pendiente': return '#d97706';
+      case 'aprobada': return '#2563eb';
+      case 'recibida': return '#16a34a';
+      case 'anulada': return '#6b7280';
+      default: return '#6b7280';
+    }
   };
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* HEADER PRINCIPAL */}
-        <View style={styles.headerBox}>
-          <Heading level={1}>ORDEN DE COMPRA</Heading>        
+        <View style={styles.header}>
+          <Text style={styles.title}>ORDEN DE COMPRA</Text>
+          <Text style={styles.subtitle}>ID: {orden.orden_id}</Text>
+          <Text style={styles.subtitle}>Fecha: {formatFecha(orden.fecha_orden)}</Text>
         </View>
 
-        {/* BLOQUE INFO (tipo tarjeta) */}
         <View style={styles.section}>
-          <View
-            style={{
-              border: "1 solid #e5e7eb",
-              borderRadius: 6,
-              padding: 12,
-            }}
-          >
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>ID Orden</Text>
-              <Text style={styles.value}>{orden.orden_id}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Proveedor</Text>
-              <Text style={styles.value}>{orden.proveedor_nombre}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Contacto</Text>
-              <Text style={styles.value}>{orden.proveedor_contacto}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Celular</Text>
-              <Text style={styles.value}>{orden.proveedor_celular}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>RUC</Text>
-              <Text style={styles.value}>{orden.proveedor_ruc}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Fecha Orden</Text>
-              <Text style={styles.value}>{formatFecha(orden.fecha_orden)}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Fecha Entrega</Text>
-              <Text style={styles.value}>
-                {formatFecha(orden.fecha_entrega)}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Estado</Text>
-              <Text
-                style={{
-                  flex: 1,
-                  color:
-                    orden.estado === "pendiente"
-                      ? "#d97706"
-                      : orden.estado === "aprobada"
-                        ? "#2563eb"
-                        : orden.estado === "recibida"
-                          ? "#16a34a"
-                          : "#6b7280",
-                  fontWeight: 700,
-                }}
-              >
-                {orden.estado}
-              </Text>
-            </View>
+          <Text style={styles.sectionTitle}>DATOS DEL PROVEEDOR</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Proveedor:</Text>
+            <Text style={styles.value}>{orden.proveedor_nombre || '-'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>RUC:</Text>
+            <Text style={styles.value}>{orden.proveedor_ruc || '-'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Contacto:</Text>
+            <Text style={styles.value}>{orden.proveedor_contacto || '-'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Celular:</Text>
+            <Text style={styles.value}>{orden.proveedor_celular || '-'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Fecha Entrega:</Text>
+            <Text style={styles.value}>{formatFecha(orden.fecha_entrega)}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Estado:</Text>
+            <Text style={[styles.value, { color: getEstadoColor(orden.estado), fontWeight: 'bold' }]}>
+              {orden.estado || 'pendiente'}
+            </Text>
           </View>
         </View>
 
-        {/* DETALLE */}
         <View style={styles.section}>
-          <Heading level={2}>Detalle de Insumos</Heading>
-
-          <Table variant="grid">
-            <TableHeader>
-              <TableRow header>
-                <TableCell>Insumo</TableCell>
-                <TableCell>Calidad</TableCell>
-                <TableCell>Color</TableCell>
-                <TableCell align="right">Cant.</TableCell>
-                <TableCell align="right">P. Unit</TableCell>
-                <TableCell align="right">Total</TableCell>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {detalles.map((d, i) => (
-                <TableRow key={i}>
-                  <TableCell>{d.titulo}</TableCell>
-                  <TableCell>{d.calidad}</TableCell>
-                  <TableCell>{d.color}</TableCell>
-                  <TableCell align="right"><Text>{d.cantidad_conos}</Text></TableCell>
-                  <TableCell align="right"><Text>{Number(d.precio_unitario).toFixed(2)}</Text></TableCell>
-                  <TableCell align="right"><Text>{Number(d.total).toFixed(2)}</Text></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Text style={styles.sectionTitle}>DETALLE DE INSUMOS</Text>
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={styles.colInsumo}>Insumo</Text>
+              <Text style={styles.colCalidad}>Calidad</Text>
+              <Text style={styles.colColor}>Color</Text>
+              <Text style={styles.colCantidad}>Cant.</Text>
+              <Text style={styles.colPrecio}>Precio</Text>
+              <Text style={styles.colTotal}>Total</Text>
+            </View>
+            {detalles.map((detalle, idx) => {
+              const cantidad = Number(detalle.cantidad_conos) || 0;
+              const precio = Number(detalle.precio_unitario) || 0;
+              const totalItem = cantidad * precio;
+              return (
+                <View key={idx} style={styles.tableRow}>
+                  <Text style={styles.colInsumo}>{detalle.titulo || '-'}</Text>
+                  <Text style={styles.colCalidad}>{detalle.calidad || '-'}</Text>
+                  <Text style={styles.colColor}>{detalle.color || '-'}</Text>
+                  <Text style={styles.colCantidad}>{cantidad}</Text>
+                  <Text style={styles.colPrecio}>S/ {precio.toFixed(2)}</Text>
+                  <Text style={styles.colTotal}>S/ {totalItem.toFixed(2)}</Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
-        {/* TOTAL FINAL */}
-        <View
-          style={{
-            marginTop: 20,
-            padding: 12,
-            borderTop: "2 solid #000",
-            textAlign: "right",
-          }}
-        >
-          <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-            TOTAL: {orden.moneda || "PEN"} {montoTotal.toFixed(2)}
-          </Text>
+        <View style={styles.totalRow}>
+          <Text style={styles.totalText}>SUBTOTAL: S/ {subtotal.toFixed(2)}</Text>
+        </View>
+        <View style={styles.totalRow}>
+          <Text style={styles.totalText}>IGV (18%): S/ {igv.toFixed(2)}</Text>
+        </View>
+        <View style={styles.totalRow}>
+          <Text style={[styles.totalText, { fontSize: 14 }]}>TOTAL: S/ {total.toFixed(2)}</Text>
+        </View>
+
+        {orden.observaciones && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>OBSERVACIONES</Text>
+            <Text>{orden.observaciones}</Text>
+          </View>
+        )}
+
+        <View style={styles.footer}>
+          <Text>___________________________________</Text>
+          <Text>Firma Autorizada</Text>
         </View>
       </Page>
     </Document>
   );
-}
+};
+
+export default OrdenCompraPDF;
