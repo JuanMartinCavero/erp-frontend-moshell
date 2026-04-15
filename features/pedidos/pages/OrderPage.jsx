@@ -22,6 +22,8 @@ export default function OrderPage() {
     fetchPedidos,
     fetchReorden,
     addPedido,
+    fetchPedidoDetalle,
+    updatePedido,
     loading,
     pagination,
   } = usePedidos();
@@ -36,6 +38,10 @@ export default function OrderPage() {
 
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Estados para el modal de edición
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [pedidoToEdit, setPedidoToEdit] = useState(null);
 
   useEffect(() => {
     fetchPedidos();
@@ -47,32 +53,55 @@ export default function OrderPage() {
     }
   }, [pedidos]);
 
+  // Función para VER pedido (Ojo) - abre modal de edición
+  const handleViewPedido = (pedido) => {
+    setPedidoToEdit(pedido);
+    setEditModalOpen(true);
+  };
+
+  // Función para EDITAR pedido (Lápiz)
+  const handleEditPedido = (pedido) => {
+    setPedidoToEdit(pedido);
+    setEditModalOpen(true);
+  };
+
+  // Función para guardar después de editar
+  const handleEditSuccess = async (data) => {
+    try {
+      await updatePedido(pedidoToEdit.id, data);
+      alert("Pedido actualizado exitosamente");
+      setEditModalOpen(false);
+      setPedidoToEdit(null);
+      fetchPedidos(); // Recargar lista
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+      alert("Error al actualizar el pedido");
+    }
+  };
+
   const pedidosFiltrados = pedidos.filter((p) => {
     if (filtro === "nacionales" && p.es_internacional) return false;
     if (filtro === "internacionales" && !p.es_internacional) return false;
-
     if (tipoCliente === "nuevos" && p.es_recurrente) return false;
     if (tipoCliente === "recurrentes" && !p.es_recurrente) return false;
-
     return true;
   });
 
   const total = pagination ? pagination.total : pedidos.length;
   const nacionales = pedidos.filter((p) => !p.es_internacional).length;
   const internacionales = pedidos.filter((p) => p.es_internacional).length;
-
   const recentPedidos = pedidos.slice(0, 5);
 
   const handleReorden = async (pedido) => {
     try {
       const data = await fetchReorden(pedido.id);
-
       setReordenData(data);
       setOpenReordenModal(true);
     } catch (error) {
       console.log("Error reorden:", error);
     }
   };
+
   const handleAddPedido = async (data) => {
     await addPedido(data);
     await fetchPedidos();
@@ -80,7 +109,9 @@ export default function OrderPage() {
 
   return (
     <div className="p-8 space-y-8">
-      <OrderHeader onOpenModal={() => setIsModalOpen(true)} /> <OrderStats />
+      <OrderHeader onOpenModal={() => setIsModalOpen(true)} /> 
+      <OrderStats />
+      
       <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-3">
         <OrderTabs
           filtro={filtro}
@@ -89,12 +120,12 @@ export default function OrderPage() {
           nacionales={nacionales}
           internacionales={internacionales}
         />
-
         <OrderClientTabs
           tipoCliente={tipoCliente}
           setTipoCliente={setTipoCliente}
         />
       </div>
+      
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <OrderFilters
           estadoActivo={estadoActivo}
@@ -107,7 +138,10 @@ export default function OrderPage() {
           loading={loading}
           handleReorden={handleReorden}
           onSelectPedido={setSelectedPedido}
+          onViewPedido={handleViewPedido}
+          onEditPedido={handleEditPedido}
         />
+
         {openReordenModal && (
           <ReordenModal
             data={reordenData}
@@ -119,14 +153,29 @@ export default function OrderPage() {
 
         <OrderPagination pagination={pagination} fetchPedidos={fetchPedidos} />
       </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <OrderActivity recentPedidos={recentPedidos} />
         <OrderQuickView selectedPedido={selectedPedido} />
       </div>
+      
+      {/* Modal para Nuevo Pedido */}
       <OrderFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleAddPedido}
+        editData={null}
+      />
+
+      {/* Modal para Editar Pedido */}
+      <OrderFormModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setPedidoToEdit(null);
+        }}
+        onSuccess={handleEditSuccess}
+        editData={pedidoToEdit}
       />
     </div>
   );
