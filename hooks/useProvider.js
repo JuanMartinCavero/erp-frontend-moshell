@@ -8,6 +8,7 @@ import {
   updateProvider,
   deleteProvider,
   getProviderStats,
+  getProviderByRuc,
 } from "../services/providerApi";
 
 export const useProvider = () => {
@@ -65,6 +66,19 @@ export const useProvider = () => {
     }
   };
 
+  const fetchProviderByRuc = async (ruc) => {
+    setLoading(true);
+    try {
+      const res = await getProviderByRuc(ruc);
+      return res;
+    } catch (error) {
+      console.error("Error buscando proveedor por RUC", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProviders();
     fetchStats();
@@ -80,5 +94,6 @@ export const useProvider = () => {
     editProvider,
     removeProvider,
     fetchStats,
+    fetchProviderByRuc,
   };
 };

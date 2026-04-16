@@ -116,7 +116,10 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
             <tbody className="divide-y divide-gray-50">
               {ordenes.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-8 text-center text-gray-400">
+                  <td
+                    colSpan="8"
+                    className="px-6 py-8 text-center text-gray-400"
+                  >
                     No hay órdenes de compra registradas
                   </td>
                 </tr>
@@ -143,7 +146,9 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                         {orden.orden_id}
                       </td>
                       <td className="px-6 py-4 text-gray-800 font-medium">
-                        {orden.proveedor_nombre || orden.proveedor?.nombre || "-"}
+                        {orden.proveedor_razon_social ||
+                          orden.proveedor?.razon_social ||
+                          "-"}{" "}
                       </td>
                       <td className="px-6 py-4 text-gray-500">
                         {orden.detalles?.map((d) => d.titulo).join(", ") || "-"}
@@ -183,9 +188,24 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                             className="text-blue-600 hover:text-blue-800 transition-colors"
                             title="Ver orden"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
                             </svg>
                           </button>
 
@@ -195,8 +215,19 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                             className="text-green-600 hover:text-green-800 transition-colors"
                             title="Editar orden"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                              />
                             </svg>
                           </button>
 
@@ -211,8 +242,19 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                                 title="Descargar PDF"
                                 disabled={loading}
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth={2}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                  />
                                 </svg>
                               </button>
                             )}
@@ -234,20 +276,47 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold">Detalle de Orden</h2>
-              <button onClick={() => setShowViewModal(false)} className="p-1 hover:bg-gray-100 rounded">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
             <div className="p-6">
               <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <p><strong>ID Orden:</strong> {selectedOrden.orden_id}</p>
-                <p><strong>Fecha:</strong> {selectedOrden.fecha_orden}</p>
-                <p><strong>Proveedor:</strong> {selectedOrden.proveedor_nombre}</p>
-                <p><strong>RUC:</strong> {selectedOrden.proveedor_ruc || '-'}</p>
-                <p><strong>Contacto:</strong> {selectedOrden.proveedor_contacto || '-'}</p>
-                <p><strong>Estado:</strong> {selectedOrden.estado}</p>
+                <p>
+                  <strong>ID Orden:</strong> {selectedOrden.orden_id}
+                </p>
+                <p>
+                  <strong>Fecha:</strong> {selectedOrden.fecha_orden}
+                </p>
+                <p>
+                  <strong>Proveedor:</strong> {selectedOrden.proveedor_razon_social || selectedOrden.proveedor?.razon_social || "-"}
+                </p>
+                <p>
+                  <strong>RUC:</strong> {selectedOrden.proveedor_ruc || selectedOrden.proveedor?.ruc || "-"}
+                </p>
+                <p>
+                  <strong>Contacto:</strong>{" "}
+                  {selectedOrden.proveedor_contacto || "-"}
+                </p>
+                <p>
+                  <strong>Estado:</strong> {selectedOrden.estado}
+                </p>
               </div>
 
               <h3 className="font-semibold mb-3">Detalle de Insumos</h3>
@@ -264,17 +333,29 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                 </thead>
                 <tbody>
                   {selectedOrden.detalles?.map((detalle, idx) => {
-                    const precioNumero = typeof detalle.precio_unitario === 'string' ? parseFloat(detalle.precio_unitario) : detalle.precio_unitario;
-                    const cantidadNumero = typeof detalle.cantidad_conos === 'string' ? parseFloat(detalle.cantidad_conos) : detalle.cantidad_conos;
+                    const precioNumero =
+                      typeof detalle.precio_unitario === "string"
+                        ? parseFloat(detalle.precio_unitario)
+                        : detalle.precio_unitario;
+                    const cantidadNumero =
+                      typeof detalle.cantidad_conos === "string"
+                        ? parseFloat(detalle.cantidad_conos)
+                        : detalle.cantidad_conos;
                     const total = cantidadNumero * precioNumero;
                     return (
                       <tr key={idx}>
                         <td className="p-2 border">{detalle.calidad}</td>
                         <td className="p-2 border">{detalle.titulo}</td>
                         <td className="p-2 border">{detalle.color}</td>
-                        <td className="p-2 border text-right">{cantidadNumero}</td>
-                        <td className="p-2 border text-right">S/ {precioNumero.toFixed(2)}</td>
-                        <td className="p-2 border text-right font-semibold">S/ {total.toFixed(2)}</td>
+                        <td className="p-2 border text-right">
+                          {cantidadNumero}
+                        </td>
+                        <td className="p-2 border text-right">
+                          S/ {precioNumero.toFixed(2)}
+                        </td>
+                        <td className="p-2 border text-right font-semibold">
+                          S/ {total.toFixed(2)}
+                        </td>
                       </tr>
                     );
                   })}
@@ -288,8 +369,19 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                 >
                   {({ loading }) => (
                     <button className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
                       </svg>
                       {loading ? "Generando..." : "Exportar PDF"}
                     </button>
@@ -312,10 +404,26 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold">Editar Orden: {editOrden.orden_id}</h2>
-              <button onClick={() => setShowEditModal(false)} className="p-1 hover:bg-gray-100 rounded">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <h2 className="text-xl font-bold">
+                Editar Orden: {editOrden.orden_id}
+              </h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -324,55 +432,79 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                 <h3 className="font-semibold mb-3">Datos del Proveedor</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Razón Social</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Razón Social
+                    </label>
                     <input
                       type="text"
-                      value={editOrden.proveedor_nombre || ''}
-                      onChange={(e) => handleEditChange('proveedor_nombre', e.target.value)}
+                      value={editOrden.proveedor_nombre || ""}
+                      onChange={(e) =>
+                        handleEditChange("proveedor_nombre", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">RUC</label>
+                    <label className="block text-sm font-medium mb-1">
+                      RUC
+                    </label>
                     <input
                       type="text"
-                      value={editOrden.proveedor_ruc || ''}
-                      onChange={(e) => handleEditChange('proveedor_ruc', e.target.value)}
+                      value={editOrden.proveedor_ruc || ""}
+                      onChange={(e) =>
+                        handleEditChange("proveedor_ruc", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Contacto</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Contacto
+                    </label>
                     <input
                       type="text"
-                      value={editOrden.proveedor_contacto || ''}
-                      onChange={(e) => handleEditChange('proveedor_contacto', e.target.value)}
+                      value={editOrden.proveedor_contacto || ""}
+                      onChange={(e) =>
+                        handleEditChange("proveedor_contacto", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Celular</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Celular
+                    </label>
                     <input
                       type="text"
-                      value={editOrden.proveedor_celular || ''}
-                      onChange={(e) => handleEditChange('proveedor_celular', e.target.value)}
+                      value={editOrden.proveedor_celular || ""}
+                      onChange={(e) =>
+                        handleEditChange("proveedor_celular", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Fecha Entrega</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Fecha Entrega
+                    </label>
                     <input
                       type="date"
-                      value={editOrden.fecha_entrega || ''}
-                      onChange={(e) => handleEditChange('fecha_entrega', e.target.value)}
+                      value={editOrden.fecha_entrega || ""}
+                      onChange={(e) =>
+                        handleEditChange("fecha_entrega", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Estado</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Estado
+                    </label>
                     <select
-                      value={editOrden.estado || 'pendiente'}
-                      onChange={(e) => handleEditChange('estado', e.target.value)}
+                      value={editOrden.estado || "pendiente"}
+                      onChange={(e) =>
+                        handleEditChange("estado", e.target.value)
+                      }
                       className="w-full border rounded px-3 py-2"
                     >
                       <option value="pendiente">Pendiente</option>
@@ -404,7 +536,13 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                             <input
                               type="text"
                               value={detalle.calidad}
-                              onChange={(e) => handleEditDetalleChange(idx, 'calidad', e.target.value)}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "calidad",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full border rounded px-2 py-1 text-sm"
                             />
                           </td>
@@ -412,35 +550,59 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                             <input
                               type="text"
                               value={detalle.titulo}
-                              onChange={(e) => handleEditDetalleChange(idx, 'titulo', e.target.value)}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "titulo",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full border rounded px-2 py-1 text-sm"
                             />
-                           </td>
+                          </td>
                           <td className="p-2 border">
                             <input
                               type="text"
                               value={detalle.color}
-                              onChange={(e) => handleEditDetalleChange(idx, 'color', e.target.value)}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "color",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full border rounded px-2 py-1 text-sm"
                             />
-                           </td>
+                          </td>
                           <td className="p-2 border">
                             <input
                               type="number"
                               value={detalle.cantidad_conos}
-                              onChange={(e) => handleEditDetalleChange(idx, 'cantidad_conos', parseInt(e.target.value))}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "cantidad_conos",
+                                  parseInt(e.target.value),
+                                )
+                              }
                               className="w-full border rounded px-2 py-1 text-sm text-right"
                             />
-                           </td>
+                          </td>
                           <td className="p-2 border">
                             <input
                               type="number"
                               step="0.01"
                               value={detalle.precio_unitario}
-                              onChange={(e) => handleEditDetalleChange(idx, 'precio_unitario', parseFloat(e.target.value))}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "precio_unitario",
+                                  parseFloat(e.target.value),
+                                )
+                              }
                               className="w-full border rounded px-2 py-1 text-sm text-right"
                             />
-                           </td>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -460,7 +622,7 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                   disabled={editLoading}
                   className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
-                  {editLoading ? 'Guardando...' : 'Guardar Cambios'}
+                  {editLoading ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>
             </div>

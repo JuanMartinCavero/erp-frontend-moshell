@@ -29,3 +29,8 @@ export const getProviderStats = async () => {
   const res = await axiosClient.get("/proveedores/stats");
   return res.data;
 };
+
+export const getProviderByRuc = async (ruc) => {
+  const res = await axiosClient.get(`/proveedores/ruc/${ruc}`);
+  return res.data;
+};

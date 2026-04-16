@@ -1,11 +1,37 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useProvider } from "../../../hooks/useProvider";
 
 export default function ModalProvider({ isOpen, onClose, onSave }) {
+  const { fetchProviderByRuc } = useProvider();
+  const [loadingRuc, setLoadingRuc] = useState(false);
+
+  const handleSearchRuc = async () => {
+    if (!form.ruc) return;
+    setLoadingRuc(true);
+    try {
+      const res = await fetchProviderByRuc(form.ruc);
+      if (!res?.success || !res?.data) {
+        alert("RUC no encontrado");
+        return;
+      }
+      const data = res.data;
+      setForm((prev) => ({
+        ...prev,
+        razon_social: data.razonSocial ?? "",
+        direccion: data.direccion ?? data.direccionCompleta ?? "",
+      }));
+    } catch (error) {
+      console.error("Error buscando RUC", error);
+      alert("Error consultando RUC");
+    } finally {
+      setLoadingRuc(false);
+    }
+  };
+
   const [form, setForm] = useState({
     ruc: "",
     razon_social: "",
-    nombre_comercial: "",
     telefono: "",
     email: "",
     direccion: "",
@@ -25,7 +51,6 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
     setForm({
       ruc: "",
       razon_social: "",
-      nombre_comercial: "",
       telefono: "",
       email: "",
       direccion: "",
@@ -50,15 +75,26 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="ruc"
-            placeholder="RUC"
-            value={form.ruc}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 dark:bg-slate-800"
-            required
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="ruc"
+              placeholder="RUC"
+              value={form.ruc}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 dark:bg-slate-800"
+              required
+            />
+
+            <button
+              type="button"
+              onClick={handleSearchRuc}
+              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              disabled={loadingRuc}
+            >
+              {loadingRuc ? "..." : "Buscar"}
+            </button>
+          </div>
 
           <input
             type="text"
@@ -68,16 +104,17 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
             onChange={handleChange}
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
             required
+            disabled
           />
 
-          <input
+          {/* <input
             type="text"
             name="nombre_comercial"
             placeholder="Nombre Comercial"
             value={form.nombre_comercial}
             onChange={handleChange}
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
-          />
+          /> */}
 
           <input
             type="text"
@@ -112,6 +149,7 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
             value={form.direccion}
             onChange={handleChange}
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
+            disabled
           />
 
           {/* Botones */}

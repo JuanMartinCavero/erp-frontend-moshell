@@ -1,19 +1,19 @@
-import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import React from "react";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 10,
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
   },
   header: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 20,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   subtitle: {
@@ -25,92 +25,99 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     padding: 4,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 4,
   },
   label: {
     width: 100,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   value: {
     flex: 1,
   },
   table: {
-    width: '100%',
+    width: "100%",
     marginTop: 10,
     marginBottom: 15,
   },
   tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#e0e0e0',
+    flexDirection: "row",
+    backgroundColor: "#e0e0e0",
     padding: 5,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 5,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
-  colInsumo: { width: '25%' },
-  colCalidad: { width: '20%' },
-  colColor: { width: '15%' },
-  colCantidad: { width: '10%', textAlign: 'right' },
-  colPrecio: { width: '15%', textAlign: 'right' },
-  colTotal: { width: '15%', textAlign: 'right' },
+  colInsumo: { width: "25%" },
+  colCalidad: { width: "20%" },
+  colColor: { width: "15%" },
+  colCantidad: { width: "10%", textAlign: "right" },
+  colPrecio: { width: "15%", textAlign: "right" },
+  colTotal: { width: "15%", textAlign: "right" },
   totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginTop: 10,
     padding: 5,
   },
   totalText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 11,
   },
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 30,
     left: 30,
     right: 30,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 8,
-    color: '#666',
+    color: "#666",
   },
 });
 
 const OrdenCompraPDF = ({ orden }) => {
+  console.log("ORDEN COMPLETA PDF:", orden);
   const detalles = orden.detalles || [];
-  
+
   let subtotalCalculado = 0;
-  detalles.forEach(detalle => {
+  detalles.forEach((detalle) => {
     const cantidad = Number(detalle.cantidad_conos) || 0;
     const precio = Number(detalle.precio_unitario) || 0;
     subtotalCalculado += cantidad * precio;
   });
-  
-  const subtotal = subtotalCalculado > 0 ? subtotalCalculado : (Number(orden.subtotal) || 0);
+
+  const subtotal =
+    subtotalCalculado > 0 ? subtotalCalculado : Number(orden.subtotal) || 0;
   const igv = subtotal * 0.18;
   const total = subtotal + igv;
 
   const formatFecha = (fecha) => {
-    if (!fecha) return '-';
-    return new Date(fecha).toLocaleDateString('es-PE');
+    if (!fecha) return "-";
+    return new Date(fecha).toLocaleDateString("es-PE");
   };
 
   const getEstadoColor = (estado) => {
     switch (estado) {
-      case 'pendiente': return '#d97706';
-      case 'aprobada': return '#2563eb';
-      case 'recibida': return '#16a34a';
-      case 'anulada': return '#6b7280';
-      default: return '#6b7280';
+      case "pendiente":
+        return "#d97706";
+      case "aprobada":
+        return "#2563eb";
+      case "recibida":
+        return "#16a34a";
+      case "anulada":
+        return "#6b7280";
+      default:
+        return "#6b7280";
     }
   };
 
@@ -120,26 +127,30 @@ const OrdenCompraPDF = ({ orden }) => {
         <View style={styles.header}>
           <Text style={styles.title}>ORDEN DE COMPRA</Text>
           <Text style={styles.subtitle}>ID: {orden.orden_id}</Text>
-          <Text style={styles.subtitle}>Fecha: {formatFecha(orden.fecha_orden)}</Text>
+          <Text style={styles.subtitle}>
+            Fecha: {formatFecha(orden.fecha_orden)}
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>DATOS DEL PROVEEDOR</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Proveedor:</Text>
-            <Text style={styles.value}>{orden.proveedor_nombre || '-'}</Text>
+            <Text style={styles.value}>
+              {orden.proveedor?.razon_social || "-"}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>RUC:</Text>
-            <Text style={styles.value}>{orden.proveedor_ruc || '-'}</Text>
+            <Text style={styles.value}>{orden.proveedor?.ruc || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Contacto:</Text>
-            <Text style={styles.value}>{orden.proveedor_contacto || '-'}</Text>
+            <Text style={styles.value}>{orden.proveedor_contacto || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Celular:</Text>
-            <Text style={styles.value}>{orden.proveedor_celular || '-'}</Text>
+            <Text style={styles.value}>{orden.proveedor?.telefono || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Fecha Entrega:</Text>
@@ -147,8 +158,13 @@ const OrdenCompraPDF = ({ orden }) => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Estado:</Text>
-            <Text style={[styles.value, { color: getEstadoColor(orden.estado), fontWeight: 'bold' }]}>
-              {orden.estado || 'pendiente'}
+            <Text
+              style={[
+                styles.value,
+                { color: getEstadoColor(orden.estado), fontWeight: "bold" },
+              ]}
+            >
+              {orden.estado || "pendiente"}
             </Text>
           </View>
         </View>
@@ -170,9 +186,11 @@ const OrdenCompraPDF = ({ orden }) => {
               const totalItem = cantidad * precio;
               return (
                 <View key={idx} style={styles.tableRow}>
-                  <Text style={styles.colInsumo}>{detalle.titulo || '-'}</Text>
-                  <Text style={styles.colCalidad}>{detalle.calidad || '-'}</Text>
-                  <Text style={styles.colColor}>{detalle.color || '-'}</Text>
+                  <Text style={styles.colInsumo}>{detalle.titulo || "-"}</Text>
+                  <Text style={styles.colCalidad}>
+                    {detalle.calidad || "-"}
+                  </Text>
+                  <Text style={styles.colColor}>{detalle.color || "-"}</Text>
                   <Text style={styles.colCantidad}>{cantidad}</Text>
                   <Text style={styles.colPrecio}>S/ {precio.toFixed(2)}</Text>
                   <Text style={styles.colTotal}>S/ {totalItem.toFixed(2)}</Text>
@@ -183,13 +201,17 @@ const OrdenCompraPDF = ({ orden }) => {
         </View>
 
         <View style={styles.totalRow}>
-          <Text style={styles.totalText}>SUBTOTAL: S/ {subtotal.toFixed(2)}</Text>
+          <Text style={styles.totalText}>
+            SUBTOTAL: S/ {subtotal.toFixed(2)}
+          </Text>
         </View>
         <View style={styles.totalRow}>
           <Text style={styles.totalText}>IGV (18%): S/ {igv.toFixed(2)}</Text>
         </View>
         <View style={styles.totalRow}>
-          <Text style={[styles.totalText, { fontSize: 14 }]}>TOTAL: S/ {total.toFixed(2)}</Text>
+          <Text style={[styles.totalText, { fontSize: 14 }]}>
+            TOTAL: S/ {total.toFixed(2)}
+          </Text>
         </View>
 
         {orden.observaciones && (
