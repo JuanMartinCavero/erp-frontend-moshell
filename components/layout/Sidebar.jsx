@@ -13,8 +13,10 @@ import {
   ShoppingBasket,
   Barcode,
   FileText,  // ← Agregado para Ficha Técnica
-  ShoppingBag   // ← Agrega este ícono para Compras
+  ShoppingBag,   // ← Agrega este ícono para Compras
+  Van
 } from "lucide-react";
+
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -87,6 +89,13 @@ const Sidebar = () => {
       name: "Clientes",
       path: "/admin/clients",
       icon: <CircleUserRound className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["client.manage"],
+      minRoleLevel: 12,
+    },
+        {
+      name: "Proveedores",
+      path: "/admin/providers",
+      icon: <Van className="w-[18px] h-[18px]" />,
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     },

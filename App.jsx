@@ -14,6 +14,7 @@ import { Compras } from "./features/purchasing/Compras";//compras de insumos o m
 import  QualityControl  from "./features/quality/QualityControl";
 import Pipeline from "./features/production/production";
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
+import ProviderPage from "./features/providers/pages/ProviderPage"; // Proveedores
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -45,6 +46,7 @@ function App() {
         <Route path="/FichaTecnica" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
+        <Route path="/admin/providers" element={<ProviderPage />} /> {/* Proveedores */}
       </Route>
     </Routes>
   );
