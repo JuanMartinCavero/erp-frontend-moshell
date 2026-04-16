@@ -1,6 +1,13 @@
 import OrderRow from "./OrderRow";
 
-export default function OrderTable({ pedidos, loading , handleReorden, onSelectPedido}) {
+export default function OrderTable({ 
+  pedidos, 
+  loading, 
+  handleReorden, 
+  onSelectPedido,
+  onViewPedido,
+  onEditPedido,
+}) {
   if (loading) {
     return <p className="p-6">Cargando pedidos...</p>;
   }
@@ -23,7 +30,14 @@ export default function OrderTable({ pedidos, loading , handleReorden, onSelectP
 
         <tbody className="divide-y divide-slate-200 dark:divide-primary/10 text-sm">
           {pedidos.map((pedido, i) => (
-            <OrderRow key={i} pedido={pedido} handleReorden={handleReorden} onSelectPedido={onSelectPedido}/>
+            <OrderRow 
+              key={i} 
+              pedido={pedido} 
+              handleReorden={handleReorden} 
+              onSelectPedido={onSelectPedido}
+              onViewPedido={onViewPedido}
+              onEditPedido={onEditPedido}
+            />
           ))}
         </tbody>
       </table>

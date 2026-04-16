@@ -3,7 +3,7 @@ import usePedidos from "../../../hooks/usePedidos";
 import useClients from "../../../hooks/useClients";
 
 export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = null }) {
-  const { addPedido, loading } = usePedidos();
+  const { addPedido, updatePedido, loading } = usePedidos();
   const { clientes, fetchClientes, loading: clientsLoading } = useClients();
 
   const [formData, setFormData] = useState({
@@ -29,30 +29,41 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
     if (isOpen) {
       fetchClientes();
       if (editData) {
+        // Cargar datos para edición
         setFormData({
-          cliente_id: editData.cliente_id,
-          tipo_pedido: editData.tipo_pedido,
-          fecha_pedido: editData.fecha_pedido,
-          fecha_entrega: editData.fecha_entrega,
+          cliente_id: editData.cliente_id || editData.cliente?.id || "",
+          tipo_pedido: editData.tipo_pedido || "Producción",
+          fecha_pedido: editData.fecha_pedido || new Date().toISOString().split("T")[0],
+          fecha_entrega: editData.fecha_entrega || "",
           descripcion: editData.descripcion || "",
-          items: editData.items || [
-            {
-              producto: "",
-              talla: "",
-              color: "",
-              cantidad: "",
-              precio_unitario: "",
-              peso: "",
-            },
-          ],
+          estado_pago: editData.estado_pago || "Falta cancelar",
+          items: editData.items && editData.items.length > 0 
+            ? editData.items.map(item => ({
+                producto: item.producto || "",
+                talla: item.talla || "",
+                color: item.color || "",
+                cantidad: item.cantidad?.toString() || "",
+                precio_unitario: item.precio_unitario?.toString() || "",
+                peso: item.peso?.toString() || "",
+              }))
+            : [{
+                producto: "",
+                talla: "",
+                color: "",
+                cantidad: "",
+                precio_unitario: "",
+                peso: "",
+              }],
         });
       } else {
+        // Reset para nuevo pedido
         setFormData({
           cliente_id: "",
           tipo_pedido: "Producción",
           fecha_pedido: new Date().toISOString().split("T")[0],
           fecha_entrega: "",
           descripcion: "",
+          estado_pago: "Falta cancelar",
           items: [
             {
               producto: "",
@@ -84,11 +95,9 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
 
   const { subtotal, igv, total, monto_adelanto, saldo } = calculateTotals();
 
-  const [successMessage, setSuccessMessage] = useState("");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validar que los campos numéricos tengan valores válidos
+    
     const itemsValid = formData.items.every((item) => {
       const cantidad = parseFloat(item.cantidad);
       const precio = parseFloat(item.precio_unitario);
@@ -100,7 +109,6 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
       return;
     }
 
-    // Convertir valores para enviar
     const dataToSend = {
       ...formData,
       estado_pago: formData.estado_pago,
@@ -113,10 +121,17 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
     };
 
     try {
-      await onSuccess(dataToSend);
+      if (editData) {
+        // Si es edición, llamar a updatePedido
+        await updatePedido(editData.id, dataToSend);
+        alert("Pedido actualizado exitosamente");
+      } else {
+        // Si es nuevo, llamar a addPedido
+        await onSuccess(dataToSend);
+      }
       onClose();
     } catch (error) {
-      alert("Error al crear. Inténtalo de nuevo.");
+      alert("Error al guardar. Inténtalo de nuevo.");
       console.error("Error:", error);
     }
   };
@@ -151,24 +166,11 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
     setFormData({ ...formData, items: newItems });
   };
 
-  // Función para duplicar un producto con diferentes talla/color
   const duplicateItem = (index) => {
     const itemToDuplicate = { ...formData.items[index] };
-
     const newItems = [...formData.items];
     newItems.splice(index + 1, 0, itemToDuplicate);
-
     setFormData({ ...formData, items: newItems });
-  };
-
-  const getSaldo = () => {
-    const total = calculateTotals().total;
-
-    if (formData.estado_pago === "Cancelado") return 0;
-
-    if (formData.estado_pago === "Canceló 50%") return total * 0.5;
-
-    return total;
   };
 
   if (!isOpen) return null;
@@ -191,7 +193,6 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Cliente */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Cliente <span className="text-red-500">*</span>
@@ -213,7 +214,6 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
             </select>
           </div>
 
-          {/* Tipo Pedido */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -280,7 +280,6 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Estado de Pago
             </label>
-
             <select
               value={formData.estado_pago}
               onChange={(e) =>
@@ -294,7 +293,6 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
             </select>
           </div>
 
-          {/* Items Table */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <label className="text-lg font-bold text-gray-900">
@@ -313,7 +311,7 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
               {formData.items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex gap-3 p-4 bg-gray-50 rounded-lg items-end"
+                  className="flex gap-3 p-4 bg-gray-50 rounded-lg items-end flex-wrap"
                 >
                   <input
                     type="text"
@@ -322,14 +320,14 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
                     onChange={(e) =>
                       updateItem(index, "producto", e.target.value)
                     }
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    className="flex-1 min-w-[150px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
                   />
                   <input
                     type="text"
-                    placeholder="Talla (S,M,L,XL)"
+                    placeholder="Talla"
                     value={item.talla}
                     onChange={(e) => updateItem(index, "talla", e.target.value)}
-                    className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
+                    className="w-20 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
                     type="text"
@@ -339,17 +337,18 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
                     className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
-                    type="text"
+                    type="number"
                     placeholder="Cantidad"
                     value={item.cantidad}
                     onChange={(e) =>
                       updateItem(index, "cantidad", e.target.value)
                     }
-                    className="w-20 p-3 border border-gray-300 rounded-lg focus:ring-2"
+                    className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2"
                   />
                   <input
-                    type="text"
-                    placeholder="Precio unit."
+                    type="number"
+                    step="0.01"
+                    placeholder="Precio"
                     value={item.precio_unitario}
                     onChange={(e) =>
                       updateItem(index, "precio_unitario", e.target.value)
@@ -358,7 +357,8 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
                   />
                   {formData.tipo_pedido === "Producción" && (
                     <input
-                      type="text"
+                      type="number"
+                      step="0.01"
                       placeholder="Peso (kg)"
                       value={item.peso}
                       onChange={(e) =>
@@ -370,63 +370,44 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
                   <button
                     type="button"
                     onClick={() => duplicateItem(index)}
-                    className="px-3 py-3 text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
-                    title="Duplicar para otra talla/color"
+                    className="px-3 py-3 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                    title="Duplicar"
                   >
                     📋
                   </button>
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    className="px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                    className="px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     ✕
                   </button>
                 </div>
               ))}
             </div>
+
             <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
               <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>S/. {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>IGV (18%):</span>
+                <span>S/. {igv.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg">
                 <span>Total:</span>
                 <span>S/. {total.toFixed(2)}</span>
               </div>
-
               <div className="flex justify-between">
                 <span>Adelanto (50%):</span>
                 <span>S/. {monto_adelanto.toFixed(2)}</span>
               </div>
-
-              <div className="flex justify-between">
-                <span>Estado:</span>
-                <span>{formData.estado_pago}</span>
-              </div>
-
               <div className="flex justify-between font-bold">
                 <span>Saldo:</span>
                 <span>S/. {saldo.toFixed(2)}</span>
               </div>
             </div>
-
-            {/* Totals */}
-            {formData.items.length > 0 &&
-              formData.items.some(
-                (item) => item.cantidad && item.precio_unitario,
-              ) && (
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex justify-between text-lg font-bold text-gray-900">
-                    <span>Subtotal:</span>
-                    <span>S/. {subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-lg">
-                    <span>IGV (18%):</span>
-                    <span>S/. {igv.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-2xl font-black text-primary mt-2">
-                    <span>Total:</span>
-                    <span>S/. {total.toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -445,14 +426,9 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
               }
               className="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Actualizando lista..." : "Crear Pedido"}
+              {loading ? "Guardando..." : editData ? "Actualizar Pedido" : "Crear Pedido"}
             </button>
           </div>
-          {successMessage && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-center font-semibold mb-4 animate-pulse">
-              {successMessage}
-            </div>
-          )}
         </form>
       </div>
     </div>

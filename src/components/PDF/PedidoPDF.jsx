@@ -58,12 +58,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
-  colInsumo: { width: '25%' },
-  colCalidad: { width: '20%' },
+  colProducto: { width: '25%' },
+  colTalla: { width: '10%' },
   colColor: { width: '15%' },
   colCantidad: { width: '10%', textAlign: 'right' },
   colPrecio: { width: '15%', textAlign: 'right' },
   colTotal: { width: '15%', textAlign: 'right' },
+  colPeso: { width: '10%', textAlign: 'right' },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -85,97 +86,77 @@ const styles = StyleSheet.create({
   },
 });
 
-const OrdenCompraPDF = ({ orden }) => {
-  const detalles = orden.detalles || [];
+const PedidoPDF = ({ pedido }) => {
+  // Los detalles pueden venir como 'detalles' o 'items' (para compatibilidad)
+  const detalles = pedido.detalles || pedido.items || [];
   
+  // Calcular subtotal desde los detalles
   let subtotalCalculado = 0;
   detalles.forEach(detalle => {
-    const cantidad = Number(detalle.cantidad_conos) || 0;
+    const cantidad = Number(detalle.cantidad) || 0;
     const precio = Number(detalle.precio_unitario) || 0;
     subtotalCalculado += cantidad * precio;
   });
   
-  const subtotal = subtotalCalculado > 0 ? subtotalCalculado : (Number(orden.subtotal) || 0);
-  const igv = subtotal * 0.18;
-  const total = subtotal + igv;
-
-  const formatFecha = (fecha) => {
-    if (!fecha) return '-';
-    return new Date(fecha).toLocaleDateString('es-PE');
-  };
-
-  const getEstadoColor = (estado) => {
-    switch (estado) {
-      case 'pendiente': return '#d97706';
-      case 'aprobada': return '#2563eb';
-      case 'recibida': return '#16a34a';
-      case 'anulada': return '#6b7280';
-      default: return '#6b7280';
-    }
-  };
+  // Usar el subtotal calculado o el que viene del pedido
+  const subtotal = subtotalCalculado > 0 ? subtotalCalculado : (Number(pedido.subtotal) || Number(pedido.total) || 0);
+  const igv = Number(pedido.igv) || (subtotal * 0.18);
+  const total = Number(pedido.total) || (subtotal + igv);
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>ORDEN DE COMPRA</Text>
-          <Text style={styles.subtitle}>ID: {orden.orden_id}</Text>
-          <Text style={styles.subtitle}>Fecha: {formatFecha(orden.fecha_orden)}</Text>
+          <Text style={styles.title}>PEDIDO DE CLIENTE</Text>
+          <Text style={styles.subtitle}>N° {pedido.numero_pedido}</Text>
+          <Text style={styles.subtitle}>Fecha: {pedido.fecha_pedido}</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>DATOS DEL PROVEEDOR</Text>
+          <Text style={styles.sectionTitle}>DATOS DEL CLIENTE</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Proveedor:</Text>
-            <Text style={styles.value}>{orden.proveedor_nombre || '-'}</Text>
+            <Text style={styles.label}>Cliente:</Text>
+            <Text style={styles.value}>{pedido.cliente?.nombre || '-'}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>RUC:</Text>
-            <Text style={styles.value}>{orden.proveedor_ruc || '-'}</Text>
+            <Text style={styles.value}>{pedido.cliente?.identificacion_fiscal || '-'}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Contacto:</Text>
-            <Text style={styles.value}>{orden.proveedor_contacto || '-'}</Text>
+            <Text style={styles.label}>Teléfono:</Text>
+            <Text style={styles.value}>{pedido.cliente?.telefono || '-'}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Celular:</Text>
-            <Text style={styles.value}>{orden.proveedor_celular || '-'}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Fecha Entrega:</Text>
-            <Text style={styles.value}>{formatFecha(orden.fecha_entrega)}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Estado:</Text>
-            <Text style={[styles.value, { color: getEstadoColor(orden.estado), fontWeight: 'bold' }]}>
-              {orden.estado || 'pendiente'}
-            </Text>
+            <Text style={styles.label}>Dirección:</Text>
+            <Text style={styles.value}>{pedido.cliente?.direccion || '-'}</Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>DETALLE DE INSUMOS</Text>
+          <Text style={styles.sectionTitle}>DETALLE DE PRODUCTOS</Text>
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={styles.colInsumo}>Insumo</Text>
-              <Text style={styles.colCalidad}>Calidad</Text>
+              <Text style={styles.colProducto}>Producto</Text>
+              <Text style={styles.colTalla}>Talla</Text>
               <Text style={styles.colColor}>Color</Text>
               <Text style={styles.colCantidad}>Cant.</Text>
               <Text style={styles.colPrecio}>Precio</Text>
               <Text style={styles.colTotal}>Total</Text>
+              <Text style={styles.colPeso}>Peso(kg)</Text>
             </View>
             {detalles.map((detalle, idx) => {
-              const cantidad = Number(detalle.cantidad_conos) || 0;
+              const cantidad = Number(detalle.cantidad) || 0;
               const precio = Number(detalle.precio_unitario) || 0;
               const totalItem = cantidad * precio;
               return (
                 <View key={idx} style={styles.tableRow}>
-                  <Text style={styles.colInsumo}>{detalle.titulo || '-'}</Text>
-                  <Text style={styles.colCalidad}>{detalle.calidad || '-'}</Text>
+                  <Text style={styles.colProducto}>{detalle.producto || '-'}</Text>
+                  <Text style={styles.colTalla}>{detalle.talla || '-'}</Text>
                   <Text style={styles.colColor}>{detalle.color || '-'}</Text>
                   <Text style={styles.colCantidad}>{cantidad}</Text>
                   <Text style={styles.colPrecio}>S/ {precio.toFixed(2)}</Text>
                   <Text style={styles.colTotal}>S/ {totalItem.toFixed(2)}</Text>
+                  <Text style={styles.colPeso}>{detalle.peso || 0}</Text>
                 </View>
               );
             })}
@@ -192,10 +173,10 @@ const OrdenCompraPDF = ({ orden }) => {
           <Text style={[styles.totalText, { fontSize: 14 }]}>TOTAL: S/ {total.toFixed(2)}</Text>
         </View>
 
-        {orden.observaciones && (
+        {pedido.descripcion && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>OBSERVACIONES</Text>
-            <Text>{orden.observaciones}</Text>
+            <Text>{pedido.descripcion}</Text>
           </View>
         )}
 
@@ -208,4 +189,4 @@ const OrdenCompraPDF = ({ orden }) => {
   );
 };
 
-export default OrdenCompraPDF;
+export default PedidoPDF;
