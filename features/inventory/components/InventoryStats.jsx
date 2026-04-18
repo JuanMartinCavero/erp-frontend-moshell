@@ -1,14 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Package, FileText, TrendingUp, AlertTriangle } from "lucide-react";
+import { useMaterial } from "../../../hooks/useMaterial";
 
 export function StatsCards() {
+  const { stats, fetchStats } = useMaterial();
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   const statsCards = [
     {
       icon: Package,
       iconBg: "bg-purple-50",
       iconColor: "text-purple-600",
       title: "Textiles en Stock",
-      value: "142,500",
+      value: stats?.total_materiales ?? 0,
       subtitle: "unidades",
       change: "+7% vs mes pasado",
       changeColor: "text-emerald-600",
@@ -17,8 +24,18 @@ export function StatsCards() {
       icon: FileText,
       iconBg: "bg-amber-50",
       iconColor: "text-amber-600",
-      title: "Órdenes Pedidas",
-      value: "38,210",
+      title: "Órdenes Pedidas Por Compras",
+      value: stats?.total_por_compras ?? 0,
+      subtitle: "órdenes",
+      change: "12 órdenes nuevas",
+      changeColor: "text-gray-600",
+    },
+        {
+      icon: FileText,
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-600",
+      title: "Ingreso por Stock en Inventario",
+      value: stats?.total_por_materiales ?? 0,
       subtitle: "órdenes",
       change: "12 órdenes nuevas",
       changeColor: "text-gray-600",
@@ -46,7 +63,7 @@ export function StatsCards() {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-5 mb-6">
+    <div className="grid grid-cols-5 gap-5 mb-6">
       {statsCards.map((card, index) => (
         <div
           key={index}

@@ -19,3 +19,8 @@ export const generarCodigoDeBarras = async (id) => {
   const response = await axiosClient.get(`/materiales/${id}/barcode`);
   return response.data;
 };
+
+export const statsMateriales = async () => {
+  const response = await axiosClient.get("/materiales/stats");
+  return response.data;
+}

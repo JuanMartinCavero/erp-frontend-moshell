@@ -12,21 +12,18 @@ export default function OrderStats() {
   const data = [
     {
       title: "Total Pedidos (Mes)",
-      value: stats.totalPedidos,
+      value: stats.totalPedidosMes,
       change: stats.cambioPedidos,
-      progress: "75%",
     },
     {
       title: "Pedidos en Producción",
-      value: stats.enProduccion,
+      value: stats.produccion,
       change: stats.cambioProduccion,
-      progress: "45%",
     },
     {
       title: "Pendientes de Pago",
       value: stats.pendientesPago,
       change: stats.cambioPagos,
-      progress: "30%",
     },
     {
       title: "Entrega a Tiempo",

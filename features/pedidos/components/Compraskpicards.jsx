@@ -1,9 +1,16 @@
-import { ShoppingCart, TrendingUp, AlertTriangle, Truck } from "lucide-react"
-import usePurcharse from "../../../hooks/usePurcharse"
+import { useEffect } from "react";
+
+import { ShoppingCart, TrendingUp, AlertTriangle, Truck } from "lucide-react";
+import usePurcharse from "../../../hooks/usePurcharse";
 
 export function ComprasKpiCards() {
+  const { kpis, fetchKpis } = usePurcharse();
 
-  const { kpis } = usePurcharse()
+  useEffect(() => {
+    fetchKpis();
+  }, []);
+
+  if (!kpis) return null;
 
   const kpiCards = [
     {
@@ -15,7 +22,7 @@ export function ComprasKpiCards() {
     },
     {
       label: "Órdenes de Compra",
-      valor: kpis?.ordenes_compra ?? 0,
+      valor: kpis?.ordenes_compra,
       icono: ShoppingCart,
       iconoBg: "bg-blue-50",
       iconoColor: "text-blue-500",
@@ -43,12 +50,12 @@ export function ComprasKpiCards() {
       iconoBg: "bg-cyan-50",
       iconoColor: "text-cyan-500",
     },
-  ]
+  ];
 
   return (
     <div className="grid grid-cols-5 gap-5 mb-8">
       {kpiCards.map((kpi) => {
-        const Icono = kpi.icono
+        const Icono = kpi.icono;
         return (
           <div
             key={kpi.label}
@@ -70,10 +77,9 @@ export function ComprasKpiCards() {
                 </span>
               )}
             </p>
-
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

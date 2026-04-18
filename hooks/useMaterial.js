@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   getMateriales,
   buscarMaterialPorCodigo,
   crearMaterial,
   generarCodigoDeBarras,
+  statsMateriales,
 } from "../services/materialApi";
 
 export const useMaterial = () => {
   const [material, setMaterial] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState(null);
 
   const obtenerMateriales = async () => {
     try {
@@ -61,9 +63,27 @@ export const useMaterial = () => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await statsMateriales();
+      setStats(res);
+    } catch (error) {
+      console.error("Error stats", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return {
     material,
     loading,
+    stats,
+    fetchStats,
     obtenerMateriales,
     buscarMaterial,
     registrarMaterial,
