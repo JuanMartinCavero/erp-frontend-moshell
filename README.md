@@ -1,108 +1,122 @@
 erp-frontend-moshell/
-├── assets/
-│   ├── icons/               (Iconos SVG personalizados como placeholders)
-│   └── images/               (Imágenes, logos, avatares - placeholders)
-│
-├── components/               (Componentes reutilizables y atómicos)
-│   ├── layout/
-│   │   ├── Header.jsx         (Cabecera principal con búsqueda y perfil)
-│   │   ├── HeaderSimple.jsx   (Cabecera simple para páginas de autenticación)
-│   │   ├── Sidebar.jsx        (Barra lateral principal con navegación)
-│   │   ├── SidebarAlt.jsx     (Variante de barra lateral)
-│   │   └── Footer.jsx         (Pie de página simple)
-│   │
-│   ├── navigation/
-│   │   ├── TopNav.jsx         (Navegación superior por pestañas/módulos)
-│   │   └── Breadcrumb.jsx     (Migas de pan)
-│   │
-│   ├── ui/
-│   │   ├── Badge.jsx          (Etiquetas de estado: 'Alto', 'Completado', etc.)
-│   │   ├── Button.jsx          (Botones reutilizables con variantes)
-│   │   ├── Card.jsx            (Contenedor de tarjeta estándar)
-│   │   ├── ChartBar.jsx        (Componente de gráfico de barras - placeholder visual)
-│   │   ├── DataTable.jsx       (Tabla de datos reutilizable)
-│   │   ├── DonutChart.jsx      (Gráfico de anillo - placeholder visual)
-│   │   ├── IconPlaceholder.jsx (Placeholder para iconos SVG)
-│   │   ├── KPI.jsx             (Componente para indicador clave de rendimiento)
-│   │   ├── ProgressBar.jsx     (Barra de progreso)
-│   │   ├── SearchInput.jsx     (Campo de búsqueda con icono)
-│   │   └── StatusIndicator.jsx (Indicador de estado online/offline)
-│   │
-│   └── dashboard/
-│       ├── MachineWorkload.jsx (Tarjeta de carga de trabajo de máquina)
-│       ├── OrdersTable.jsx     (Tabla de pedidos recientes)
-│       ├── ProductionChart.jsx (Gráfico de estado de producción)
-│       ├── KpiCards.jsx        (Conjunto de tarjetas KPI)
-│       └── ActivityTimeline.jsx (Línea de tiempo de actividades)
-│
-├── features/                  (Módulos o funcionalidades específicas de la app)
-│   ├── auth/
-│   │   ├── LoginForm.jsx       (Formulario de inicio de sesión)
-│   │   └── LoginPage.jsx       (Página de login completa)
-│   │
-│   ├── dashboard/
-│   │   ├── DashboardPage.jsx   (Página principal del Dashboard #1)
-│   │   └── DashboardAltPage.jsx (Página principal alternativa #14)
-│   │
-│   ├── production/
-│   │   ├── ProductionPipelinePage.jsx (Página de pipeline de producción #2)
-│   │   ├── ProductionTechSheetPage.jsx (Página de ficha técnica #3)
-│   │   ├── ProductionOrderDetail.jsx (Vista de detalle de orden de producción)
-│   │   └── ProductionWorkOrders.jsx (Componente de órdenes de trabajo)
-│   │
-│   ├── inventory/
-│   │   ├── InventoryPage.jsx          (Página de inventario principal #4)
-│   │   ├── InventoryWarehousePage.jsx (Página de gestión de almacén #11)
-│   │   ├── InventoryScanningPage.jsx  (Página de escaneo de etiquetas #12)
-│   │   └── InventoryMovements.jsx     (Componente de movimientos de inventario)
-│   │
-│   ├── quality/
-│   │   └── QualityControlPage.jsx      (Página de control de calidad #5)
-│   │
-│   ├── operations/
-│   │   └── OperationsDashboardPage.jsx (Panel de operaciones #6)
-│   │
-│   ├── admin/
-│   │   ├── AdminDashboardPage.jsx      (Panel administrativo #8)
-│   │   └── AdminCoordinationPage.jsx   (Página de coordinación administrativa #9)
-│   │
-│   ├── purchasing/
-│   │   ├── PurchasingModulePage.jsx    (Módulo de compras #10)
-│   │   └── SupplierList.jsx            (Componente de lista de proveedores)
-│   │
-│   ├── finance/
-│   │   └── AuditAccountingPage.jsx     (Página de auditoría y contabilidad #13)
-│   │
-│   └── planning/
-│       └── StrategicPanelPage.jsx       (Panel estratégico #7)
-│
-├── layouts/
-│   ├── MainLayout.jsx         (Layout principal con Header y Sidebar)
-│   └── SimpleLayout.jsx       (Layout para login, con HeaderSimple)
-│
-├── pages/                      (Páginas/Secciones principales)
-│   ├── Dashboard.jsx           (Página de Dashboard #1)
-│   ├── ProductionPipeline.jsx  (Página de Pipeline de Producción #2)
-│   ├── ProductionTechSheet.jsx (Página de Ficha Técnica #3)
-│   ├── Inventory.jsx           (Página de Inventario #4)
-│   ├── QualityControl.jsx      (Página de Control de Calidad #5)
-│   ├── Operations.jsx          (Página de Operaciones #6)
-│   ├── StrategicPanel.jsx      (Página de Panel Estratégico #7)
-│   ├── AdminDashboard.jsx      (Página de Dashboard Admin #8)
-│   ├── AdminCoordination.jsx   (Página de Coordinación Admin #9)
-│   ├── Purchasing.jsx          (Página de Compras #10)
-│   ├── Warehouse.jsx           (Página de Almacén #11)
-│   ├── Scanning.jsx            (Página de Escaneo #12)
-│   ├── Audit.jsx               (Página de Auditoría #13)
-│   ├── DashboardAlt.jsx        (Página de Dashboard Alternativo #14)
-│   └── Login.jsx               (Página de Inicio de Sesión)
-│
-├── styles/
-│   └── globals.css             (Estilos globales y variables CSS)
-│
-├── App.jsx                     (Componente principal con configuración de rutas)
-├── main.jsx                    (Punto de entrada de la app)
-└── index.html                  (Archivo HTML principal)
+├── assets/ (Recursos estáticos globales)
+│   ├── icons/ (Archivos SVG para iconos de la interfaz)
+│   └── images/ (Logos, avatares de usuario y placeholders gráficos)
+├── components/ (Componentes transversales reutilizables)
+│   ├── layout/ (Estructura principal de la aplicación)
+│   │   ├── Header.jsx (Barra superior con buscador y perfil)
+│   │   ├── HeaderSimple.jsx (Cabecera minimalista para procesos de login)
+│   │   ├── Sidebar.jsx (Menú de navegación lateral principal)
+│   │   ├── SidebarAlt.jsx (Versión alternativa de la barra lateral)
+│   │   └── Footer.jsx (Pie de página con información del sistema)
+│   ├── navigation/ (Componentes de flujo de usuario)
+│   │   ├── TopNav.jsx (Menú de navegación por pestañas en la parte superior)
+│   │   └── Breadcrumb.jsx (Indicador de ruta jerárquica o "migas de pan")
+│   ├── ui/ (Elementos básicos de la interfaz de usuario - Diseño Atómico)
+│   │   ├── Badge.jsx (Etiquetas de estado: 'Pendiente', 'Completado', etc.)
+│   │   ├── Button.jsx (Botón estandarizado con variantes de estilo)
+│   │   ├── Card.jsx (Contenedor base con bordes y sombreado)
+│   │   ├── ChartBar.jsx (Componente para visualización de gráficos de barras)
+│   │   ├── DataTable.jsx (Tabla de datos con funciones de ordenamiento)
+│   │   ├── DonutChart.jsx (Gráfico circular para representación de porcentajes)
+│   │   ├── IconPlaceholder.jsx (Contenedor para iconos dinámicos)
+│   │   ├── KPI.jsx (Tarjeta de visualización de indicadores clave)
+│   │   ├── ProgressBar.jsx (Barra de carga para procesos o stock)
+│   │   ├── SearchInput.jsx (Campo de entrada optimizado para búsquedas)
+│   │   └── StatusIndicator.jsx (Señal visual de estado de conexión o proceso)
+│   └── dashboard/ (Componentes específicos para paneles de control)
+│       ├── MachineWorkload.jsx (Gráfico de carga de trabajo de maquinaria)
+│       ├── OrdersTable.jsx (Resumen de pedidos recientes para el home)
+│       ├── ProductionChart.jsx (Gráfico de flujo de producción actual)
+│       ├── KpiCards.jsx (Colección de indicadores financieros/operativos)
+│       └── ActivityTimeline.jsx (Línea de tiempo con historial de eventos)
+├── features/ (Módulos funcionales organizados por dominio de negocio)
+│   ├── admin/ (Administración de sistemas)
+│   │   ├── AdminDashboardPage.jsx (Panel de control para administradores)
+│   │   └── AdminCoordinationPage.jsx (Gestión de coordinación interna)
+│   ├── auth/ (Gestión de seguridad y acceso)
+│   │   ├── LoginForm.jsx (Lógica y diseño del formulario de acceso)
+│   │   └── LoginPage.jsx (Página contenedora de inicio de sesión)
+│   ├── barCode-tag/ (Sistema de etiquetado y escaneo)
+│   │   ├── components/
+│   │   │   ├── BarcodeGenerate.jsx (Generador visual de códigos de barras)
+│   │   │   ├── BarcodeScan.jsx (Lógica de captura de cámara para escaneo)
+│   │   │   └── BarcodeTable.jsx (Tabla de resultados y registro de escaneos)
+│   │   └── pages/
+│   │       └── BarcodePage.jsx (Vista principal de escaneo de materiales)
+│   ├── dashboard/ (Vistas principales de métricas)
+│   │   ├── DashboardPage.jsx (Panel principal del sistema)
+│   │   └── DashboardAltPage.jsx (Vista alternativa de indicadores)
+│   ├── FichaTecnica/ (Especificaciones técnicas de productos)
+│   ├── finance/ (Auditoría y finanzas)
+│   │   └── AuditAccountingPage.jsx (Gestión de contabilidad y auditoría)
+│   ├── inventory/ (Gestión de almacenes)
+│   │   ├── InventoryPage.jsx (Vista general de stock)
+│   │   ├── InventoryWarehousePage.jsx (Detalle por almacén físico)
+│   │   ├── InventoryScanningPage.jsx (Interfaz de entrada/salida por código)
+│   │   └── InventoryMovements.jsx (Registro histórico de movimientos)
+│   ├── operations/ (Control operativo)
+│   │   └── OperationsDashboardPage.jsx (Panel de seguimiento de operaciones)
+│   ├── pedidos/ (Gestión de órdenes de venta)
+│   │   ├── components/
+│   │   │   ├── OrderClientTabs.jsx (Filtro por tipo: Nuevo/Recurrente)
+│   │   │   ├── OrderTabs.jsx (Filtro por origen: Nacional/Internacional)
+│   │   │   ├── OrderRow.jsx (Representación de una fila de pedido con acciones)
+│   │   │   └── ModalPago.jsx (Ventana emergente para actualizar pagos)
+│   ├── planning/ (Planificación estratégica)
+│   │   └── StrategicPanelPage.jsx (Panel de planeación de demanda)
+│   ├── production/ (Seguimiento de planta)
+│   │   ├── ProductionPipelinePage.jsx (Visualización Kanban del flujo de producción)
+│   │   ├── ProductionTechSheetPage.jsx (Acceso a fichas técnicas desde planta)
+│   │   ├── ProductionOrderDetail.jsx (Detalle técnico de una orden)
+│   │   └── ProductionWorkOrders.jsx (Listado de órdenes de trabajo)
+│   ├── purchasing/ (Gestión de compras)
+│   │   ├── PurchasingModulePage.jsx (Módulo de órdenes de compra)
+│   │   └── SupplierList.jsx (Directorio de proveedores)
+│   └── quality/ (Control de calidad)
+│       └── QualityControlPage.jsx (Inspección y aprobación de productos)
+├── hooks/ (Hooks personalizados para lógica de estado y negocio)
+│   ├── useAuth.js (Gestión de sesión, login y persistencia de permisos)
+│   ├── useRoles.js (Lógica de administración de roles y permisos del sistema)
+│   ├── usePermissions.js (Verificación de acceso y niveles de usuario)
+│   ├── usePedidos.js (Gestión de datos de pedidos y carga de detalles)
+├── layouts/ (Plantillas de estructura de página)
+│   ├── MainLayout.jsx (Layout con Sidebar y Header para la app principal)
+│   └── SimpleLayout.jsx (Layout básico para Login o páginas externas)
+├── pages/ (Componentes que definen las rutas principales del navegador)
+│   ├── Dashboard.jsx (Ruta principal '/')
+│   ├── Inventory.jsx (Ruta de inventario '/inventory')
+│   ├── Login.jsx (Ruta de acceso '/login')
+│   ├── OrderPage.jsx (Ruta de gestión de pedidos '/pedidos')
+│   ├── ProductionPipeline.jsx (Ruta de producción)
+│   ├── QualityControl.jsx (Ruta de calidad)
+│   ├── Operations.jsx (Ruta de operaciones)
+│   ├── StrategicPanel.jsx (Ruta de planificación)
+│   ├── AdminDashboard.jsx (Ruta de administración)
+│   ├── AdminCoordination.jsx (Ruta de coordinación)
+│   ├── Purchasing.jsx (Ruta de compras)
+│   ├── Warehouse.jsx (Ruta de almacén)
+│   ├── Scanning.jsx (Ruta de escaneo de etiquetas)
+│   ├── Audit.jsx (Ruta de auditoría)
+│   └── DashboardAlt.jsx (Ruta de dashboard alternativo)
+├── services/ (Capa de comunicación con el Backend)
+│   ├── api.js (Configuración base de Axios y endpoints genéricos)
+│   ├── authApi.js (Peticiones relacionadas con seguridad: Login/Logout)
+│   ├── axiosClient.js (Instancia configurada con interceptores de Token)
+│   └── rolesApi.js (Servicios CRUD para la gestión de roles)
+├── src/ (Recursos de código fuente adicionales)
+│   └── components/
+│       └── PDF/ (Lógica de generación de documentos)
+│           └── PedidoPDF.jsx (Plantilla de diseño para exportar pedidos a PDF)
+├── styles/ (Estilos de la aplicación)
+│   └── globals.css (Configuración de Tailwind CSS y estilos globales)
+├── App.jsx (Configuración central de rutas y contextos de React)
+├── main.jsx (Punto de entrada de la aplicación y renderizado)
+├── index.html (Archivo HTML principal sobre el que se monta React)
+├── package.json (Configuración de dependencias y scripts del proyecto)
+├── README.md (Guía de instalación y documentación del desarrollador)
+└── vite.config.js (Configuración del empaquetador Vite y plugins)
+
 
 
 
