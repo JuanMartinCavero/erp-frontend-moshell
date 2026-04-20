@@ -43,7 +43,7 @@ function App() {
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
         <Route path="/quality" element={<QualityControl />} />
         <Route path="/production" element={<Pipeline />} />
-        <Route path="/FichaTecnica" element={<FichaTecnica />} />
+       <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
         <Route path="/admin/providers" element={<ProviderPage />} /> {/* Proveedores */}
