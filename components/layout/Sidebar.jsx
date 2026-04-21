@@ -39,7 +39,7 @@ const Sidebar = () => {
       name: "Ficha Técnica",  // ← Nueva pestaña
       path: "/FichaTecnica",
       icon: <FileText className="w-[18px] h-[18px]" />,
-      requiredPermissions: ["tech-sheet.view", "production.manage"],
+      requiredPermissions: ["tech-sheet.view"],
       minRoleLevel: 8,
     },
     {
@@ -61,7 +61,7 @@ const Sidebar = () => {
       name: "Production",
       path: "/production",
       icon: <Factory className="w-[18px] h-[18px]" />,
-      requiredPermissions: ["production.start", "production.assign-machines", "production.pause", "production.dashboard"],
+      requiredPermissions: ["production.start", "production.assign-machines", "production.pause", "production.dashboard", "production.manage"],
       minRoleLevel: 8,
     },
     {

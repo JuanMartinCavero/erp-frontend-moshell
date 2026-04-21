@@ -13,6 +13,7 @@ import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta i
 import { Compras } from "./features/purchasing/Compras";//compras de insumos o materiasles
 import  QualityControl  from "./features/quality/QualityControl";
 import Pipeline from "./features/production/production";
+import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard'; //ficha tecnica tablero general de fichas tecnicas
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
 import ProviderPage from "./features/providers/pages/ProviderPage"; // Proveedores
 
@@ -43,7 +44,8 @@ function App() {
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
         <Route path="/quality" element={<QualityControl />} />
         <Route path="/production" element={<Pipeline />} />
-       <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
+        <Route path="/FichaTecnica" element={<FichaTecnicaDashboard />} />
+      / <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
         <Route path="/admin/providers" element={<ProviderPage />} /> {/* Proveedores */}
