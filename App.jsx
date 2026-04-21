@@ -16,6 +16,8 @@ import Pipeline from "./features/production/production";
 import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard'; //ficha tecnica tablero general de fichas tecnicas
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
 import ProviderPage from "./features/providers/pages/ProviderPage"; // Proveedores
+import MachineProductPage from "./features/machines/pages/MachineProductPage"; // Página de Producción y Maquinas
+import FinancePage from "./features/finance/pages/FinancePage"; // Página de Finanzas y Pagos
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -49,6 +51,8 @@ function App() {
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
         <Route path="/admin/providers" element={<ProviderPage />} /> {/* Proveedores */}
+        <Route path="/machines" element={<MachineProductPage />} /> {/* Página de Producción y Maquinas */}
+        <Route path="/finance" element={<FinancePage />} /> {/* Página de Finanzas y Pagos */}
       </Route>
     </Routes>
   );
