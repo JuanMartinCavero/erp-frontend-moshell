@@ -6,6 +6,7 @@ import { useMaterial } from "../../../hooks/useMaterial";
 
 export function TabNuevoMaterial({ onClose, onRefresh }) {
   const [form, setForm] = useState({
+    codigo: "",
     calidad: "",
     tipo: "",
     color: "",
@@ -47,6 +48,12 @@ export function TabNuevoMaterial({ onClose, onRefresh }) {
 
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+      <input
+        name="codigo"
+        placeholder="Código"
+        onChange={handleChange}
+        className="input"
+      />
       <input
         name="calidad"
         placeholder="Calidad"

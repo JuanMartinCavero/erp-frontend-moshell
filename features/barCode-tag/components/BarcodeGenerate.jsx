@@ -74,7 +74,7 @@ export default function BarcodeGenerate() {
             >
               {materiales.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.tipo} ({m.color})
+                  {m.calidad}{m.tipo} ({m.color})
                 </option>
               ))}
             </select>

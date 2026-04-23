@@ -4,17 +4,19 @@ import { X, Plus, Trash2 } from "lucide-react";
 import axiosClient from "../services/axiosClient";
 import { useProvider } from "../hooks/useProvider";
 
-export function OrdenCompraModal({ onClose, onSuccess }) {
-  const [orden, setOrden] = useState({
-    proveedor_id: "",
-    proveedor_ruc: "",
-    proveedor_razon_social: "",
-    fecha_orden: new Date().toISOString().split("T")[0],
-    fecha_entrega: "",
-    moneda: "PEN",
-    observaciones: "",
-    detalles: [],
-  });
+export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
+  const [orden, setOrden] = useState(
+    ordenData || {
+      proveedor_id: "",
+      proveedor_ruc: "",
+      proveedor_razon_social: "",
+      fecha_orden: new Date().toISOString().split("T")[0],
+      fecha_entrega: "",
+      moneda: "PEN",
+      observaciones: "",
+      detalles: [],
+    },
+  );
   const { providers } = useProvider();
 
   const handleSelectProveedor = (e) => {
@@ -36,8 +38,9 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
     color: "",
     cantidad_conos: 1,
     precio_unitario: 0,
+    peso_por_cono: 1,
   });
-
+ 
   const agregarDetalle = () => {
     if (!detalleActual.calidad || !detalleActual.titulo) {
       alert("Complete calidad y título");
@@ -55,6 +58,7 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
       color: "",
       cantidad_conos: 1,
       precio_unitario: 0,
+      peso_por_cono: 1,
     });
   };
 
@@ -90,16 +94,16 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
     }
   };
 
-  const calcularTotal = () => {
-    const subtotal = orden.detalles.reduce(
-      (sum, d) => sum + d.cantidad_conos * d.precio_unitario,
-      0,
-    );
-    const igv = subtotal * 0.18;
-    return { subtotal, igv, total: subtotal + igv };
-  };
+  // const calcularTotal = () => {
+  //   const subtotal = orden.detalles.reduce(
+  //     (sum, d) => sum + d.cantidad_conos * d.precio_unitario,
+  //     0,
+  //   );
+  //   const igv = subtotal * 0.18;
+  //   return { subtotal, igv, total: subtotal + igv };
+  // };
 
-  const { subtotal, igv, total } = calcularTotal();
+  // const { subtotal, igv, total } = calcularTotal();
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -189,15 +193,28 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
                 }
                 className="border px-2 py-1 rounded text-sm"
               />
-              <input
+              {/* <input
                 type="number"
                 step="0.01"
-                placeholder="Precio"
+                placeholder="Kg"
                 value={detalleActual.precio_unitario}
                 onChange={(e) =>
                   setDetalleActual({
                     ...detalleActual,
                     precio_unitario: parseFloat(e.target.value),
+                  })
+                }
+                className="border px-2 py-1 rounded text-sm"
+              /> */}
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Peso Kg"
+                value={detalleActual.peso_por_cono}
+                onChange={(e) =>
+                  setDetalleActual({
+                    ...detalleActual,
+                    peso_por_cono: parseFloat(e.target.value),
                   })
                 }
                 className="border px-2 py-1 rounded text-sm"
@@ -222,8 +239,8 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
                       <th className="p-2 border text-left">Título</th>
                       <th className="p-2 border text-left">Color</th>
                       <th className="p-2 border text-right">Conos</th>
-                      <th className="p-2 border text-right">Precio</th>
-                      <th className="p-2 border text-right">Total</th>
+                      <th className="p-2 border text-right">Kg</th>
+                      {/* <th className="p-2 border text-right">Total</th> */}
                       <th className="p-2 border">Acciones</th>
                     </tr>
                   </thead>
@@ -237,14 +254,14 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
                           {detalle.cantidad_conos}
                         </td>
                         <td className="p-2 border text-right">
-                          S/ {detalle.precio_unitario.toFixed(2)}
+                          {detalle.peso_por_cono} Kg
                         </td>
-                        <td className="p-2 border text-right font-semibold">
+                        {/* <td className="p-2 border text-right font-semibold">
                           S/{" "}
                           {(
                             detalle.cantidad_conos * detalle.precio_unitario
                           ).toFixed(2)}
-                        </td>
+                        </td> */}
                         <td className="p-2 border text-center">
                           <button
                             type="button"
@@ -257,7 +274,7 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-gray-50">
+                  {/* <tfoot className="bg-gray-50">
                     <tr>
                       <td colSpan="5" className="p-2 text-right font-bold">
                         SUBTOTAL:
@@ -288,7 +305,7 @@ export function OrdenCompraModal({ onClose, onSuccess }) {
                       </td>
                       <td></td>
                     </tr>
-                  </tfoot>
+                  </tfoot> */}
                 </table>
               </div>
             )}

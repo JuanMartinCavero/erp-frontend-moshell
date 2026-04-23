@@ -11,6 +11,13 @@ const ESTADO_STYLES = {
   anulada: "bg-gray-100 text-gray-500",
 };
 
+const TRANSICIONES_ESTADO = {
+  pendiente: ["aprobada", "anulada"],
+  aprobada: ["recibida"],
+  recibida: [],
+  anulada: [],
+};
+
 export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
   // Estados para modales
   const [showViewModal, setShowViewModal] = useState(false);
@@ -172,12 +179,20 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                           onChange={(e) =>
                             handleUpdateEstado(orden.id, e.target.value)
                           }
-                          className="text-xs border rounded px-2 py-1"
+                          disabled={!TRANSICIONES_ESTADO[orden.estado]?.length}
+                          className={`text-xs border rounded px-2 py-1 ${
+                            !TRANSICIONES_ESTADO[orden.estado]?.length
+                              ? "bg-gray-100 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
-                          <option value="pendiente">Pendiente</option>
-                          <option value="aprobada">Aprobada</option>
-                          <option value="recibida">Recibida</option>
-                          <option value="anulada">Anulada</option>
+                          <option value={orden.estado}>{orden.estado}</option>
+
+                          {TRANSICIONES_ESTADO[orden.estado]?.map((estado) => (
+                            <option key={estado} value={estado}>
+                              {estado}
+                            </option>
+                          ))}
                         </select>
                       </td>
                       <td className="px-6 py-4">
@@ -210,26 +225,28 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                           </button>
 
                           {/* Botón Editar (Lápiz) */}
-                          <button
-                            onClick={() => handleEditOrden(orden)}
-                            className="text-green-600 hover:text-green-800 transition-colors"
-                            title="Editar orden"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={2}
+                          {orden.estado === "pendiente" && (
+                            <button
+                              onClick={() => handleEditOrden(orden)}
+                              className="text-green-600 hover:text-green-800 transition-colors"
+                              title="Editar orden"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                              />
-                            </svg>
-                          </button>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                />
+                              </svg>
+                            </button>
+                          )}
 
                           {/* Botón Descargar PDF (Flecha) */}
                           <PDFDownloadLink
@@ -305,10 +322,16 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                   <strong>Fecha:</strong> {selectedOrden.fecha_orden}
                 </p>
                 <p>
-                  <strong>Proveedor:</strong> {selectedOrden.proveedor_razon_social || selectedOrden.proveedor?.razon_social || "-"}
+                  <strong>Proveedor:</strong>{" "}
+                  {selectedOrden.proveedor_razon_social ||
+                    selectedOrden.proveedor?.razon_social ||
+                    "-"}
                 </p>
                 <p>
-                  <strong>RUC:</strong> {selectedOrden.proveedor_ruc || selectedOrden.proveedor?.ruc || "-"}
+                  <strong>RUC:</strong>{" "}
+                  {selectedOrden.proveedor_ruc ||
+                    selectedOrden.proveedor?.ruc ||
+                    "-"}
                 </p>
                 <p>
                   <strong>Contacto:</strong>{" "}
@@ -433,55 +456,23 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Razón Social
+                      Razón Social: {editOrden.proveedor.razon_social}
                     </label>
-                    <input
-                      type="text"
-                      value={editOrden.proveedor_nombre || ""}
-                      onChange={(e) =>
-                        handleEditChange("proveedor_nombre", e.target.value)
-                      }
-                      className="w-full border rounded px-3 py-2"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      RUC
+                      RUC: {editOrden.proveedor.ruc}
                     </label>
-                    <input
-                      type="text"
-                      value={editOrden.proveedor_ruc || ""}
-                      onChange={(e) =>
-                        handleEditChange("proveedor_ruc", e.target.value)
-                      }
-                      className="w-full border rounded px-3 py-2"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Contacto
+                      Contacto: {editOrden.proveedor.contacto}
                     </label>
-                    <input
-                      type="text"
-                      value={editOrden.proveedor_contacto || ""}
-                      onChange={(e) =>
-                        handleEditChange("proveedor_contacto", e.target.value)
-                      }
-                      className="w-full border rounded px-3 py-2"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Celular
+                      Celular: {editOrden.proveedor.telefono}
                     </label>
-                    <input
-                      type="text"
-                      value={editOrden.proveedor_celular || ""}
-                      onChange={(e) =>
-                        handleEditChange("proveedor_celular", e.target.value)
-                      }
-                      className="w-full border rounded px-3 py-2"
-                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -498,20 +489,8 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Estado
+                      Estado {editOrden.estado}
                     </label>
-                    <select
-                      value={editOrden.estado || "pendiente"}
-                      onChange={(e) =>
-                        handleEditChange("estado", e.target.value)
-                      }
-                      className="w-full border rounded px-3 py-2"
-                    >
-                      <option value="pendiente">Pendiente</option>
-                      <option value="aprobada">Aprobada</option>
-                      <option value="recibida">Recibida</option>
-                      <option value="anulada">Anulada</option>
-                    </select>
                   </div>
                 </div>
               </div>
@@ -525,12 +504,14 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                         <th className="p-2 border">Calidad</th>
                         <th className="p-2 border">Título</th>
                         <th className="p-2 border">Color</th>
-                        <th className="p-2 border text-right">Conos</th>
-                        <th className="p-2 border text-right">Precio</th>
+                        <th className="p-2 border ">Conos (und)</th>
+                        <th className="p-2 border ">Peso Neto</th>
+                        <th className="p-2 border ">Precio Unitario</th>
                       </tr>
                     </thead>
                     <tbody>
                       {editOrden.detalles?.map((detalle, idx) => (
+                        console.log(detalle),
                         <tr key={idx}>
                           <td className="p-2 border">
                             <input
@@ -583,6 +564,21 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                                   idx,
                                   "cantidad_conos",
                                   parseInt(e.target.value),
+                                )
+                              }
+                              className="w-full border rounded px-2 py-1 text-sm text-right"
+                            />
+                          </td>
+                          <td className="p-2 border">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={detalle.peso_por_cono || ""}
+                              onChange={(e) =>
+                                handleEditDetalleChange(
+                                  idx,
+                                  "peso_por_cono",
+                                  parseFloat(e.target.value),
                                 )
                               }
                               className="w-full border rounded px-2 py-1 text-sm text-right"

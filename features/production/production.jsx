@@ -8,7 +8,7 @@ const pipelineData = {
   columns: [
     {
       id: "col-1",
-      title: "ORDER RECEIVED",
+      title: " DISEÑO",
       count: 3,
       cards: [
         {
@@ -31,7 +31,7 @@ const pipelineData = {
     },
     {
       id: "col-2",
-      title: "PRODUCT DEVELOPMENT",
+      title: "TEJIDO",
       count: 2,
       cards: [
         {
@@ -47,7 +47,7 @@ const pipelineData = {
     },
     {
       id: "col-3",
-      title: "MATERIAL PREP",
+      title: "PLATILLADO",
       count: 4,
       cards: [
         {
@@ -60,7 +60,102 @@ const pipelineData = {
           progressColor: "bg-red-500",
         }
       ]
-    }
+    },
+    {
+      id: "col-1",
+      title: "ACABDO",
+      count: 3,
+      cards: [
+        {
+          id: "#TX-2024-001",
+          priority: "HIGH",
+          client: "Nordic Threads S.A.",
+          desc: "Autumn Collection: Merino Blend Knit",
+          progress: 10,
+          progressColor: "bg-[#42526E]",
+        },
+        {
+          id: "#TX-2024-005",
+          priority: "MEDIUM",
+          client: "Global Fashion Retail",
+          desc: "Basic Tee Production (Bulk)",
+          progress: 5,
+          progressColor: "bg-[#42526E]",
+        }
+      ]
+    },
+    {
+      id: "col-2",
+      title: "lAVADO",
+      count: 2,
+      cards: [
+        {
+          id: "#TX-2024-012",
+          priority: "LOW",
+          client: "Urban Wear Inc.",
+          desc: "Prototype Stage: V-Neck Samples",
+          alert: { type: "warning", text: "Pending Tech Sheet Approval" },
+          progress: 25,
+          progressColor: "bg-[#42526E]",
+        }
+      ]
+    },
+    {
+      id: "col-3",
+      title: "VAPORIZADO",
+      count: 4,
+      cards: [
+        {
+          id: "#TX-2024-008",
+          priority: "HIGH",
+          client: "Peak Outfitters",
+          desc: "Dyeing Phase: Forest Green Lots",
+          alert: { type: "destructive", text: "Stock Alert: Pigment Low" },
+          progress: 40,
+          progressColor: "bg-red-500",
+        }
+      ]
+    },
+    {
+      id: "col-1",
+      title: "ETIQUETADO",
+      count: 3,
+      cards: [
+        {
+          id: "#TX-2024-001",
+          priority: "HIGH",
+          client: "Nordic Threads S.A.",
+          desc: "Autumn Collection: Merino Blend Knit",
+          progress: 10,
+          progressColor: "bg-[#42526E]",
+        },
+        {
+          id: "#TX-2024-005",
+          priority: "MEDIUM",
+          client: "Global Fashion Retail",
+          desc: "Basic Tee Production (Bulk)",
+          progress: 5,
+          progressColor: "bg-[#42526E]",
+        }
+      ]
+    },
+    {
+      id: "col-2",
+      title: "ENTREGADO",
+      count: 2,
+      cards: [
+        {
+          id: "#TX-2024-012",
+          priority: "LOW",
+          client: "Urban Wear Inc.",
+          desc: "Prototype Stage: V-Neck Samples",
+          alert: { type: "warning", text: "Pending Tech Sheet Approval" },
+          progress: 25,
+          progressColor: "bg-[#42526E]",
+        }
+      ]
+    },
+    
   ]
 };
 
@@ -90,7 +185,7 @@ export default function Pipeline() {
         </div>
       </div>
 
-      <div className="flex-1 flex gap-6 overflow-x-auto pb-4">
+      <div className="flex-1 flex gap-8 overflow-x-auto pb-4">
         {pipelineData.columns.map((column) => (
           <div key={column.id} className="w-[360px] flex-shrink-0 flex flex-col">
             <div className="flex items-center justify-between mb-4 px-1">

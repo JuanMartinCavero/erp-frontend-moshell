@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
 });
 
 const OrdenCompraPDF = ({ orden }) => {
-  console.log("ORDEN COMPLETA PDF:", orden);
   const detalles = orden.detalles || [];
 
   let subtotalCalculado = 0;

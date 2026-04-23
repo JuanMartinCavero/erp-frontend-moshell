@@ -30,7 +30,7 @@ export function RegisterMaterialModal({ open, onClose, onRefresh }) {
         {/* tabs */}
         <div className="flex border-b">
           <button
-            className={`flex-1 p-3 ${tab === "nuevo" ? "bg-gray-100 font-semibold" : ""}`}
+            className={`flex-1 p-3 ${tab === "nuegrid grid-cols-2 gap-4vo" ? "bg-gray-100 font-semibold" : ""}`}
             onClick={() => setTab("nuevo")}
           >
             Nuevo Material
