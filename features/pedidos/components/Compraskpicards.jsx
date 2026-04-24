@@ -1,11 +1,9 @@
 import { useEffect } from "react";
 
-import { ShoppingCart, TrendingUp, AlertTriangle, Truck } from "lucide-react";
+import { ShoppingCart, TrendingUp, AlertTriangle, Truck , Check,ReceiptText} from "lucide-react";
 import usePurcharse from "../../../hooks/usePurcharse";
-
 export function ComprasKpiCards() {
   const { kpis, fetchKpis } = usePurcharse();
-
   useEffect(() => {
     fetchKpis();
   }, []);
@@ -14,18 +12,32 @@ export function ComprasKpiCards() {
 
   const kpiCards = [
     {
-      label: "Órdenes Pendientes",
-      valor: kpis?.ordenes_pendientes ?? 0,
+      label: "Órdenes de Compra",
+      valor: kpis?.ordenes_compra,
       icono: ShoppingCart,
+      iconoBg: "bg-gray-100",
+      iconoColor: "text-gray-700",
+    },
+    {
+      label: "Órdenes Aprobadas",
+      valor: kpis?.ordenes_aprobadas ?? 0,
+      icono: Check,
       iconoBg: "bg-blue-50",
       iconoColor: "text-blue-500",
     },
     {
-      label: "Órdenes de Compra",
-      valor: kpis?.ordenes_compra,
+      label: "Órdenes Recibidas",
+      valor: kpis?.ordenes_recibidas ?? 0,
+      icono: ReceiptText,
+      iconoBg: "bg-green-100",
+      iconoColor: "text-green-500",
+    },
+    {
+      label: "Órdenes Pendientes",
+      valor: kpis?.ordenes_pendientes ?? 0,
       icono: ShoppingCart,
-      iconoBg: "bg-blue-50",
-      iconoColor: "text-blue-500",
+      iconoBg: "bg-yellow-50",
+      iconoColor: "text-yellow-500",
     },
     {
       label: "Presupuesto Ejecutado (Mes)",
@@ -53,7 +65,7 @@ export function ComprasKpiCards() {
   ];
 
   return (
-    <div className="grid grid-cols-5 gap-5 mb-8">
+    <div className="grid grid-cols-7 gap-5 mb-8">
       {kpiCards.map((kpi) => {
         const Icono = kpi.icono;
         return (

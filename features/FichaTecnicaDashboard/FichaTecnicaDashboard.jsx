@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { useTechSheetsDashboard } from './hooks/useTechSheetsDashboard';
-import DashboardHeader from './components/DashboardHeader';
-import MetricsCards from './components/MetricsCards';
-import FiltersBar from './components/FiltersBar';
-import TechSheetsTable from './components/TechSheetsTable';
-import Pagination from './components/Pagination';
+import React, { useState } from "react";
+import { useTechSheetsDashboard } from "./hooks/useTechSheetsDashboard";
+import DashboardHeader from "./components/DashboardHeader";
+import MetricsCards from "./components/MetricsCards";
+import FiltersBar from "./components/FiltersBar";
+import TechSheetsTable from "./components/TechSheetsTable";
+import Pagination from "./components/Pagination";
 
 export default function FichaTecnicaDashboard() {
-  const [viewMode, setViewMode] = useState('list');
-  
+  const [viewMode, setViewMode] = useState("list");
+
   const {
     techSheets,
     stats,
@@ -45,9 +45,9 @@ export default function FichaTecnicaDashboard() {
   }
 
   return (
-    <main className="ml-64 min-h-screen bg-surface-container-low">
+    <div>
       <DashboardHeader onSearch={handleSearch} />
-      
+
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         {/* Page Header */}
         <div className="flex flex-col gap-1">
@@ -58,10 +58,10 @@ export default function FichaTecnicaDashboard() {
             Gestión de especificaciones industriales y catálogo de productos.
           </p>
         </div>
-        
+
         {/* Metrics Cards */}
         <MetricsCards stats={stats} />
-        
+
         {/* Filters */}
         <FiltersBar
           onSeasonFilter={handleSeasonFilter}
@@ -69,7 +69,7 @@ export default function FichaTecnicaDashboard() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
-        
+
         {/* Data Table */}
         <div className="bg-surface-container rounded-xl border border-outline-variant/10 overflow-hidden">
           <TechSheetsTable
@@ -77,7 +77,7 @@ export default function FichaTecnicaDashboard() {
             onDelete={deleteTechSheet}
             onDuplicate={duplicateTechSheet}
           />
-          
+
           <Pagination
             currentPage={pagination.currentPage}
             total={pagination.total}
@@ -86,6 +86,6 @@ export default function FichaTecnicaDashboard() {
           />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

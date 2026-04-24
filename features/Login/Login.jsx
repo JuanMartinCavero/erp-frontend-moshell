@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   FileCheck2,
   Cpu,
+  Loader,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -20,15 +21,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const userData = await login(email, password);
     if (userData) {
       navigate("/dashboard");
     } else {
       alert("Login failed. Please check your credentials.");
     }
+    setLoading(false);
   };
 
   return (
@@ -152,13 +156,23 @@ const Login = () => {
                 Recordar mi sesión
               </label>
             </div>
-
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              disabled={loading}
+              className={`w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2
+                ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
             >
-              Ingresar
-              <ArrowRight className="h-5 w-5" />
+              {loading ? (
+                <>
+                  <Loader className="h-5 w-5 animate-spin" />
+                  Ingresando...
+                </>
+              ) : (
+                <>
+                  Ingresar
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
             </button>
           </form>
 

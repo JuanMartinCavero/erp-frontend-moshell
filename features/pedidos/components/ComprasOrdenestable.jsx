@@ -350,6 +350,7 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                     <th className="p-2 border">Título</th>
                     <th className="p-2 border">Color</th>
                     <th className="p-2 border text-right">Conos</th>
+                    <th className="p-2 border text-right">Kg</th>
                     <th className="p-2 border text-right">Precio</th>
                     <th className="p-2 border text-right">Total</th>
                   </tr>
@@ -373,6 +374,7 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                         <td className="p-2 border text-right">
                           {cantidadNumero}
                         </td>
+                        <td className="p-2 border">{detalle.peso_por_cono}</td>
                         <td className="p-2 border text-right">
                           S/ {precioNumero.toFixed(2)}
                         </td>
@@ -510,97 +512,101 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {editOrden.detalles?.map((detalle, idx) => (
-                        console.log(detalle),
-                        <tr key={idx}>
-                          <td className="p-2 border">
-                            <input
-                              type="text"
-                              value={detalle.calidad}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "calidad",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm"
-                            />
-                          </td>
-                          <td className="p-2 border">
-                            <input
-                              type="text"
-                              value={detalle.titulo}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "titulo",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm"
-                            />
-                          </td>
-                          <td className="p-2 border">
-                            <input
-                              type="text"
-                              value={detalle.color}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "color",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm"
-                            />
-                          </td>
-                          <td className="p-2 border">
-                            <input
-                              type="number"
-                              value={detalle.cantidad_conos}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "cantidad_conos",
-                                  parseInt(e.target.value),
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm text-right"
-                            />
-                          </td>
-                          <td className="p-2 border">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={detalle.peso_por_cono || ""}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "peso_por_cono",
-                                  parseFloat(e.target.value),
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm text-right"
-                            />
-                          </td>
-                          <td className="p-2 border">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={detalle.precio_unitario}
-                              onChange={(e) =>
-                                handleEditDetalleChange(
-                                  idx,
-                                  "precio_unitario",
-                                  parseFloat(e.target.value),
-                                )
-                              }
-                              className="w-full border rounded px-2 py-1 text-sm text-right"
-                            />
-                          </td>
-                        </tr>
-                      ))}
+                      {editOrden.detalles?.map(
+                        (detalle, idx) => (
+                          console.log(detalle),
+                          (
+                            <tr key={idx}>
+                              <td className="p-2 border">
+                                <input
+                                  type="text"
+                                  value={detalle.calidad}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "calidad",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm"
+                                />
+                              </td>
+                              <td className="p-2 border">
+                                <input
+                                  type="text"
+                                  value={detalle.titulo}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "titulo",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm"
+                                />
+                              </td>
+                              <td className="p-2 border">
+                                <input
+                                  type="text"
+                                  value={detalle.color}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "color",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm"
+                                />
+                              </td>
+                              <td className="p-2 border">
+                                <input
+                                  type="number"
+                                  value={detalle.cantidad_conos}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "cantidad_conos",
+                                      parseInt(e.target.value),
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm text-right"
+                                />
+                              </td>
+                              <td className="p-2 border">
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={detalle.peso_por_cono || ""}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "peso_por_cono",
+                                      parseFloat(e.target.value),
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm text-right"
+                                />
+                              </td>
+                              <td className="p-2 border">
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={detalle.precio_unitario}
+                                  onChange={(e) =>
+                                    handleEditDetalleChange(
+                                      idx,
+                                      "precio_unitario",
+                                      parseFloat(e.target.value),
+                                    )
+                                  }
+                                  className="w-full border rounded px-2 py-1 text-sm text-right"
+                                />
+                              </td>
+                            </tr>
+                          )
+                        ),
+                      )}
                     </tbody>
                   </table>
                 </div>
