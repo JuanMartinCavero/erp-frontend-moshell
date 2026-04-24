@@ -31,7 +31,7 @@ export default function DashboardHeader({ onSearch }) {
           className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-600 transition-all font-semibold text-sm"
         >
           <Plus className="w-4 h-4" />
-          New Sheet
+          Nueva Ficha Técnica Resumen
         </button>
       </div>
     </header>
