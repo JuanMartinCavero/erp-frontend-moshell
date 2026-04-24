@@ -30,6 +30,10 @@ export default function TechSheetsTable({ techSheets, onDelete, onDuplicate }) {
             <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 text-center">
               Última Modificación
             </th>
+            {/* Columna Documento Drive */}
+            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">
+              Documento Drive
+            </th>
             <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 text-right">
               Acciones
             </th>

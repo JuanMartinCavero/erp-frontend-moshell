@@ -23,7 +23,8 @@ export default function NuevaFichaTecnica() {
     knit_type: '',
     estimated_quantity: '',
     estimated_cost: '',
-    pedido_id: ''
+    pedido_id: '',
+    drive_link: '' // Nuevo campo para el enlace de Google Drive de la ficha tecnica
   });
 
   const generarReferencia = () => {
@@ -245,6 +246,22 @@ export default function NuevaFichaTecnica() {
 
             </div>
 
+<div className="col-span-2">
+  <label className="block text-sm font-medium mb-1 text-on-surface">
+    Link de Google Drive (Ficha Técnica Completa)
+  </label>
+  <input 
+    type="url" 
+    name="drive_link" 
+    value={formData.drive_link} 
+    onChange={handleChange} 
+    className="w-full p-2 border rounded bg-surface-container text-on-surface" 
+    placeholder="https://drive.google.com/file/d/.../view"
+  />
+  <p className="text-xs text-slate-500 mt-1">
+    Enlace a la ficha técnica completa en Google Slides (las 8 hojas)
+  </p>
+</div>
             <button type="submit" disabled={loading} className="w-full bg-indigo-500 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-indigo-600">
               <Save className="w-4 h-4" />
               {loading ? 'Creando...' : 'Crear Ficha Técnica'}

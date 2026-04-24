@@ -18,7 +18,8 @@ export default function EditarFichaTecnica() {
     weight: '',
     knit_type: '',
     estimated_quantity: '',
-    estimated_cost: ''
+    estimated_cost: '',
+    drive_link: '' // Nuevo campo para el enlace de Google Drive de la ficha tecnica
   });
 
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function EditarFichaTecnica() {
           weight: techSheet.weight || '',
           knit_type: techSheet.knit_type || '',
           estimated_quantity: techSheet.estimated_quantity || '',
-          estimated_cost: techSheet.estimated_cost || ''
+          estimated_cost: techSheet.estimated_cost || '',
+          drive_link: techSheet.drive_link || '' // Cargar el enlace de Google Drive si existe 
         });
       } catch (error) {
         console.error('Error cargando ficha:', error);
@@ -126,6 +128,22 @@ export default function EditarFichaTecnica() {
                 <input type="number" name="estimated_cost" value={formData.estimated_cost} onChange={handleChange} className="w-full p-2 border rounded bg-surface-container text-on-surface" />
               </div>
             </div>
+            <div className="col-span-2">
+  <label className="block text-sm font-medium mb-1 text-on-surface">
+    Link de Google Drive (Ficha Técnica Completa)
+  </label>
+  <input 
+    type="url" 
+    name="drive_link" 
+    value={formData.drive_link} 
+    onChange={handleChange} 
+    className="w-full p-2 border rounded bg-surface-container text-on-surface" 
+    placeholder="https://drive.google.com/file/d/.../view"
+  />
+  <p className="text-xs text-slate-500 mt-1">
+    Enlace a la ficha técnica completa en Google Slides (las 8 hojas)
+  </p>
+</div>
             <button type="submit" disabled={saving} className="w-full bg-indigo-500 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-indigo-600">
               <Save className="w-4 h-4" />
               {saving ? 'Guardando...' : 'Guardar Cambios'}

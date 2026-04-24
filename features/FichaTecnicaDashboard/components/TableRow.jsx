@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Edit, Copy, Trash2 } from 'lucide-react';
+import { Eye, Edit, Copy, Trash2,ExternalLink } from 'lucide-react';
 
 const statusColors = {
   Aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
@@ -66,6 +66,25 @@ export default function TableRow({ sheet, onDelete, onDuplicate }) {
           {new Date(sheet.updated_at).toLocaleDateString()}
         </span>
       </td>
+
+{/* ← NUEVA COLUMNA: Link de Drive */}
+<td className="px-6 py-4">
+  {sheet.drive_link ? (
+    <a
+      href={sheet.drive_link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors text-sm"
+      title="Ver Ficha Técnica Completa"
+    >
+      <ExternalLink className="w-4 h-4" />
+      Ver Ficha Técnica Completa
+    </a>
+  ) : (
+    <span className="text-slate-500 text-xs">Sin documento</span>
+  )}
+</td>
+
       <td className="px-6 py-4 text-right">
         <div className="flex justify-end gap-2">
           <button
