@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader, AlertCircle } from 'lucide-react';
+import api from '../../services/api'; //
 import { Card, CardContent } from '../../components/ui/Card';
 import { useFichaTecnica } from './hooks/useFichaTecnica';
 import FichaHeader from './components/FichaHeader';
@@ -24,6 +25,20 @@ export default function FichaTecnica() {
     materiales, workflowStatus, updateSpecs,
     sendToProduction, exportPDF
   } = useFichaTecnica(id);
+
+  
+ // ← linkear maquina a asignar al inicio de Ficha tecnica al aprobar
+const updateMachine = async (machineId) => {
+  try {
+    const response = await api.put(`/technical-sheets/${id}/machine`, { machine_id: machineId });
+    if (response.data.success) {
+      window.location.reload(); // ← Recargar toda la página
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.message };
+  }
+};
 
   if (loading) {
     return (
@@ -95,6 +110,7 @@ export default function FichaTecnica() {
               techSheet={techSheet}
               isEditing={isEditing}
               onUpdate={updateSpecs}
+              onUpdateMachine={updateMachine}  // ← actualizar maquina en ficha tecnica
             />
           )}
 
