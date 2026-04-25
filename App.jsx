@@ -20,8 +20,9 @@ import MachineProductPage from "./features/machines/pages/MachineProductPage"; /
 import FinancePage from "./features/finance/pages/FinancePage"; // Página de Finanzas y Pagos
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import NuevaFichaTecnica from './features/FichaTecnicaDashboard/components/NuevaFichaTecnica';
 import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
+import EditarFichaTecnica from './features/FichaTecnicaDashboard/EditarFichaTecnica'; //editar ficha tecnica resumen de cada muestra
 
 function App() {
   return (
@@ -47,6 +48,8 @@ function App() {
         <Route path="/quality" element={<QualityControl />} />
         <Route path="/production" element={<Pipeline />} />
         <Route path="/FichaTecnica" element={<FichaTecnicaDashboard />} />
+        <Route path="/FichaTecnica/nueva" element={<NuevaFichaTecnica />} /> {/* ← crear nueva ficha tecnica resumen solamente */}
+        <Route path="/FichaTecnica/editar/:id" element={<EditarFichaTecnica />} /> {/* ← editar ficha tecnica resumen de cada muestra */}
       / <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
