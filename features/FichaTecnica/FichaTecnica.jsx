@@ -23,7 +23,7 @@ export default function FichaTecnica() {
   const {
     loading, error, techSheet, cliente, pedido,
     materiales, workflowStatus, updateSpecs,
-    sendToProduction, exportPDF
+    sendToProduction, exportPDF,loadTechSheet
   } = useFichaTecnica(id);
 
   
@@ -33,6 +33,21 @@ const updateMachine = async (machineId) => {
     const response = await api.put(`/technical-sheets/${id}/machine`, { machine_id: machineId });
     if (response.data.success) {
       window.location.reload(); // ← Recargar toda la página
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.message };
+  }
+};
+
+
+
+// Asociar pedido a ficha técnica
+const associatePedido = async (pedidoId) => {
+  try {
+    const response = await api.put(`/technical-sheets/${id}/associate-pedido`, { pedido_id: pedidoId });
+    if (response.data.success) {
+      await loadTechSheet(); // Recargar para mostrar el pedido asociado
     }
     return { success: true };
   } catch (err) {
@@ -137,7 +152,11 @@ const updateMachine = async (machineId) => {
             onSendToProduction={sendToProduction}
           />
           <ClientSidebar cliente={cliente} />
-          <OrderSidebar pedido={pedido} estimatedQuantity={techSheet.estimated_quantity} />
+          <OrderSidebar pedido={pedido} 
+  estimatedQuantity={techSheet.estimated_quantity}
+ onUpdatePedido={associatePedido}
+  isEditing={isEditing}  // ← para mostrar el botón editar solo en modo edición 
+/>
         </div>
       </div>
     </div>
