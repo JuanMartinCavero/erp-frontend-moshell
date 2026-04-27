@@ -7,6 +7,7 @@ export default function ModalMachine({
   machine = null,
 }) {
   const [form, setForm] = useState({
+    code: "",
     nombre: "",
     tipo: "",
     is_external: false,
@@ -18,6 +19,7 @@ export default function ModalMachine({
       setForm(machine);
     } else {
       setForm({
+        code: "",
         nombre: "",
         tipo: "",
         is_external: false,
@@ -50,19 +52,16 @@ export default function ModalMachine({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {machine && (
-            <div>
-              <label className="text-sm font-medium text-gray-600">
-                Código
-              </label>
-              <input
-                type="text"
-                value={machine.code}
-                disabled
-                className="w-full border rounded-lg p-2 bg-gray-100 text-gray-500"
-              />
-            </div>
-          )}
+       
+          <input
+            type="text"
+            name="code"
+            placeholder="Codigo de Maquina"
+            value={form.code}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-2"
+            required
+          />
           <input
             type="text"
             name="nombre"

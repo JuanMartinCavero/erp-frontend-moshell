@@ -28,3 +28,13 @@ export const deleteMachine = async (id) => {
   const response = await axiosClient.delete(`/machines/${id}`);
   return response.data;
 };
+
+export const getMachineStats = async () => {
+  const response = await axiosClient.get(`/machines-stats`);
+  return response.data;
+};
+
+export const machinesProduction = async () => {
+  const response = await axiosClient.get(`/machines-production`);
+  return response.data;
+};

@@ -5,11 +5,14 @@ import {
   createMachine,
   updateMachine,
   deleteMachine,
+  machinesProduction,
+  getMachineStats,
 } from "../services/machineApi";
 
 export const useMachines = () => {
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState(null);
 
   // Obtener todas las máquinas
   const fetchMachines = async () => {
@@ -74,6 +77,27 @@ export const useMachines = () => {
     }
   };
 
+  const fetchMachinesProduction = async () => {
+    try {
+      setLoading(true);
+      const data = await machinesProduction();
+      setMachines(data);
+    } catch (error) {
+      console.error("Error cargando cola de producción:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const data = await getMachineStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Error stats", error);
+    }
+  };
+
   useEffect(() => {
     fetchMachines();
   }, []);
@@ -81,10 +105,13 @@ export const useMachines = () => {
   return {
     machines,
     loading,
+    stats,
     fetchMachines,
     fetchMachine,
     addMachine,
     editMachine,
     removeMachine,
+    fetchMachinesProduction,
+    fetchStats,
   };
 };

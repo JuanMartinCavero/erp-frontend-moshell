@@ -15,6 +15,8 @@ export const useFichaTecnica = (id) => {
     client_approval: 'PENDING'
   });
 
+  const [maquina, setMaquina] = useState(null);
+
   const loadTechSheet = useCallback(async () => {
     if (!id) return;
     
@@ -34,6 +36,7 @@ export const useFichaTecnica = (id) => {
         tech_sheet: 'IN_REVIEW',
         client_approval: 'PENDING'
       });
+      setMaquina(data.techSheet?.machine || null);
     } catch (err) {
       console.error('Error:', err);
       setError(err.response?.data?.message || 'Error al cargar');
@@ -93,6 +96,7 @@ export const useFichaTecnica = (id) => {
     pedido,
     materiales,
     workflowStatus,
+    maquina,
     loadTechSheet,
     updateSpecs,
     sendToProduction,
