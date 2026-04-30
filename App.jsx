@@ -12,7 +12,8 @@ import OrdersPage from "./features/pedidos/pages/OrderPage";
 import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta importación
 import { Compras } from "./features/purchasing/Compras";//compras de insumos o materiasles
 import  QualityControl  from "./features/quality/QualityControl";
-import Pipeline from "./features/production/production";
+//import Pipeline from "./features/production/production"; //eran datos hardcodeados
+import { ProductionPipelinePage } from "./features/production";//pipeline con datos reales de backend de dashboard de producción con drag and drop y filtros por prioridad
 import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard'; //ficha tecnica tablero general de fichas tecnicas
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
 import ProviderPage from "./features/providers/pages/ProviderPage"; // Proveedores
@@ -46,7 +47,8 @@ function App() {
         <Route path="admin/orders" element={<OrdersPage />} />
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
         <Route path="/quality" element={<QualityControl />} />
-        <Route path="/production" element={<Pipeline />} />
+        {/*<Route path="/production" element={<Pipeline />} />*/}
+        <Route path="/production" element={<ProductionPipelinePage />} /> {/*produccion dinamica*/}
         <Route path="/FichaTecnica" element={<FichaTecnicaDashboard />} />
         <Route path="/FichaTecnica/nueva" element={<NuevaFichaTecnica />} /> {/* ← crear nueva ficha tecnica resumen solamente */}
         <Route path="/FichaTecnica/editar/:id" element={<EditarFichaTecnica />} /> {/* ← editar ficha tecnica resumen de cada muestra */}
