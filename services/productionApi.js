@@ -3,24 +3,34 @@
 import api from './api';
 
 export const productionApi = {
-    // Obtener pipeline completo (órdenes agrupadas por fase)
+    // Obtener pipeline
     getPipeline: () => api.get('/production/pipeline'),
     
-    // Obtener una orden específica
+    // Órdenes de producción
+    getOrders: () => api.get('/production-orders'),
     getOrder: (id) => api.get(`/production-orders/${id}`),
     
-    // Mover orden a otra fase
-    moveOrderToPhase: (orderId, phaseId) => 
-        api.put(`/production-orders/${orderId}/phase`, { phase_id: phaseId }),
+    createOrder: (data) => api.post('/production-orders', data),
     
-    // Actualizar prioridad de orden
-    updateOrderPriority: (orderId, priority) => 
-        api.put(`/production-orders/${orderId}/priority`, { priority }),
+    updateOrder: (id, data) => api.put(`/production-orders/${id}`, data),
     
-    // Crear orden desde ficha técnica
-    createProductionOrder: (techSheetId, data) => 
-        api.post(`/technical-sheets/${techSheetId}/production-order`, data),
+    updateOrderStatus: (id, status) => api.patch(`/production-orders/${id}/status`, { status }),
     
-    // Obtener estadísticas del pipeline
-    getPipelineStats: () => api.get('/production/pipeline/stats')
+    updateOrderQuality: (id, qualityStatus) => api.patch(`/production-orders/${id}/quality`, { quality_status: qualityStatus }),
+    
+    // Seguimiento por fases
+    updatePhase: (orderId, phaseId, estado) => 
+        api.post(`/production-orders/${orderId}/tracking`, { fases_produccion_id: phaseId, estado }),
+    
+    // Materiales
+    reserveMaterials: (orderId, materials) => 
+        api.post(`/production-orders/${orderId}/reserve-materials`, { materials }),
+    
+    consumeMaterials: (orderId, materials) => 
+        api.post(`/production-orders/${orderId}/consume-materials`, { materials }),
+    
+    // Producción
+    startProduction: (orderId) => api.post(`/production-orders/${orderId}/start`),
+    completeProduction: (orderId, producedQuantity) => 
+        api.post(`/production-orders/${orderId}/complete`, { quantity_produced: producedQuantity }),
 };

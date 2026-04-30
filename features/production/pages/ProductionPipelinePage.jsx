@@ -2,13 +2,9 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
 import { DragDropContext } from '@hello-pangea/dnd';
-
-// ✅ Cambia esta línea: import { useProductionPipeline } from '../hooks/useProductionPipeline';
-// 👇 Por esta:
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import useProductionPipeline from '../hooks/useProductionPipeline';
-
 import PipelineColumn from '../components/PipelineColumn';
 import PipelineFilters from '../components/PipelineFilters';
 import PipelineSkeleton from '../components/PipelineSkeleton';
@@ -16,7 +12,7 @@ import PipelineSkeleton from '../components/PipelineSkeleton';
 export default function ProductionPipelinePage() {
     const navigate = useNavigate();
     const {
-        columns,
+        columns = [],
         stats,
         loading,
         error,
@@ -25,10 +21,10 @@ export default function ProductionPipelinePage() {
         refresh,
         moveOrder,
         filterByPriority
-    } = useProductionPipeline(); // ✅ Esto ya funciona con import default
+    } = useProductionPipeline();
 
     const handleDragEnd = async (result) => {
-        if (!result.destination) return;
+        if (!result?.destination) return;
         
         const { source, destination } = result;
         
@@ -37,8 +33,10 @@ export default function ProductionPipelinePage() {
             return;
         }
         
-        const sourceColumn = columns.find(col => col.id === source.droppableId);
-        const movedOrder = sourceColumn?.cards[source.index];
+        if (!columns || columns.length === 0) return;
+        
+        const sourceColumn = columns.find(col => col?.id === source.droppableId);
+        const movedOrder = sourceColumn?.cards?.[source.index];
         
         if (!movedOrder) return;
         
@@ -53,14 +51,17 @@ export default function ProductionPipelinePage() {
     };
 
     const handleCardClick = (orderId, techSheetId) => {
-        navigate(`/production/orders/${orderId}`);
+        if (orderId) {
+            navigate(`/production/orders/${orderId}`);
+        }
     };
 
     const handleNewOrder = () => {
         navigate('/tech-sheets');
     };
 
-    if (loading && !refreshing) {
+    // Estado de carga
+    if (loading) {
         return (
             <div className="h-full flex flex-col p-8">
                 <div className="mb-6">
@@ -71,6 +72,7 @@ export default function ProductionPipelinePage() {
         );
     }
 
+    // Estado de error
     if (error) {
         return (
             <div className="h-full flex items-center justify-center p-8">
@@ -78,12 +80,47 @@ export default function ProductionPipelinePage() {
                     <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                     <h3 className="text-lg font-bold text-red-800 mb-2">Error</h3>
                     <p className="text-red-600 mb-4">{error}</p>
-                    <button 
-                        onClick={refresh}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                    >
-                        Reintentar
-                    </button>
+                    <div className="flex gap-3 justify-center">
+                        <button 
+                            onClick={refresh}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                        >
+                            <RefreshCw className="w-4 h-4" /> Reintentar
+                        </button>
+                        <button 
+                            onClick={() => window.location.href = '/'}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                        >
+                            Ir al Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Sin datos (pero sin error)
+    if (!columns || columns.length === 0) {
+        return (
+            <div className="h-full flex flex-col p-8">
+                <PipelineFilters 
+                    stats={stats}
+                    filter={filter}
+                    onFilterChange={filterByPriority}
+                    onRefresh={refresh}
+                    onNewOrder={handleNewOrder}
+                    refreshing={refreshing}
+                />
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                        <p>No hay órdenes de producción disponibles.</p>
+                        <button 
+                            onClick={handleNewOrder}
+                            className="mt-4 px-4 py-2 bg-[#42526E] text-white rounded-lg hover:bg-[#344563]"
+                        >
+                            Crear nueva orden
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -104,7 +141,7 @@ export default function ProductionPipelinePage() {
                 <div className="flex-1 flex gap-8 overflow-x-auto pb-4">
                     {columns.map((column) => (
                         <PipelineColumn 
-                            key={column.id}
+                            key={column?.id}
                             column={column}
                             onCardClick={handleCardClick}
                         />

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { productionApi } from '../../../services/productionApi';
 
-// ✅ Exportación por defecto - NO uses 'export const'
 export default function useProductionPipeline() {
     const [columns, setColumns] = useState([]);
     const [stats, setStats] = useState({
@@ -20,17 +19,47 @@ export default function useProductionPipeline() {
     const loadPipeline = useCallback(async () => {
         try {
             setLoading(true);
+            setError(null);
+            
             const response = await productionApi.getPipeline();
             
-            if (response.data.success) {
-                setColumns(response.data.data.columns);
-                setStats(response.data.data.stats);
-                setError(null);
+            // ✅ Verificar si la respuesta es exitosa y tiene la estructura esperada
+            if (response && response.data) {
+                if (response.data.success === true) {
+                    // Respuesta exitosa con datos
+                    setColumns(response.data.data?.columns || []);
+                    setStats(response.data.data?.stats || {
+                        total: 0,
+                        active: 0,
+                        delayed: 0,
+                        high_priority: 0
+                    });
+                    setError(null);
+                } else if (response.data.message === "No autenticado") {
+                    // Error de autenticación
+                    setError("No autenticado. Por favor, inicia sesión nuevamente.");
+                    setColumns([]);
+                } else {
+                    // Otro error del backend
+                    setError(response.data.message || "Error al cargar los datos");
+                    setColumns([]);
+                }
             } else {
-                setError(response.data.message);
+                setError("No se recibieron datos del servidor");
+                setColumns([]);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Error de conexión');
+            console.error('Error loading pipeline:', err);
+            
+            // Manejar error de autenticación específicamente
+            if (err.response?.status === 401) {
+                setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
+                // Opcional: redirigir al login
+                // window.location.href = '/';
+            } else {
+                setError(err.response?.data?.message || err.message || 'Error de conexión');
+            }
+            setColumns([]);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -43,7 +72,6 @@ export default function useProductionPipeline() {
     }, [loadPipeline]);
 
     const moveOrder = useCallback(async (orderId, phaseId, sourceColId, destColId) => {
-        // Optimistic update
         let movedOrder = null;
         
         setColumns(prevColumns => {
@@ -52,28 +80,32 @@ export default function useProductionPipeline() {
             const destIndex = newColumns.findIndex(col => col.id === destColId);
             
             if (sourceIndex !== -1) {
-                const sourceCards = [...newColumns[sourceIndex].cards];
+                const sourceCards = [...(newColumns[sourceIndex].cards || [])];
                 const orderIndex = sourceCards.findIndex(card => card.order_id === orderId);
                 
                 if (orderIndex !== -1) {
                     movedOrder = sourceCards[orderIndex];
                     sourceCards.splice(orderIndex, 1);
-                    newColumns[sourceIndex].cards = sourceCards;
-                    newColumns[sourceIndex].count = sourceCards.length;
+                    newColumns[sourceIndex] = {
+                        ...newColumns[sourceIndex],
+                        cards: sourceCards,
+                        count: sourceCards.length
+                    };
                 }
             }
             
             if (destIndex !== -1 && movedOrder) {
-                const destCards = [...newColumns[destIndex].cards];
-                destCards.push(movedOrder);
-                newColumns[destIndex].cards = destCards;
-                newColumns[destIndex].count = destCards.length;
+                const destCards = [...(newColumns[destIndex].cards || []), movedOrder];
+                newColumns[destIndex] = {
+                    ...newColumns[destIndex],
+                    cards: destCards,
+                    count: destCards.length
+                };
             }
             
             return newColumns;
         });
         
-        // Persistir cambio
         try {
             await productionApi.moveOrderToPhase(orderId, phaseId);
             return { success: true };
@@ -91,9 +123,8 @@ export default function useProductionPipeline() {
             setColumns(prevColumns => {
                 return prevColumns.map(column => ({
                     ...column,
-                    displayedCards: column.cards.filter(card => 
-                        priority === 'HIGH' ? card.priority === 'HIGH' :
-                        priority === 'LATE' ? false : true
+                    displayedCards: (column.cards || []).filter(card => 
+                        priority === 'HIGH' ? card.priority === 'HIGH' : false
                     )
                 }));
             });
