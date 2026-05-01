@@ -22,6 +22,7 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@radix-ui/react-slot": "^1.2.4",
     "@react-pdf/renderer": "^4.4.1",
     "axios": "^1.14.0",

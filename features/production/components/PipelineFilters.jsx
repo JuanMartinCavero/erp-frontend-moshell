@@ -1,0 +1,92 @@
+// src/features/production/components/PipelineFilters.jsx
+
+import React from 'react';
+import { Filter, RefreshCw, Plus } from 'lucide-react';
+
+const PipelineFilters = ({ 
+    stats, 
+    filter, 
+    onFilterChange, 
+    onRefresh, 
+    onNewOrder,
+    refreshing 
+}) => {
+    return (
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+            {/* Botones de filtro */}
+            <div className="flex items-center gap-3 text-sm">
+                <span className="font-bold text-gray-500 uppercase tracking-wider">
+                    FILTERS:
+                </span>
+                <button 
+                    onClick={() => onFilterChange('ALL')}
+                    className={`px-4 py-1.5 rounded-full border transition-all ${
+                        filter === 'ALL' 
+                            ? 'border-gray-200 bg-white shadow-sm font-semibold text-gray-700' 
+                            : 'border-gray-200 bg-transparent font-medium text-gray-500 hover:bg-gray-50'
+                    }`}
+                >
+                    All Orders
+                </button>
+                <button 
+                    onClick={() => onFilterChange('HIGH')}
+                    className={`px-4 py-1.5 rounded-full border transition-all ${
+                        filter === 'HIGH' 
+                            ? 'bg-red-50 border-red-200 text-red-700 font-semibold' 
+                            : 'border-gray-200 bg-transparent font-medium text-gray-500 hover:bg-gray-50'
+                    }`}
+                >
+                    High Priority
+                </button>
+                <button 
+                    onClick={() => onFilterChange('LATE')}
+                    className={`px-4 py-1.5 rounded-full border transition-all ${
+                        filter === 'LATE' 
+                            ? 'bg-amber-50 border-amber-200 text-amber-700 font-semibold' 
+                            : 'border-gray-200 bg-transparent font-medium text-gray-500 hover:bg-gray-50'
+                    }`}
+                >
+                    Late Orders
+                </button>
+            </div>
+            
+            {/* Estadísticas y acciones */}
+            <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 text-sm font-semibold text-gray-600">
+                    <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                        {stats.delayed} Delayed
+                    </span>
+                    <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        {stats.active} Active
+                    </span>
+                </div>
+                
+                <div className="h-5 w-px bg-gray-300"></div>
+                
+                <button 
+                    onClick={onRefresh}
+                    disabled={refreshing}
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                >
+                    <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    Refresh
+                </button>
+                
+                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900">
+                    <Filter className="w-4 h-4" /> Sort
+                </button>
+                
+                <button 
+                    onClick={onNewOrder}
+                    className="bg-[#42526E] hover:bg-[#344563] text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-colors"
+                >
+                    <Plus className="w-4 h-4" /> New Order
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default PipelineFilters;
