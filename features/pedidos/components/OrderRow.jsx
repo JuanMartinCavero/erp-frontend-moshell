@@ -109,7 +109,7 @@ export default function OrderRow({
             </span>
           )}
         </div>
-        <button
+        {/* <button
           onClick={(e) => {
             e.stopPropagation();
             setOpenPago(true);
@@ -117,7 +117,7 @@ export default function OrderRow({
           className="text-xs bg-blue-600 text-white px-2 py-1 rounded mt-2"
         >
           Actualizar pago
-        </button>
+        </button> */}
         {pedido.estado_pago === "Canceló 50%" && (
           <div className="text-xs text-gray-500 mt-1">
             Pendiente: S/ {(pedido.total * 0.5).toFixed(2)}
