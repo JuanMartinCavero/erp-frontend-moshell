@@ -1,21 +1,37 @@
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProvider } from "../../../hooks/useProvider";
 
-export default function ModalProvider({ isOpen, onClose, onSave }) {
+export default function ModalProvider({ isOpen, onClose, onSave, provider }) {
   const { fetchProviderByRuc } = useProvider();
   const [loadingRuc, setLoadingRuc] = useState(false);
 
+  const initialForm = {
+    ruc: "",
+    razon_social: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+    contacto: "",
+  };
+
+  const [form, setForm] = useState(initialForm);
+
   const handleSearchRuc = async () => {
     if (!form.ruc) return;
+
     setLoadingRuc(true);
+
     try {
       const res = await fetchProviderByRuc(form.ruc);
+
       if (!res?.success || !res?.data) {
         alert("RUC no encontrado");
         return;
       }
+
       const data = res.data;
+
       setForm((prev) => ({
         ...prev,
         razon_social: data.razonSocial ?? "",
@@ -29,15 +45,6 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
     }
   };
 
-  const [form, setForm] = useState({
-    ruc: "",
-    razon_social: "",
-    telefono: "",
-    email: "",
-    direccion: "",
-    contacto: "",
-  });
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -47,33 +54,36 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(form);
-    setForm({
-      ruc: "",
-      razon_social: "",
-      telefono: "",
-      email: "",
-      direccion: "",
-      contacto: "",
-    });
 
+    onSave(form);
+
+    setForm(initialForm);
     onClose();
   };
+
+  useEffect(() => {
+    if (provider) {
+      setForm(provider);
+    } else {
+      setForm(initialForm);
+    }
+  }, [provider, isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-6 shadow-lg">
-        {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Nuevo Proveedor</h2>
+          <h2 className="text-lg font-semibold">
+            {provider ? "Editar Proveedor" : "Nuevo Proveedor"}
+          </h2>
+
           <button onClick={onClose}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             <input
@@ -82,15 +92,16 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
               placeholder="RUC"
               value={form.ruc}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 dark:bg-slate-800"
               required
+              disabled={provider}
+              className="w-full border rounded-lg p-2 dark:bg-slate-800 disabled:bg-slate-200 dark:disabled:bg-slate-700"
             />
 
             <button
               type="button"
               onClick={handleSearchRuc}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              disabled={loadingRuc}
+              disabled={loadingRuc || provider}
+              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               {loadingRuc ? "..." : "Buscar"}
             </button>
@@ -99,60 +110,50 @@ export default function ModalProvider({ isOpen, onClose, onSave }) {
           <input
             type="text"
             name="razon_social"
-            placeholder="Razón Social"
             value={form.razon_social}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 dark:bg-slate-800"
-            required
             disabled
-          />
-
-          {/* <input
-            type="text"
-            name="nombre_comercial"
-            placeholder="Nombre Comercial"
-            value={form.nombre_comercial}
-            onChange={handleChange}
+            required
+            placeholder="Razón Social"
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
-          /> */}
+          />
 
           <input
             type="text"
             name="contacto"
-            placeholder="Persona de contacto"
             value={form.contacto}
             onChange={handleChange}
+            placeholder="Persona de contacto"
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
           />
 
           <input
             type="text"
             name="telefono"
-            placeholder="Teléfono"
             value={form.telefono}
             onChange={handleChange}
+            placeholder="Teléfono"
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
           />
 
           <input
             type="email"
             name="email"
-            placeholder="Correo electrónico"
             value={form.email}
             onChange={handleChange}
+            placeholder="Correo electrónico"
             className="w-full border rounded-lg p-2 dark:bg-slate-800"
           />
 
           <textarea
             name="direccion"
-            placeholder="Dirección"
             value={form.direccion}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 dark:bg-slate-800"
             disabled
+            placeholder="Dirección"
+            className="w-full border rounded-lg p-2 dark:bg-slate-800"
           />
 
-          {/* Botones */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

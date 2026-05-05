@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMachines } from "../../../hooks/useMachine";
 import ModalMachine from "./ModalMachine";
 
 export default function TableMachine() {
-  const { machines, loading, addMachine, editMachine, removeMachine } =
-    useMachines();
+  const { machines, loading, addMachine, editMachine, removeMachine, fetchMachines } = useMachines();
+
   const [openModal, setOpenModal] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
+
+  useEffect(() => {
+  fetchMachines();
+}, []);
 
   const handleCreate = () => {
     setSelectedMachine(null);

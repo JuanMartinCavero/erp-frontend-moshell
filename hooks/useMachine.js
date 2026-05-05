@@ -98,10 +98,6 @@ export const useMachines = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMachines();
-  }, []);
-
   return {
     machines,
     loading,

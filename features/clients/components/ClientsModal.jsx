@@ -312,7 +312,7 @@ const ClientModal = ({ isOpen, onClose, onSave, clienteEdit }) => {
               />
             </div>
 
-            <textarea
+            <input
               name="direccion"
               value={form.direccion}
               onChange={handleChange}

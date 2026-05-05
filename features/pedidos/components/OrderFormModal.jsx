@@ -27,6 +27,7 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
 
   useEffect(() => {
     if (isOpen) {
+      console.log("editData:", editData);
       fetchClientes();
       if (editData) {
         // Cargar datos para edición
@@ -37,8 +38,8 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
           fecha_entrega: editData.fecha_entrega || "",
           descripcion: editData.descripcion || "",
           estado_pago: editData.estado_pago || "Falta cancelar",
-          items: editData.items && editData.items.length > 0 
-            ? editData.items.map(item => ({
+          items: editData.detalles && editData.detalles.length > 0 
+            ? editData.detalles.map(item => ({
                 producto: item.producto || "",
                 talla: item.talla || "",
                 color: item.color || "",

@@ -1,13 +1,4 @@
-import { useState } from "react";
-import ModalProvider from "../components/ModalProvider";
-import { useProvider } from "../../../hooks/useProvider";
-
-export default function ProviderHeader({addProvider}) {
-  const [openModal, setOpenModal] = useState(false);
-
-  const handleSave = async (data) => {
-    await addProvider(data);
-  };
+export default function ProviderHeader({ onCreate }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -20,19 +11,12 @@ export default function ProviderHeader({addProvider}) {
         </p>
       </div>
 
-      <div>
-        <button
-          onClick={() => setOpenModal(true)}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-        >
-          Nuevo Proveedor
-        </button>
-        <ModalProvider
-          isOpen={openModal}
-          onClose={() => setOpenModal(false)}
-          onSave={handleSave}
-        />
-      </div>
+      <button
+        onClick={onCreate}
+        className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+      >
+        Nuevo Proveedor
+      </button>
     </div>
   );
 }
