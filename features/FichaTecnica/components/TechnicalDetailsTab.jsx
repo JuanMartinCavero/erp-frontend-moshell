@@ -131,7 +131,9 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
                 <div className="p-4 text-center">No hay máquinas disponibles</div>
               ) : (
                 <div className="max-h-48 overflow-y-auto">
-                  {machines.map((machine) => (
+                  {machines
+                  .filter(machine => machine.status === 'en funcionamiento')
+                  .map((machine) => (
                     <button
                       key={machine.id}
                       onClick={() => handleMachineSelect(machine.id)}
@@ -140,7 +142,7 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
                       <div>
                         <p className="font-medium">{machine.nombre}</p>
                         <p className="text-xs text-gray-500">
-                          Código: {machine.code} | Tipo: {machine.tipo || 'N/A'} | Estado: {machine.status}
+                          Código: {machine.code} | Tipo: {machine.tipo || 'N/A'} | Estado: 🟢 En funcionamiento
                         </p>
                       </div>
                       {maquinaSeleccionada?.id === machine.id && (
