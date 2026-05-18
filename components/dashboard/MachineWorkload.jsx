@@ -27,19 +27,30 @@ const MachineWorkload = ({ data = [], loading }) => {
     return 'bg-slate-300';
   };
 
-  const workloads = data.length > 0 ? data : [
-    { name: "Auto-Loom A1-A8", value: 0, color: "bg-slate-300" },
-    { name: "Dyeing Unit B1", value: 0, color: "bg-slate-300" },
-    { name: "Stitching Hall 2", value: 0, color: "bg-slate-300" },
-    { name: "Finishing Unit C", value: 0, color: "bg-slate-300" },
-  ];
+  // ✅ Sin hardcode: si no hay datos, mostrar mensaje
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col h-[388px] w-full lg:w-[360px] shrink-0">
+        <h2 className="text-lg font-bold text-slate-900 mb-6">Machine Workload</h2>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-slate-400 text-center">No hay máquinas activas registradas</p>
+        </div>
+        <button 
+          onClick={() => navigate('/machines')}
+          className="w-full py-2.5 mt-6 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          View Detailed Maintenance
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col h-[388px] w-full lg:w-[360px] shrink-0">
       <h2 className="text-lg font-bold text-slate-900 mb-6">Machine Workload</h2>
       
       <div className="flex flex-col gap-6 flex-1">
-        {workloads.map((item) => (
+        {data.map((item) => (
           <div key={item.name} className="flex flex-col gap-2">
             <div className="flex justify-between items-center text-sm font-medium">
               <span className="text-slate-900">{item.name}</span>
