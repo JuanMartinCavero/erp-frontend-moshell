@@ -23,32 +23,46 @@ export default function ProductionPipelinePage() {
         filterByPriority
     } = useProductionPipeline();
 
-    const handleDragEnd = async (result) => {
-        if (!result?.destination) return;
-        
-        const { source, destination } = result;
-        
-        if (source.droppableId === destination.droppableId && 
-            source.index === destination.index) {
-            return;
-        }
-        
-        if (!columns || columns.length === 0) return;
-        
-        const sourceColumn = columns.find(col => col?.id === source.droppableId);
-        const movedOrder = sourceColumn?.cards?.[source.index];
-        
-        if (!movedOrder) return;
-        
-        const phaseId = destination.droppableId.replace('col-', '');
-        
-        await moveOrder(
-            movedOrder.order_id,
-            phaseId,
-            source.droppableId,
-            destination.droppableId
-        );
-    };
+   const handleDragEnd = async (result) => {
+    if (!result?.destination) return;
+    
+    const { source, destination } = result;
+    
+    if (source.droppableId === destination.droppableId && 
+        source.index === destination.index) {
+        return;
+    }
+    
+    if (!columns || columns.length === 0) return;
+    
+    const sourceColumn = columns.find(col => col?.id === source.droppableId);
+    const movedOrder = sourceColumn?.cards?.[source.index];
+    
+    if (!movedOrder) return;
+    
+    const phaseId = destination.droppableId.replace('col-', '');
+    
+    // ========== NUEVO: Preguntar cuántas unidades se produjeron ==========
+    const quantityProduced = prompt(
+        `¿Cuántas unidades se produjeron en la fase "${sourceColumn?.title}"?`,
+        "0"
+    );
+    
+    const quantity = parseInt(quantityProduced) || 0;
+    
+    if (quantity > 0) {
+        console.log(`Producción registrada en fase ${sourceColumn?.title}: ${quantity} unidades`);
+    }
+    // ====================================================================
+    
+    await moveOrder(
+        movedOrder.order_id,
+        phaseId,
+        source.droppableId,
+        destination.droppableId,
+        quantity  // ← Pasar la cantidad producida al moveOrder
+    );
+};
 
     const handleCardClick = (orderId, techSheetId) => {
         if (orderId) {

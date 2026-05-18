@@ -19,9 +19,10 @@ export default function DashboardPage() {  // ← Cambié el nombre para evitar 
     refresh
   } = useDashboardData();
 
-  const handlePeriodChange = async (period) => {
-    console.log('Period changed to:', period);
-  };
+const handlePeriodChange = async (period) => {
+  // Recargar datos con el nuevo período
+  await refresh();
+};
 
   if (error) {
     return (

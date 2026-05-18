@@ -15,22 +15,25 @@ export const useDashboardData = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [currentPeriod, setCurrentPeriod] = useState('weekly'); // ← NUEVO: estado para el período
 
-    const loadDashboardData = useCallback(async () => {
+    // Modificada para aceptar parámetro period
+    const loadDashboardData = useCallback(async (period = 'weekly') => {
         try {
             setLoading(true);
+            // Cargar KPIs y datos principales (sin período)
             const response = await dashboardApi.getDashboardData();
             
-            console.log('Respuesta completa:', response);
-            console.log('response.data:', response.data);
-            console.log('response.data.data:', response.data?.data);
+            // Cargar gráfico con el período específico
+            const chartResponse = await dashboardApi.getProductionChart(period);
+            
+            console.log('Respuesta KPIs:', response);
+            console.log('Respuesta gráfico:', chartResponse);
             
             if (response.data && response.data.success) {
                 const responseData = response.data.data;
                 
-                // Verificar que responseData existe
                 if (responseData) {
-                    // Extraer KPIs con valores seguros
                     const kpisData = responseData.kpis || {};
                     
                     setKpis({
@@ -54,7 +57,6 @@ export const useDashboardData = () => {
                         }
                     });
                     
-                    setProductionChart(responseData.productionChart || []);
                     setMachineWorkload(responseData.machineWorkload || []);
                     setRecentOrders(responseData.recentOrders || []);
                     setError(null);
@@ -64,6 +66,14 @@ export const useDashboardData = () => {
             } else {
                 setError(response.data?.message || 'Error al cargar datos');
             }
+            
+            // Procesar datos del gráfico
+            if (chartResponse.data && chartResponse.data.success) {
+                setProductionChart(chartResponse.data.data || []);
+            } else {
+                setProductionChart([]);
+            }
+            
         } catch (err) {
             console.error('Error loading dashboard:', err);
             setError(err.response?.data?.message || 'Error de conexión con el servidor');
@@ -73,13 +83,26 @@ export const useDashboardData = () => {
         }
     }, []);
 
+    // Nueva función para recargar solo el gráfico con un período diferente
+    const loadChartWithPeriod = useCallback(async (period) => {
+        try {
+            setCurrentPeriod(period);
+            const chartResponse = await dashboardApi.getProductionChart(period);
+            if (chartResponse.data && chartResponse.data.success) {
+                setProductionChart(chartResponse.data.data || []);
+            }
+        } catch (err) {
+            console.error('Error loading chart:', err);
+        }
+    }, []);
+
     const refresh = useCallback(() => {
         setRefreshing(true);
-        loadDashboardData();
-    }, [loadDashboardData]);
+        loadDashboardData(currentPeriod);
+    }, [loadDashboardData, currentPeriod]);
 
     useEffect(() => {
-        loadDashboardData();
+        loadDashboardData('weekly');
         const interval = setInterval(() => refresh(), 30000);
         return () => clearInterval(interval);
     }, [loadDashboardData, refresh]);
@@ -92,6 +115,8 @@ export const useDashboardData = () => {
         loading,
         error,
         refreshing,
-        refresh
+        refresh,
+        loadChartWithPeriod,  // ← EXPORTADO: para cambiar el período desde el gráfico
+        currentPeriod         // ← EXPORTADO: período actual
     };
 };

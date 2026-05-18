@@ -1,10 +1,18 @@
+// src/features/production/components/ProductionSidebar.jsx
 import React from 'react';
 import { CheckCircle2, Send } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/Card';
 
-export default function ProductionSidebar({ developmentStatus, estimatedCost, onSendToProduction }) {
+export default function ProductionSidebar({ 
+  developmentStatus, 
+  estimatedCost, 
+  pedidoQuantity,  // ← NUEVO: cantidad del pedido
+  onSendToProduction 
+}) {
   const handleSend = () => {
-    const quantity = prompt("Cantidad a producir:", 100);
+    // Mostrar la cantidad real del pedido como valor por defecto
+    const defaultQuantity = pedidoQuantity || 100;
+    const quantity = prompt("Cantidad a producir:", defaultQuantity);
     if (quantity) onSendToProduction(parseInt(quantity));
   };
 
