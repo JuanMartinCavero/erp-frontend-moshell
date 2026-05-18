@@ -9,6 +9,7 @@ import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
 import ClientsPage from "./features/clients/pages/ClientsPage";
 import OrdersPage from "./features/pedidos/pages/OrderPage";
+import OrderDetailPage from "./features/pedidos/pages/OrderDetailPage"; //detalle de ordenes de pedido
 import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta importación
 import { Compras } from "./features/purchasing/Compras";//compras de insumos o materiasles
 import  QualityControl  from "./features/quality/QualityControl";
@@ -36,7 +37,7 @@ function App() {
       <Route
         element={
           <ProtectedRoute>
-            <Layout />
+            <Layout /> 
           </ProtectedRoute>
         }
       >
@@ -46,6 +47,7 @@ function App() {
         <Route path="/admin/users" element={<UsersPage />} />
         <Route path="/admin/clients" element={<ClientsPage />} />
         <Route path="admin/orders" element={<OrdersPage />} />
+         <Route path="/admin/orders/:id" element={<OrderDetailPage />} /> {/* ← Ruta de detalle de pedido */}
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
         <Route path="/quality" element={<QualityControl />} />
         {/*<Route path="/production" element={<Pipeline />} />*/}

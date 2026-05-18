@@ -54,14 +54,14 @@ const ProductionChart = ({ data = [], loading, onPeriodChange }) => {
 
       <div className="flex-1 w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ top: 0, right: 0, left: 30, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey="name" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }}
-              dy={16}
+              tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }}
+              dy={10}
             />
             <YAxis 
               axisLine={false} 
@@ -73,7 +73,7 @@ const ProductionChart = ({ data = [], loading, onPeriodChange }) => {
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
               formatter={(value) => [`${value} units`, 'Production']}
             />
-            <Bar dataKey="value" fill="#455768" radius={[4, 4, 0, 0]} maxBarSize={60} />
+            <Bar dataKey="value" fill="#455768" radius={[4, 4, 0, 0]} maxBarSize={50} />
           </BarChart>
         </ResponsiveContainer>
       </div>

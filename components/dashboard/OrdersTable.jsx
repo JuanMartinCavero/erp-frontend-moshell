@@ -98,7 +98,7 @@ const OrdersTable = ({ data = [], loading }) => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button 
-                      onClick={() => navigate(`/pedidos/${order.order_id}`)}
+                      onClick={() => navigate(`/admin/orders/${order.order_id}`)}
                       className="text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       <Eye className="w-5 h-5" />
