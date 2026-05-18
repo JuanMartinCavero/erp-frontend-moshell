@@ -18,7 +18,14 @@ export const productionApi = {
     
     updateOrderQuality: (id, qualityStatus) => api.patch(`/production-orders/${id}/quality`, { quality_status: qualityStatus }),
     
-    // Seguimiento por fases
+    // ✅ NUEVO: Mover orden a otra fase (para el drag & drop)
+    moveOrderToPhase: (orderId, phaseId, quantityProduced = 0) => 
+        api.put(`/production-orders/${orderId}/phase`, { 
+            phase_id: phaseId,
+            quantity_produced: quantityProduced 
+        }),
+    
+    // Seguimiento por fases (versión alternativa)
     updatePhase: (orderId, phaseId, estado) => 
         api.post(`/production-orders/${orderId}/tracking`, { fases_produccion_id: phaseId, estado }),
     

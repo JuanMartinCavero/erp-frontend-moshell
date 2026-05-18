@@ -23,10 +23,8 @@ export default function useProductionPipeline() {
             
             const response = await productionApi.getPipeline();
             
-            // ✅ Verificar si la respuesta es exitosa y tiene la estructura esperada
             if (response && response.data) {
                 if (response.data.success === true) {
-                    // Respuesta exitosa con datos
                     setColumns(response.data.data?.columns || []);
                     setStats(response.data.data?.stats || {
                         total: 0,
@@ -36,11 +34,9 @@ export default function useProductionPipeline() {
                     });
                     setError(null);
                 } else if (response.data.message === "No autenticado") {
-                    // Error de autenticación
                     setError("No autenticado. Por favor, inicia sesión nuevamente.");
                     setColumns([]);
                 } else {
-                    // Otro error del backend
                     setError(response.data.message || "Error al cargar los datos");
                     setColumns([]);
                 }
@@ -50,12 +46,8 @@ export default function useProductionPipeline() {
             }
         } catch (err) {
             console.error('Error loading pipeline:', err);
-            
-            // Manejar error de autenticación específicamente
             if (err.response?.status === 401) {
                 setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
-                // Opcional: redirigir al login
-                // window.location.href = '/';
             } else {
                 setError(err.response?.data?.message || err.message || 'Error de conexión');
             }
@@ -71,7 +63,8 @@ export default function useProductionPipeline() {
         loadPipeline();
     }, [loadPipeline]);
 
-    const moveOrder = useCallback(async (orderId, phaseId, sourceColId, destColId) => {
+    // ✅ CORREGIDO: Añadir quantityProduced como parámetro
+    const moveOrder = useCallback(async (orderId, phaseId, sourceColId, destColId, quantityProduced = 0) => {
         let movedOrder = null;
         
         setColumns(prevColumns => {
@@ -107,7 +100,8 @@ export default function useProductionPipeline() {
         });
         
         try {
-            await productionApi.moveOrderToPhase(orderId, phaseId);
+            // ✅ CORREGIDO: Pasar quantityProduced a la API
+            await productionApi.moveOrderToPhase(orderId, phaseId, quantityProduced);
             return { success: true };
         } catch (error) {
             await loadPipeline();
