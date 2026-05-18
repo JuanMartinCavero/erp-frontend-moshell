@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 
 import Login from "./features/Login/Login";
-import DashboardPage from "./features/dashboard/DashboardPage";
+import DashboardPage from "./components/dashboard/pages/DashboardPage";
 import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
 import ClientsPage from "./features/clients/pages/ClientsPage";
