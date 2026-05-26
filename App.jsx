@@ -49,7 +49,8 @@ function App() {
         <Route path="admin/orders" element={<OrdersPage />} />
          <Route path="/admin/orders/:id" element={<OrderDetailPage />} /> {/* ← Ruta de detalle de pedido */}
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
-        <Route path="/quality" element={<QualityControl />} />
+        <Route path="/quality" element={<QualityControl />} /> {/*Dashboard de control de calidad general*/}
+        <Route path="/quality/:orderId" element={<QualityControl />} /> {/*Dashboard de control de calidad específico para una orden de producción*/}
         {/*<Route path="/production" element={<Pipeline />} />*/}
         <Route path="/production" element={<ProductionPipelinePage />} /> {/*produccion dinamica*/}
          <Route path="/production/orders/:id" element={<ProductionOrderDetail />} /> {/* ← NUEVA RUTA para el detalle de orden de producción */}
