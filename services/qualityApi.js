@@ -24,5 +24,10 @@ export const qualityApi = {
      * Obtener estadísticas de calidad
      */
     getStatistics: () => 
-        api.get('/quality/statistics')
+        api.get('/quality/statistics'),
+
+     /**
+     * Obtener órdenes para el dashboard de calidad
+     */
+    getQualityOrders: (params = {}) => api.get('/quality/orders', { params }),
 };
