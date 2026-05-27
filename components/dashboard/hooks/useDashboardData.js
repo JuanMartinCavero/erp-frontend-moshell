@@ -103,15 +103,9 @@ export const useDashboardData = () => {
 
     useEffect(() => {
         loadDashboardData('weekly');
-<<<<<<< HEAD
         // const interval = setInterval(() => refresh(), 30000);
         // return () => clearInterval(interval);
     }, [loadDashboardData, refresh]);
-=======
-        //const interval = setInterval(() => refresh(), 30000);
-        //return () => clearInterval(interval);
-    }, []);
->>>>>>> origin/Martin2
 
     return {
         kpis,
