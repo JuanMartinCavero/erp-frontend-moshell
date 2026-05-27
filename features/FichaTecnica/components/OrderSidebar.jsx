@@ -35,6 +35,7 @@ export default function OrderSidebar({ pedido, estimatedQuantity, onUpdatePedido
       setShowPedidoSelector(false);
     } else {
       alert('Error al asignar pedido: ' + result.error);
+      console.error('Error al asignar pedido:', result.error);
     }
   };
 
