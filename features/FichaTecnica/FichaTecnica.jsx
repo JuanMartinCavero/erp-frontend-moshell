@@ -1,59 +1,81 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Loader, AlertCircle } from 'lucide-react';
-import api from '../../services/api'; //
-import { Card, CardContent } from '../../components/ui/Card';
-import { useFichaTecnica } from './hooks/useFichaTecnica';
-import FichaHeader from './components/FichaHeader';
-import WorkflowStatus from './components/WorkflowStatus';
-import TechnicalDetailsTab from './components/TechnicalDetailsTab';
-import MaterialsBOMTab from './components/MaterialsBOMTab';
-import PrototypeHistoryTab from './components/PrototypeHistoryTab';
-import SizeSpecsTab from './components/SizeSpecsTab';
-import ReferenceImages from './components/ReferenceImages';
-import ProductionSidebar from './components/ProductionSidebar';
-import ClientSidebar from './components/ClientSidebar';
-import OrderSidebar from './components/OrderSidebar';
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import { Loader, AlertCircle } from "lucide-react";
+import api from "../../services/api";
+import { Card, CardContent } from "../../components/ui/Card";
+
+import { useFichaTecnica } from "./hooks/useFichaTecnica";
+import FichaHeader from "./components/FichaHeader";
+import WorkflowStatus from "./components/WorkflowStatus";
+import TechnicalDetailsTab from "./components/TechnicalDetailsTab";
+import MaterialsBOMTab from "./components/MaterialsBOMTab";
+import PrototypeHistoryTab from "./components/PrototypeHistoryTab";
+import SizeSpecsTab from "./components/SizeSpecsTab";
+import ReferenceImages from "./components/ReferenceImages";
+import ProductionSidebar from "./components/ProductionSidebar";
+import ClientSidebar from "./components/ClientSidebar";
+import OrderSidebar from "./components/OrderSidebar";
 
 export default function FichaTecnica() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const {
-    loading, error, techSheet, cliente, pedido,
-    materiales, workflowStatus, updateSpecs,
-    sendToProduction, exportPDF,loadTechSheet
+    loading,
+    error,
+    techSheet,
+    cliente,
+    pedido,
+    materiales,
+    workflowStatus,
+    updateSpecs,
+    sendToProduction,
+    exportPDF,
+    loadTechSheet,
   } = useFichaTecnica(id);
 
-  
- // ← linkear maquina a asignar al inicio de Ficha tecnica al aprobar
-const updateMachine = async (machineId) => {
-  try {
-    const response = await api.put(`/technical-sheets/${id}/machine`, { machine_id: machineId });
-    if (response.data.success) {
-      window.location.reload(); // ← Recargar toda la página
+  const updateMachine = async (machineId) => {
+    try {
+      const response = await api.put(`/technical-sheets/${id}/machine`, {
+        machine_id: machineId,
+      });
+      if (response.data.success) {
+        window.location.reload(); 
+      }
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message };
     }
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.response?.data?.message };
-  }
-};
+  };
 
+  const associatePedido = async (pedidoId) => {
+    try {
+      if (!pedidoId) {
+        return { success: false, error: "pedido_id inválido" };
+      }
 
+      const response = await api.put(
+        `/technical-sheets/${id}/associate-pedido`,
+        { pedido_id: pedidoId },
+      );
 
-// Asociar pedido a ficha técnica
-const associatePedido = async (pedidoId) => {
-  try {
-    const response = await api.put(`/technical-sheets/${id}/associate-pedido`, { pedido_id: pedidoId });
-    if (response.data.success) {
-      await loadTechSheet(); // Recargar para mostrar el pedido asociado
+      if (response.data.success) {
+        await loadTechSheet();
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: response.data?.message || "No se pudo asignar el pedido",
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.message || err.message,
+      };
     }
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.response?.data?.message };
-  }
-};
+  };
 
   if (loading) {
     return (
@@ -80,14 +102,16 @@ const associatePedido = async (pedidoId) => {
   }
 
   if (!techSheet) {
-    return <div className="p-8 text-center">No se encontró la ficha técnica</div>;
+    return (
+      <div className="p-8 text-center">No se encontró la ficha técnica</div>
+    );
   }
 
   const tabs = [
     "Technical Details",
     "Materials & BOM",
     `Prototypes (${techSheet.samples?.length || 0})`,
-    "Size Specs"
+    "Size Specs",
   ];
 
   return (
@@ -111,11 +135,15 @@ const associatePedido = async (pedidoId) => {
                 key={tab}
                 onClick={() => setActiveTab(i)}
                 className={`pb-4 text-sm font-semibold transition-colors relative ${
-                  activeTab === i ? 'text-[#42526E]' : 'text-gray-500 hover:text-gray-900'
+                  activeTab === i
+                    ? "text-[#42526E]"
+                    : "text-gray-500 hover:text-gray-900"
                 }`}
               >
                 {tab}
-                {activeTab === i && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#42526E]" />}
+                {activeTab === i && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#42526E]" />
+                )}
               </button>
             ))}
           </div>
@@ -125,7 +153,7 @@ const associatePedido = async (pedidoId) => {
               techSheet={techSheet}
               isEditing={isEditing}
               onUpdate={updateSpecs}
-              onUpdateMachine={updateMachine}  // ← actualizar maquina en ficha tecnica
+              onUpdateMachine={updateMachine}
             />
           )}
 
@@ -134,12 +162,14 @@ const associatePedido = async (pedidoId) => {
           )}
 
           {activeTab === 2 && (
-            <PrototypeHistoryTab samples={techSheet.samples || []} />
+            <PrototypeHistoryTab
+              samples={techSheet.samples || []}
+              techSheetId={id}
+              onAfterAddSample={loadTechSheet}
+            />
           )}
 
-          {activeTab === 3 && (
-            <SizeSpecsTab sizeSpecs={techSheet.size_specs} />
-          )}
+          {activeTab === 3 && <SizeSpecsTab sizeSpecs={techSheet.size_specs} />}
 
           <ReferenceImages images={techSheet.images} />
         </div>
@@ -152,11 +182,12 @@ const associatePedido = async (pedidoId) => {
             onSendToProduction={sendToProduction}
           />
           <ClientSidebar cliente={cliente} />
-          <OrderSidebar pedido={pedido} 
-  estimatedQuantity={techSheet.estimated_quantity}
- onUpdatePedido={associatePedido}
-  isEditing={isEditing}  // ← para mostrar el botón editar solo en modo edición 
-/>
+          <OrderSidebar
+            pedido={pedido}
+            estimatedQuantity={techSheet.estimated_quantity}
+            onUpdatePedido={associatePedido}
+            isEditing={isEditing} // ← para mostrar el botón editar solo en modo edición
+          />
         </div>
       </div>
     </div>
