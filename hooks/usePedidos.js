@@ -10,6 +10,7 @@ import {
   deletePedido as deletePedidoApi,
   updateEstadoPago,
   registrarPago,
+  obtenerMuestas,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -190,6 +191,19 @@ export default function usePedidos() {
     }
   };
 
+  const hookObtenerMuestas = async () => {
+    setLoading(true);
+    try {
+      const res = await obtenerMuestas();
+      return res.data;
+    } catch (error) {
+      setError("Error al obtener muestras");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     pedidos,
     stats,
@@ -207,5 +221,6 @@ export default function usePedidos() {
     updatePedido: updatePedidoHook,
     hookUpdateEstadoPago,
     hookRegistrarPago,
+    hookObtenerMuestas,
   };
 }

@@ -46,3 +46,7 @@ export const updateEstadoPago = (id, estado_pago) => {
 export const registrarPago = (id, monto) => {
   return axiosClient.put(`/pedidos/${id}/pago`, { monto });
 };
+
+export const obtenerMuestas = () => {
+  return axiosClient.get(`/pedidos-samples`);
+};
