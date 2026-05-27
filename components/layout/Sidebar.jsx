@@ -16,7 +16,8 @@ import {
   ShoppingBag, // ← Agrega este ícono para Compras
   Van,
   Cog,
-  CircleDollarSign
+  CircleDollarSign,
+  CardSim,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -67,7 +68,13 @@ const Sidebar = () => {
       name: "Production",
       path: "/production",
       icon: <Factory className="w-[18px] h-[18px]" />,
-      requiredPermissions: ["production.start", "production.assign-machines", "production.pause", "production.dashboard", "production.manage"],
+      requiredPermissions: [
+        "production.start",
+        "production.assign-machines",
+        "production.pause",
+        "production.dashboard",
+        "production.manage",
+      ],
       requiredPermissions: [
         "production.start",
         "production.assign-machines",
@@ -119,6 +126,13 @@ const Sidebar = () => {
       name: "Pedidos",
       path: "/admin/orders",
       icon: <ShoppingCart className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["client.manage"],
+      minRoleLevel: 12,
+    },
+    {
+      name: "Muestras de Pedido",
+      path: "/samples",
+      icon: <CardSim className="w-[18px] h-[18px]" />,
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     },

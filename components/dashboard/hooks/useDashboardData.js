@@ -103,9 +103,9 @@ export const useDashboardData = () => {
 
     useEffect(() => {
         loadDashboardData('weekly');
-        //const interval = setInterval(() => refresh(), 30000);
-        //return () => clearInterval(interval);
-    }, []);
+        // const interval = setInterval(() => refresh(), 30000);
+        // return () => clearInterval(interval);
+    }, [loadDashboardData, refresh]);
 
     return {
         kpis,
