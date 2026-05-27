@@ -26,6 +26,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NuevaFichaTecnica from './features/FichaTecnicaDashboard/components/NuevaFichaTecnica';
 import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
 import EditarFichaTecnica from './features/FichaTecnicaDashboard/EditarFichaTecnica'; //editar ficha tecnica resumen de cada muestra
+import QualityDashboard from "./features/quality/QualityDashboard";
 
 import SamplePage from "./features/samples/pages/SamplePage";
 
@@ -51,7 +52,8 @@ function App() {
         <Route path="admin/orders" element={<OrdersPage />} />
          <Route path="/admin/orders/:id" element={<OrderDetailPage />} /> {/* ← Ruta de detalle de pedido */}
         <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
-        <Route path="/quality" element={<QualityControl />} />
+        <Route path="/quality" element={<QualityDashboard />} /> {/*Dashboard de control de calidad general*/}
+        <Route path="/quality/:orderId" element={<QualityControl />} /> {/*Detalle de inspección por orden de produccion en calidad*/}
         {/*<Route path="/production" element={<Pipeline />} />*/}
         <Route path="/production" element={<ProductionPipelinePage />} /> {/*produccion dinamica*/}
          <Route path="/production/orders/:id" element={<ProductionOrderDetail />} /> {/* ← NUEVA RUTA para el detalle de orden de producción */}
