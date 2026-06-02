@@ -1,3 +1,4 @@
+//C:\Users\USER\Downloads\ERP Moshell\erp-frontend-moshell\services\pedidosApi.js
 import axiosClient from "./axiosClient";
 
 // Obtener pedidos con filtros (zona: nacional/internacional, frecuencia: nuevo/recurrente)
@@ -49,4 +50,28 @@ export const registrarPago = (id, monto) => {
 
 export const obtenerMuestas = () => {
   return axiosClient.get(`/pedidos-samples`);
+};
+
+
+// services/pedidosApi.js - agregar al final
+
+// Obtener muestras (usando el nuevo endpoint)
+export const getSamples = (params = {}) => {
+  return axiosClient.get("/samples", { params });
+};
+
+export const getSamplesStatistics = () => {
+  return axiosClient.get("/samples/statistics");
+};
+
+export const updateSample = (id, data) => {
+  return axiosClient.put(`/samples/${id}`, data);
+};
+
+export const duplicateSample = (id) => {
+  return axiosClient.post(`/samples/${id}/duplicate`);
+};
+
+export const toggleSampleActive = (id) => {
+  return axiosClient.patch(`/samples/${id}/toggle-active`);
 };
