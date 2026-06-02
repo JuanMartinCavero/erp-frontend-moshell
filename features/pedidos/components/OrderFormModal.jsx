@@ -2,9 +2,18 @@ import { useState, useEffect } from "react";
 import usePedidos from "../../../hooks/usePedidos";
 import useClients from "../../../hooks/useClients";
 
-export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = null }) {
-  const { addPedido, updatePedido, loading } = usePedidos();
+export default function OrderFormModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  editData = null,
+}) {
+  const { addPedido, updatePedido, fetchSamples, fetchSampleItems, loading } =
+    usePedidos();
   const { clientes, fetchClientes, loading: clientsLoading } = useClients();
+
+  const [clientSamples, setClientSamples] = useState([]);
+  const [selectedSample, setSelectedSample] = useState("");
 
   const [formData, setFormData] = useState({
     cliente_id: "",
@@ -26,6 +35,54 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
   });
 
   useEffect(() => {
+    const loadSamples = async () => {
+      if (!formData.cliente_id) {
+        setClientSamples([]);
+        return;
+      }
+      try {
+        const res = await fetchSamples({
+          cliente_id: formData.cliente_id,
+          is_active: true,
+        });
+        console.log("Muestras obtenidas para el cliente:", res);
+        setClientSamples(res || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadSamples();
+  }, [formData.cliente_id]);
+
+  const handleSelectSample = async (sampleId) => {
+    setSelectedSample(sampleId);
+
+    if (!sampleId) return;
+
+    try {
+      const res = await fetchSampleItems(sampleId);
+
+      const items =
+        res.data.items?.map((item) => ({
+          producto: item.producto || "",
+          talla: item.talla || "",
+          color: item.color || "",
+          cantidad: item.cantidad?.toString() || "",
+          precio_unitario: item.precio_unitario?.toString() || "",
+          peso: item.peso?.toString() || "",
+        })) || [];
+      console.log("Items obtenidos de la muestra:", items);
+      setFormData((prev) => ({
+        ...prev,
+        items,
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
     if (isOpen) {
       console.log("editData:", editData);
       fetchClientes();
@@ -34,27 +91,31 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
         setFormData({
           cliente_id: editData.cliente_id || editData.cliente?.id || "",
           tipo_pedido: editData.tipo_pedido || "Producción",
-          fecha_pedido: editData.fecha_pedido || new Date().toISOString().split("T")[0],
+          fecha_pedido:
+            editData.fecha_pedido || new Date().toISOString().split("T")[0],
           fecha_entrega: editData.fecha_entrega || "",
           descripcion: editData.descripcion || "",
           estado_pago: editData.estado_pago || "Falta cancelar",
-          items: editData.detalles && editData.detalles.length > 0 
-            ? editData.detalles.map(item => ({
-                producto: item.producto || "",
-                talla: item.talla || "",
-                color: item.color || "",
-                cantidad: item.cantidad?.toString() || "",
-                precio_unitario: item.precio_unitario?.toString() || "",
-                peso: item.peso?.toString() || "",
-              }))
-            : [{
-                producto: "",
-                talla: "",
-                color: "",
-                cantidad: "",
-                precio_unitario: "",
-                peso: "",
-              }],
+          items:
+            editData.detalles && editData.detalles.length > 0
+              ? editData.detalles.map((item) => ({
+                  producto: item.producto || "",
+                  talla: item.talla || "",
+                  color: item.color || "",
+                  cantidad: item.cantidad?.toString() || "",
+                  precio_unitario: item.precio_unitario?.toString() || "",
+                  peso: item.peso?.toString() || "",
+                }))
+              : [
+                  {
+                    producto: "",
+                    talla: "",
+                    color: "",
+                    cantidad: "",
+                    precio_unitario: "",
+                    peso: "",
+                  },
+                ],
         });
       } else {
         // Reset para nuevo pedido
@@ -98,7 +159,7 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const itemsValid = formData.items.every((item) => {
       const cantidad = parseFloat(item.cantidad);
       const precio = parseFloat(item.precio_unitario);
@@ -214,6 +275,29 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
               ))}
             </select>
           </div>
+
+          {formData.cliente_id && formData.tipo_pedido === "Producción" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Basar producción en una muestra
+              </label>
+
+              <select
+                value={selectedSample}
+                onChange={(e) => handleSelectSample(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+              >
+                <option value="">Seleccionar muestra...</option>
+
+                {clientSamples.map((sample) => (
+                  <option key={sample.id} value={sample.id}>
+                    {sample.version} - Pedido #
+                    {sample.technical_sheet?.pedido?.numero_pedido}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -427,7 +511,11 @@ export default function OrderFormModal({ isOpen, onClose, onSuccess, editData = 
               }
               className="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Guardando..." : editData ? "Actualizar Pedido" : "Crear Pedido"}
+              {loading
+                ? "Guardando..."
+                : editData
+                  ? "Actualizar Pedido"
+                  : "Crear Pedido"}
             </button>
           </div>
         </form>

@@ -52,7 +52,6 @@ export const obtenerMuestas = () => {
   return axiosClient.get(`/pedidos-samples`);
 };
 
-
 // services/pedidosApi.js - agregar al final
 
 // Obtener muestras (usando el nuevo endpoint)
@@ -74,4 +73,8 @@ export const duplicateSample = (id) => {
 
 export const toggleSampleActive = (id) => {
   return axiosClient.patch(`/samples/${id}/toggle-active`);
+};
+
+export const getSampleItems = (id) => {
+  return axiosClient.get(`/samples/${id}/items`);
 };

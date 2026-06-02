@@ -29,6 +29,7 @@ export default function FichaTecnica() {
     pedido,
     materiales,
     workflowStatus,
+    cantidadPedido,
     updateSpecs,
     sendToProduction,
     exportPDF,
@@ -41,7 +42,7 @@ export default function FichaTecnica() {
         machine_id: machineId,
       });
       if (response.data.success) {
-        window.location.reload(); 
+        window.location.reload();
       }
       return { success: true };
     } catch (err) {
@@ -179,6 +180,7 @@ export default function FichaTecnica() {
           <ProductionSidebar
             developmentStatus={techSheet.development_status}
             estimatedCost={techSheet.estimated_cost}
+            pedidoQuantity={cantidadPedido}
             onSendToProduction={sendToProduction}
           />
           <ClientSidebar cliente={cliente} />

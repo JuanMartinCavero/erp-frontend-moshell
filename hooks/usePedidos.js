@@ -12,6 +12,8 @@ import {
   updateEstadoPago,
   registrarPago,
   obtenerMuestas,
+  getSampleItems,
+  getSamples,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -205,6 +207,31 @@ export default function usePedidos() {
     }
   };
 
+  const fetchSamples = async (params = {}) => {
+    setLoading(true);
+    try {
+      const res = await getSamples(params);
+      return res.data.data.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSampleItems = async (id) => {
+    setLoading(true);
+    try {
+      const res = await getSampleItems(id);
+      return res.data;
+    } catch (error) {
+      setError("Error al obtener items de la muestra");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     pedidos,
     stats,
@@ -223,5 +250,7 @@ export default function usePedidos() {
     hookUpdateEstadoPago,
     hookRegistrarPago,
     hookObtenerMuestas,
+    fetchSamples,
+    fetchSampleItems,
   };
 }

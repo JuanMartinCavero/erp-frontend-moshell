@@ -10,6 +10,10 @@ export default function FinanceTable({ transactions, registrarPago }) {
             </th>
 
             <th className="px-6 py-3 text-xs font-semibold text-slate-600 uppercase">
+              Tipo
+            </th>
+
+            <th className="px-6 py-3 text-xs font-semibold text-slate-600 uppercase">
               Pedido
             </th>
 
@@ -38,6 +42,10 @@ export default function FinanceTable({ transactions, registrarPago }) {
             >
               <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
                 {t.empresa}
+              </td>
+
+              <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
+                {t.tipo_pedido}
               </td>
 
               <td className="px-6 py-4 text-slate-500">{t.referencia}</td>
