@@ -45,6 +45,13 @@ const Sidebar = () => {
       requiredPermissions: ["tech-sheet.view"],
       minRoleLevel: 8,
     },
+      {
+      name: "Muestras de Pedido",
+      path: "/samples",
+      icon: <CardSim className="w-[18px] h-[18px]" />,
+      requiredPermissions: ["client.manage"],
+      minRoleLevel: 12,
+    },
     {
       name: "Inventory",
       path: "/inventory",
@@ -129,13 +136,7 @@ const Sidebar = () => {
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     },
-    {
-      name: "Muestras de Pedido",
-      path: "/samples",
-      icon: <CardSim className="w-[18px] h-[18px]" />,
-      requiredPermissions: ["client.manage"],
-      minRoleLevel: 12,
-    },
+  
     {
       name: "Etiquetas",
       path: "/barcodes",
