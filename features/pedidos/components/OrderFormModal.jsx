@@ -361,6 +361,8 @@ export default function OrderFormModal({
             />
           </div>
 
+          {/* Estado de Pago  */}
+
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Estado de Pago
@@ -370,7 +372,8 @@ export default function OrderFormModal({
               onChange={(e) =>
                 setFormData({ ...formData, estado_pago: e.target.value })
               }
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              disabled={!!editData} // Solo se puede cambiar al crear, no al editar
+              className="w-full p-3 border border-gray-300 rounded-lg disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
               <option value="Falta cancelar">Falta cancelar</option>
               <option value="Canceló 50%">Canceló 50%</option>
