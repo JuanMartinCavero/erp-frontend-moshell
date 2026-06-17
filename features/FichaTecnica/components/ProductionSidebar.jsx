@@ -1,84 +1,93 @@
-import React, { useState } from "react";
-import { CheckCircle2, Send } from "lucide-react";
-import { Card, CardContent } from "../../../components/ui/Card";
+import React, { useState } from 'react';
+import { CheckCircle2, Send, AlertCircle } from 'lucide-react';
+import { Card, CardContent } from '../../../components/ui/Card';
 
-export default function ProductionSidebar({
-  developmentStatus,
-  estimatedCost,
+export default function ProductionSidebar({ 
+  developmentStatus, 
+  estimatedCost, 
   pedidoQuantity,
   onSendToProduction,
+  canSendToProduction = false,  // 👈 NUEVO: prop con valor por defecto
+  sendReasons = []              // 👈 NUEVO: prop con valor por defecto
 }) {
-  console.log("pedidoQuantity:", pedidoQuantity);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSend = () => {
-    setShowConfirm(true);
+  const handleSend = async () => {
+    if (!canSendToProduction) {
+      return; // No debería pasar porque el botón está deshabilitado
+    }
+    
+    const quantity = prompt("Cantidad a producir:", pedidoQuantity || 100);
+    if (quantity) {
+      setIsSending(true);
+      try {
+        await onSendToProduction(parseInt(quantity));
+      } catch (error) {
+        console.error('Error al enviar a producción:', error);
+      } finally {
+        setIsSending(false);
+      }
+    }
   };
 
-  const confirmSend = () => {
-    onSendToProduction(pedidoQuantity);
-    setShowConfirm(false);
+  // 👇 NUEVO: Función para obtener el mensaje de herramienta
+  const getTooltipMessage = () => {
+    if (sendReasons.length === 0) return 'Enviar ficha técnica a producción';
+    return sendReasons.join('\n');
   };
 
   return (
-    <>
-      <Card className="bg-[#42526E] text-white border-none shadow-md">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-2 text-blue-100 mb-6">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="font-semibold">Production Status</span>
-          </div>
-
-          {developmentStatus === "IN_PRODUCTION" ? (
-            <p className="text-center text-sm">🎉 En producción</p>
-          ) : (
-            <>
-              <button
-                onClick={handleSend}
-                className="w-full bg-white text-[#42526E] py-3 rounded-lg font-bold mb-4 flex items-center justify-center gap-2"
-              >
-                <Send className="w-4 h-4" />
-                SEND TO PRODUCTION
-              </button>
-
-              <p className="text-xs text-blue-200 text-center">
-                Costo estimado: ${estimatedCost?.toLocaleString() || "N/A"}
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-96 shadow-xl">
-            <h3 className="text-lg font-bold mb-2 text-gray-900">
-              Confirmar envío
-            </h3>
-
-            <p className="text-gray-600 mb-4">
-              Se enviarán <strong>{pedidoQuantity}</strong> unidades a
-              producción.
-            </p>
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 border rounded-lg"
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={confirmSend}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
+    <Card className="bg-[#42526E] text-white border-none shadow-md">
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-2 text-blue-100 mb-6">
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="font-semibold">Estado del envío a Producción</span>
         </div>
-      )}
-    </>
+        
+        {developmentStatus === 'IN_PRODUCTION' ? (
+          <p className="text-center text-sm">🎉 En producción</p>
+        ) : (
+          <>
+            <button 
+              onClick={handleSend}
+              disabled={!canSendToProduction || isSending}
+              title={getTooltipMessage()}
+              className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors ${
+                canSendToProduction && !isSending
+                  ? 'bg-white text-[#42526E] hover:bg-gray-100' 
+                  : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+              {isSending ? 'Enviando...' : 'Enviar a Producción'}
+            </button>
+
+            {/* 👇 NUEVO: Mostrar razones si no se puede enviar */}
+            {!canSendToProduction && sendReasons.length > 0 && (
+              <div className="mt-3 p-2 bg-red-500/20 rounded-lg border border-red-400/30">
+                <p className="text-xs font-medium text-red-200 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  No se puede enviar a producción:
+                </p>
+                <ul className="text-xs text-red-200/80 list-disc list-inside mt-1 space-y-0.5">
+                  {sendReasons.map((reason, index) => (
+                    <li key={index} className="ml-1">{reason}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <p className="text-xs text-blue-200 text-center mt-4">
+              Costo estimado: ${estimatedCost?.toLocaleString() || 'N/A'}
+            </p>
+            {pedidoQuantity && (
+              <p className="text-xs text-blue-200 text-center">
+                Cantidad pedido: {pedidoQuantity} unidades
+              </p>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
