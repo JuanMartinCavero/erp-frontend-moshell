@@ -135,20 +135,19 @@ export default function ProductionOrderDetail() {
   if (!order) return null;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-6 max-w-[1200px] mx-auto min-h-[calc(100vh-96px)] flex flex-col w-full">
       {/* Botón volver */}
-
       <button
         onClick={() => navigate("/production")}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+        className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-6 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Volver al pipeline
+        <span className="text-sm font-medium">Volver al pipeline</span>
       </button>
 
       {/* Header */}
-
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {order.order_number}
