@@ -1,8 +1,13 @@
-// src/features/production/pages/ProductionOrderDetail.jsx
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, AlertCircle, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  AlertCircle,
+  Users,
+  Package,
+  DollarSign,
+} from "lucide-react";
 
 import { productionApi } from "../../../services/productionApi";
 import { nextPhase } from "../../../services/productionTracking";
@@ -13,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/Card";
-
 import { Badge } from "../../../components/ui/Badge";
 import { Progress } from "../../../components/ui/Progress";
 
@@ -33,7 +37,6 @@ export default function ProductionOrderDetail() {
   const loadOrder = async () => {
     try {
       setLoading(true);
-
       const response = await productionApi.getOrder(id);
 
       if (response.data.success) {
@@ -51,81 +54,68 @@ export default function ProductionOrderDetail() {
   const handleNextPhase = async () => {
     try {
       setMovingPhase(true);
-
       const response = await nextPhase(order.id);
 
-      if (response.success) {
-        await loadOrder();
-      } else {
-        alert(response.message);
-      }
-    } catch (error) {
+      if (response.success) await loadOrder();
+      else alert(response.message);
+    } catch {
       alert("Error al pasar a la siguiente fase");
     } finally {
       setMovingPhase(false);
     }
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "HIGH":
-        return "bg-red-100 text-red-700";
-      case "MEDIUM":
-        return "bg-blue-100 text-blue-700";
-      case "LOW":
-        return "bg-gray-100 text-gray-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  const getQualityColor = (status) => {
-    switch (status) {
-      case "PASSED":
-        return "bg-green-100 text-green-700";
-      case "FAILED":
-        return "bg-red-100 text-red-700";
-      case "REWORK":
-        return "bg-yellow-100 text-yellow-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const formatDate = (date) => {
-    if (!date) return "Pendiente";
-    return new Date(date).toLocaleDateString("es-PE");
+    if (!date) return "Sin programar";
+    const [y, m, d] = date.split("-");
+    return new Date(y, m - 1, d).toLocaleDateString("es-PE", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return "Pendiente";
-
+    if (!amount) return "S/ 0.00";
     return new Intl.NumberFormat("es-PE", {
       style: "currency",
       currency: "PEN",
     }).format(amount);
   };
 
+  const priorityStyle = {
+    HIGH: "bg-red-100 text-red-700 border-red-200",
+    MEDIUM: "bg-blue-100 text-blue-700 border-blue-200",
+    LOW: "bg-gray-100 text-gray-700 border-gray-200",
+  };
+
+  const qualityStyle = {
+    PASSED: "bg-green-100 text-green-700 border-green-200",
+    FAILED: "bg-red-100 text-red-700 border-red-200",
+    REWORK: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    PENDING: "bg-gray-100 text-gray-700 border-gray-200",
+  };
+
   if (loading) {
     return (
-      <div className="p-8 flex justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#42526E]"></div>
+      <div className="h-[60vh] flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-2 border-gray-300 border-t-blue-600 rounded-full" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-6">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <AlertCircle className="mx-auto mb-3 text-red-500" />
           <p className="text-red-600">{error}</p>
 
           <button
             onClick={() => navigate("/production")}
-            className="mt-4 px-4 py-2 bg-gray-200 rounded-lg"
+            className="mt-4 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
           >
-            Volver al pipeline
+            Volver
           </button>
         </div>
       </div>
@@ -135,181 +125,157 @@ export default function ProductionOrderDetail() {
   if (!order) return null;
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto min-h-[calc(100vh-96px)] flex flex-col w-full">
-      {/* Botón volver */}
-      <button
-        onClick={() => navigate("/production")}
-        className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-6 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span className="text-sm font-medium">Volver al pipeline</span>
-      </button>
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      {/* HEADER */}
+      <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {order.order_number}
-          </h1>
+          <button
+            onClick={() => navigate("/production")}
+            className="flex items-center gap-2 text-gray-600 hover:text-black mb-3"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </button>
+
+          <h1 className="text-2xl font-bold">{order.order_number}</h1>
           <p className="text-gray-500">Orden de producción</p>
         </div>
 
-        <div className="flex gap-2">
-          <Badge className={getPriorityColor(order.priority)}>
+        <div className="flex gap-2 flex-wrap">
+          <span
+            className={`px-3 py-1 rounded-full text-sm border ${priorityStyle[order.priority]}`}
+          >
             {order.priority}
-          </Badge>
+          </span>
 
-          <Badge className={getQualityColor(order.quality_status)}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm border ${qualityStyle[order.quality_status || "PENDING"]}`}
+          >
             Calidad: {order.quality_status || "PENDING"}
-          </Badge>
+          </span>
         </div>
       </div>
 
-      {/* Cliente */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
+      {/* GRID PRINCIPAL */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* CLIENTE */}
+        <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Cliente
             </CardTitle>
           </CardHeader>
-
           <CardContent>
             <p className="font-semibold">
-              {order.technicalSheet?.client?.nombre || "No asignado"}
+              {order.technicalSheet?.client?.nombre || "Sin cliente"}
             </p>
+            <p className="text-sm text-gray-500">
+              {order.technicalSheet?.client?.empresa || "Sin empresa"}
+            </p>
+          </CardContent>
+        </Card>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Empresa: {order.technicalSheet?.client?.empresa || "N/A"}
+        {/* CANTIDAD */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              Cantidad
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{order.quantity ?? 0}</p>
+            <p className="text-sm text-gray-500">unidades</p>
+          </CardContent>
+        </Card>
+
+        {/* COSTO */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Costo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-bold">
+              {formatCurrency(order.technicalSheet?.estimated_cost)}
+            </p>
+            <p className="text-sm text-gray-500">
+              Real: {formatCurrency(order.actual_cost)}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Cantidad / Fase / Costo */}
+      {/* FASE + PROGRESO */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Estado de producción</CardTitle>
+        </CardHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Cantidad</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-2xl font-bold">{order.quantity} unidades</p>
-
-            <p className="text-sm text-gray-500">Estado: {order.status}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Fase Actual</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {order.current_phase?.nombre || "No asignada"}
-            </p>
-
-            <p className="text-sm text-gray-500">Progreso: {order.progress}%</p>
+        <CardContent className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-lg">
+                Fase: {order.current_phase?.nombre || "Sin fase"}
+              </p>
+              <p className="text-sm text-gray-500">Progreso general</p>
+            </div>
 
             <button
               onClick={handleNextPhase}
               disabled={movingPhase}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {movingPhase ? "Moviendo..." : "Pasar a la siguiente fase"}
+              {movingPhase ? "Actualizando..." : "Avanzar fase"}
             </button>
-          </CardContent>
+          </div>
+
+          <Progress value={order.progress ?? 0} className="h-3" />
+
+          <p className="text-sm text-gray-500 text-right">
+            {order.progress ?? 0}% completado
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* FECHAS */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Fecha Estimada de Entrega</CardTitle>
+          </CardHeader>
+          <CardContent>{formatDate(order.estimated_end_date)}</CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Costo Estimado</CardTitle>
+            <CardTitle>Fecha Inicio</CardTitle>
           </CardHeader>
+          <CardContent>{formatDate(order.actual_start_date)}</CardContent>
+        </Card>
 
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {formatCurrency(order.technicalSheet?.estimated_cost)}
-            </p>
-
-            <p className="text-sm text-gray-500">
-              Costo real: {formatCurrency(order.actual_cost)}
-            </p>
-          </CardContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>Fecha Finalizado</CardTitle>
+          </CardHeader>
+          <CardContent>{formatDate(order.actual_end_date)}</CardContent>
         </Card>
       </div>
 
-      {/* Fechas */}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Fecha estimada
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p>{formatDate(order.estimated_end_date)}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Inicio real</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p>{formatDate(order.actual_start_date)}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Fin real</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p>{formatDate(order.actual_end_date)}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Observaciones */}
-
+      {/* OBSERVACIONES */}
       {order.quality_observations && (
-        <Card className="mb-6">
+        <Card>
           <CardHeader>
-            <CardTitle>Observaciones de calidad</CardTitle>
+            <CardTitle>Observaciones</CardTitle>
           </CardHeader>
-
           <CardContent>
             <p>{order.quality_observations}</p>
           </CardContent>
         </Card>
       )}
-
-      {/* Progreso */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Progreso de producción</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-            <span>Avance general</span>
-            <span>{order.progress}%</span>
-          </div>
-
-          <Progress value={order.progress} className="h-2" />
-        </CardContent>
-      </Card>
     </div>
   );
 }
