@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Loader, AlertCircle } from "lucide-react";
 import api from "../../services/api";
@@ -21,6 +21,10 @@ export default function FichaTecnica() {
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
 
+  // Estado para validaciones del botón Send to Production
+  const [canSendToProduction, setCanSendToProduction] = useState(false);
+  const [sendReasons, setSendReasons] = useState([]);
+
   const {
     loading,
     error,
@@ -29,12 +33,61 @@ export default function FichaTecnica() {
     pedido,
     materiales,
     workflowStatus,
+    workflowDetails, // 👈 NUEVO
     cantidadPedido,
+    productionOrder,
     updateSpecs,
     sendToProduction,
     exportPDF,
     loadTechSheet,
   } = useFichaTecnica(id);
+
+  // 🔍 Función de validación
+  const validateSendToProduction = () => {
+    const reasons = [];
+    
+    // 1. ¿Hay una muestra aprobada?
+    const hasApprovedSample = techSheet?.samples?.some(
+      s => s.status === 'APPROVED' && s.is_active === true
+    );
+    if (!hasApprovedSample) {
+      reasons.push('No hay una muestra aprobada y activa');
+    }
+
+    // 2. ¿El pedido está pagado (50% o 100%)?
+    if (!['pagado', 'Canceló 50%'].includes(pedido?.estado_pago)) {
+      reasons.push('El pedido no ha pagado al menos el 50%');
+    }
+
+    // 3. ¿El pedido es de tipo Producción?
+    if (pedido?.tipo_pedido !== 'Producción') {
+      reasons.push('El pedido no es de tipo "Producción"');
+    }
+
+    // 4. ¿Ya existe una orden de producción activa?
+    if (productionOrder) {
+      reasons.push('Ya existe una orden de producción activa');
+    }
+
+    console.log('🔍 Validación Send to Production:', { 
+      reasons, 
+      canSend: reasons.length === 0,
+      hasApprovedSample,
+      estado_pago: pedido?.estado_pago,
+      tipo_pedido: pedido?.tipo_pedido,
+      productionOrder
+    });
+    
+    setSendReasons(reasons);
+    setCanSendToProduction(reasons.length === 0);
+  };
+
+  // 🔍 Ejecutar validación cuando cambian los datos
+  useEffect(() => {
+    if (techSheet && pedido) {
+      validateSendToProduction();
+    }
+  }, [techSheet, pedido, productionOrder]);
 
   const updateMachine = async (machineId) => {
     try {
@@ -125,7 +178,11 @@ export default function FichaTecnica() {
         onExportPDF={exportPDF}
       />
 
-      <WorkflowStatus workflowStatus={workflowStatus} />
+      {/* 👇 NUEVO: Pasamos workflowDetails */}
+      <WorkflowStatus 
+        workflowStatus={workflowStatus}
+        workflowDetails={workflowDetails}
+      />
 
       <div className="flex gap-8">
         <div className="flex-1 space-y-8">
@@ -182,13 +239,16 @@ export default function FichaTecnica() {
             estimatedCost={techSheet.estimated_cost}
             pedidoQuantity={cantidadPedido}
             onSendToProduction={sendToProduction}
+            canSendToProduction={canSendToProduction}
+            sendReasons={sendReasons}
           />
           <ClientSidebar cliente={cliente} />
           <OrderSidebar
             pedido={pedido}
             estimatedQuantity={techSheet.estimated_quantity}
             onUpdatePedido={associatePedido}
-            isEditing={isEditing} // ← para mostrar el botón editar solo en modo edición
+            isEditing={isEditing}
+            techSheetName={techSheet?.name || ''}
           />
         </div>
       </div>

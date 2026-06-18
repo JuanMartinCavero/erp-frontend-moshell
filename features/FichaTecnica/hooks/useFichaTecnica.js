@@ -14,10 +14,14 @@ export const useFichaTecnica = (id) => {
     tech_sheet: "IN_REVIEW",
     client_approval: "PENDING",
   });
-
   const [cantidadPedido, setCantidadPedido] = useState(0);
-
   const [maquina, setMaquina] = useState(null);
+  
+  // 👇 Estado para orden de producción activa
+  const [productionOrder, setProductionOrder] = useState(null);
+
+  // 👇 NUEVO: Estado para workflowDetails
+  const [workflowDetails, setWorkflowDetails] = useState(null);
 
   const loadTechSheet = useCallback(async () => {
     if (!id) return;
@@ -42,17 +46,23 @@ export const useFichaTecnica = (id) => {
       );
       setCantidadPedido(data.cantidad_pedido || 0);
       setMaquina(data.techSheet?.machine || null);
+      
+      // 👇 Guardar production_order si existe
+      setProductionOrder(data.production_order || null);
+
+      // 👇 NUEVO: Guardar workflowDetails si existe
+      setWorkflowDetails(data.workflow_details || null);
     } catch (err) {
       console.error("Error:", err);
       setError(err.response?.data?.message || "Error al cargar");
     } finally {
       setLoading(false);
     }
-  }, [id]); // Solo depende de id
+  }, [id]);
 
   useEffect(() => {
     loadTechSheet();
-  }, [loadTechSheet]); // Solo se ejecuta cuando loadTechSheet cambia
+  }, [loadTechSheet]);
 
   const updateSpecs = useCallback(
     async (editedSpecs) => {
@@ -113,7 +123,9 @@ export const useFichaTecnica = (id) => {
     cantidadPedido,
     materiales,
     workflowStatus,
+    workflowDetails, // 👈 NUEVO
     maquina,
+    productionOrder,
     loadTechSheet,
     updateSpecs,
     sendToProduction,
