@@ -25,9 +25,8 @@ export default function OrderQuickView({ selectedPedido }) {
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-semibold flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500">
-            visibility
+            Pedido #{selectedPedido.numero_pedido}
           </span>
-          Pedido #{selectedPedido.numero_pedido}
         </h3>
 
         <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">

@@ -1,5 +1,6 @@
 //C:\Users\USER\Downloads\ERP Moshell\erp-frontend-moshell\hooks\usePedidos.js
 import { useState } from "react";
+import { useEffect } from "react";
 import {
   getPedidos,
   createPedido,
@@ -14,6 +15,8 @@ import {
   obtenerMuestas,
   getSampleItems,
   getSamples,
+  getFasesProduction,
+  getPedidosFasesProduction,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -22,6 +25,7 @@ export default function usePedidos() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
+  const [fasesProduccion, setFasesProduccion] = useState([]);
   const refreshPedidos = () => fetchPedidos();
 
   // Obtener pedidos
@@ -232,6 +236,32 @@ export default function usePedidos() {
     }
   };
 
+  const fetchFasesProduction = async () => {
+    setLoading(true);
+    try {
+      const res = await getFasesProduction();
+      setFasesProduccion(res.data);
+    } catch (error) {
+      setError("Error al obtener las fases");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPedidosPorFase = async (estado) => {
+    setLoading(true);
+    try {
+      const res = await getPedidosFasesProduction(
+        estado === "Todos" ? null : estado,
+      );
+      setPedidos(res.data.data);
+    } catch (error) {
+      setError("Error filtrado de Pedido", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     pedidos,
     stats,
@@ -252,5 +282,8 @@ export default function usePedidos() {
     hookObtenerMuestas,
     fetchSamples,
     fetchSampleItems,
+    fetchFasesProduction,
+    fetchPedidosPorFase,
+    fasesProduccion,
   };
 }

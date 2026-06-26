@@ -18,9 +18,8 @@ export default function OrderActivity({ recentPedidos = [] }) {
     <div className="lg:col-span-1 bg-white dark:bg-primary/5 rounded-2xl border border-slate-200 dark:border-primary/20 p-6">
       <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
         <span className="material-symbols-outlined text-indigo-500">
-          history
+          Actividad Reciente
         </span>
-        Actividad Reciente
       </h3>
 
       <div className="relative border-l border-slate-200 dark:border-primary/20 pl-6 space-y-6">
@@ -40,9 +39,7 @@ export default function OrderActivity({ recentPedidos = [] }) {
               {pedido.cliente?.nombre}
             </div>
 
-            <div className="text-xs text-indigo-500 mt-1">
-              {pedido.estado}
-            </div>
+            <div className="text-xs text-indigo-500 mt-1">{pedido.estado}</div>
           </div>
         ))}
       </div>
