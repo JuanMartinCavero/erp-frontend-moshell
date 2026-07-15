@@ -1,23 +1,53 @@
+// src/features/inventory/components/InventoryPagination.jsx
 import React from "react";
 
-export function Pagination() {
-  return (
-    <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-      <div className="text-sm text-gray-600">
-        Mostrando 1 de 24 registros
-      </div>
+export function Pagination({ currentPage, lastPage, onPageChange }) {
+  // Si no hay páginas o solo hay 1, no mostrar nada
+  if (!currentPage || !lastPage || lastPage <= 1) return null;
 
-      <div className="flex gap-1">
-        <button className="px-3 py-1.5 bg-purple-600 text-white rounded text-sm">
-          1
+  // Calcular qué números de página mostrar
+  const pages = [];
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(lastPage, currentPage + 2);
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-4">
+      {/* Botón Anterior */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-50"
+      >
+        Anterior
+      </button>
+      
+      {/* Números de página */}
+      {pages.map(page => (
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`px-3 py-1 border rounded ${
+            page === currentPage 
+              ? 'bg-purple-600 text-white' 
+              : 'hover:bg-gray-50'
+          }`}
+        >
+          {page}
         </button>
-        <button className="px-3 py-1.5 bg-gray-100 rounded text-sm">
-          2
-        </button>
-        <button className="px-3 py-1.5 bg-gray-100 rounded text-sm">
-          3
-        </button>
-      </div>
+      ))}
+      
+      {/* Botón Siguiente */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= lastPage}
+        className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-50"
+      >
+        Siguiente
+      </button>
     </div>
   );
 }
