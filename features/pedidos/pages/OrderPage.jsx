@@ -26,6 +26,9 @@ export default function OrderPage() {
     addPedido,
     fetchPedidoDetalle,
     updatePedido,
+    fetchFasesProduction,
+    fetchPedidosPorFase,
+    fasesProduccion,
     loading,
     pagination,
   } = usePedidos();
@@ -51,6 +54,7 @@ export default function OrderPage() {
 
   useEffect(() => {
     fetchPedidos();
+    fetchFasesProduction();
   }, []);
 
   useEffect(() => {
@@ -148,9 +152,11 @@ export default function OrderPage() {
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <OrderFilters
+          fases={fasesProduccion}
           estadoActivo={estadoActivo}
           setEstadoActivo={setEstadoActivo}
           fetchPedidos={fetchPedidos}
+          fetchPedidosPorFase={fetchPedidosPorFase}
         />
 
         <OrderTable

@@ -78,3 +78,11 @@ export const toggleSampleActive = (id) => {
 export const getSampleItems = (id) => {
   return axiosClient.get(`/samples/${id}/items`);
 };
+
+export const getFasesProduction = () => {
+  return axiosClient.get("/pedidos-fases");
+};
+
+export const getPedidosFasesProduction = (estado) => {
+  return axiosClient.get("/production-fases", { params: { estado } });
+};
