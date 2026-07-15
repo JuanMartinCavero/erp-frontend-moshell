@@ -1,6 +1,10 @@
 import Progress from "./Progress";
 
-export default function OrderQuickView({ selectedPedido }) {
+export default function OrderQuickView({
+  selectedPedido,
+  fasesProduccion,
+  faseActual,
+}) {
   if (!selectedPedido) {
     return (
       <div className="lg:col-span-2 bg-white dark:bg-primary/5 rounded-2xl border border-slate-200 dark:border-primary/20 p-6">
@@ -65,9 +69,26 @@ export default function OrderQuickView({ selectedPedido }) {
         {/* progreso */}
 
         <div className="space-y-5">
-          <Progress label="Producción" value={85} />
-          <Progress label="Corte" value={100} />
-          <Progress label="Abastecimiento Tela" value={100} />
+          {fasesProduccion.map((fase) => {
+            const faseActualOrden = fasesProduccion.find(
+              (f) => f.id === faseActual?.fase_produccion_id,
+            )?.orden;
+
+            let porcentaje = 0;
+
+            if (faseActualOrden) {
+              if (fase.orden < faseActualOrden) {
+                porcentaje = 100; // fases terminadas
+              }
+
+              if (fase.orden === faseActualOrden) {
+                porcentaje = 50; // fase actual en proceso
+              }
+            }
+            return (
+              <Progress key={fase.id} label={fase.nombre} value={porcentaje} />
+            );
+          })}
         </div>
       </div>
     </div>

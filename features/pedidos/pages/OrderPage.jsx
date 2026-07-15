@@ -28,6 +28,7 @@ export default function OrderPage() {
     updatePedido,
     fetchFasesProduction,
     fetchPedidosPorFase,
+    fetchCurrentPhaseByPedido,
     fasesProduccion,
     loading,
     pagination,
@@ -51,6 +52,19 @@ export default function OrderPage() {
   // Estados para el modal de EDITAR
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [pedidoToEdit, setPedidoToEdit] = useState(null);
+
+  const [faseActual, setFaseActual] = useState(null);
+
+  useEffect(() => {
+    if (!selectedPedido) return;
+
+    const loadCurrentPhase = async () => {
+      const fase = await fetchCurrentPhaseByPedido(selectedPedido.id);
+      setFaseActual(fase);
+    };
+
+    loadCurrentPhase();
+  }, [selectedPedido]);
 
   useEffect(() => {
     fetchPedidos();
@@ -182,7 +196,11 @@ export default function OrderPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <OrderActivity recentPedidos={recentPedidos} />
-        <OrderQuickView selectedPedido={selectedPedido} />
+        <OrderQuickView
+          selectedPedido={selectedPedido}
+          fasesProduccion={fasesProduccion}
+          faseActual={faseActual}
+        />
       </div>
 
       {/* Modal para Nuevo Pedido */}

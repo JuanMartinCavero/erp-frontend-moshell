@@ -17,6 +17,7 @@ import {
   getSamples,
   getFasesProduction,
   getPedidosFasesProduction,
+  getCurrentPhaseByPedido,
 } from "../services/pedidosApi";
 
 export default function usePedidos() {
@@ -262,6 +263,16 @@ export default function usePedidos() {
     }
   };
 
+  const fetchCurrentPhaseByPedido = async (pedidoId) => {
+    try {
+      const res = await getCurrentPhaseByPedido(pedidoId);
+      return res.data;
+    } catch (error) {
+      setError("Error al obtener la fase actual del pedido");
+      throw error;
+    }
+  };
+  
   return {
     pedidos,
     stats,
@@ -285,5 +296,6 @@ export default function usePedidos() {
     fetchFasesProduction,
     fetchPedidosPorFase,
     fasesProduccion,
+    fetchCurrentPhaseByPedido,
   };
 }

@@ -86,3 +86,7 @@ export const getFasesProduction = () => {
 export const getPedidosFasesProduction = (estado) => {
   return axiosClient.get("/production-fases", { params: { estado } });
 };
+
+export const getCurrentPhaseByPedido = (pedidoId) => {
+  return axiosClient.get(`/pedido/${pedidoId}/fase`);
+};
