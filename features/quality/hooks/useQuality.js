@@ -65,11 +65,18 @@ export const useQuality = (productionOrderId) => {
         }
     }, [productionOrderId, loadQualityData]);
 
-    const updateChecklistItem = useCallback((itemId, status) => {
-        setChecklist(prev => prev.map(item => 
-            item.id === itemId ? { ...item, status } : item
-        ));
-    }, []);
+  // src/features/quality/hooks/useQuality.js
+const updateChecklistItem = useCallback((itemId, status) => {
+    setChecklist(prev => {
+        // Recorrer las categorías y actualizar el ítem correcto
+        return prev.map(category => ({
+            ...category,
+            items: category.items.map(item =>
+                item.id === itemId ? { ...item, status } : item
+            )
+        }));
+    });
+}, []);
 
     useEffect(() => {
         loadQualityData();

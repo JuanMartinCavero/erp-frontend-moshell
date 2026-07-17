@@ -21,36 +21,12 @@ import { Badge } from "../../components/ui/Badge";
 import { Progress } from "../../components/ui/Progress";
 import { useQuality } from './hooks/useQuality';
 
-// Componente de Checklist
-const InspectionChecklist = ({ items, onUpdateItem }) => {
-  const getStatusBadge = (status) => {
-    if (status === 'PASSED') {
-      return <Badge variant="success" className="bg-emerald-50 text-emerald-700 flex items-center gap-1">
-        <CheckCircle2 className="w-3.5 h-3.5" /> PASSED
-      </Badge>;
-    }
-    if (status === 'FAILED') {
-      return <Badge variant="destructive" className="bg-red-50 text-red-700 flex items-center gap-1">
-        <XCircle className="w-3.5 h-3.5" /> FAILED
-      </Badge>;
-    }
-    return (
-      <div className="flex gap-2">
-        <button 
-          onClick={() => onUpdateItem(items.id, 'PASSED')}
-          className="text-emerald-600 hover:text-emerald-700"
-        >
-          <CheckCircle2 className="w-5 h-5" />
-        </button>
-        <button 
-          onClick={() => onUpdateItem(items.id, 'FAILED')}
-          className="text-red-600 hover:text-red-700"
-        >
-          <XCircle className="w-5 h-5" />
-        </button>
-      </div>
-    );
-  };
+// Componente de Checklist con categorías
+// Componente de Checklist con categorías
+const InspectionChecklist = ({ items, onUpdateItem, onOpenModal }) => {
+  // Calcular totales para el progreso
+  const totalItems = items.reduce((acc, cat) => acc + cat.items.length, 0);
+  const passedItems = items.reduce((acc, cat) => acc + cat.items.filter(i => i.status === 'PASSED').length, 0);
 
   return (
     <Card>
@@ -58,17 +34,67 @@ const InspectionChecklist = ({ items, onUpdateItem }) => {
         <h3 className="font-bold text-gray-900 flex items-center gap-2">
           <ClipboardCheck className="w-5 h-5 text-gray-500" /> Quality Inspection Checklist
         </h3>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500">
+            {passedItems} / {totalItems} passed
+          </span>
+          <Progress value={totalItems > 0 ? (passedItems / totalItems) * 100 : 0} className="w-24 h-2" />
+        </div>
       </div>
-      <div className="divide-y divide-gray-100 p-2">
-        {items.map((item, i) => (
-          <div key={i} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-            <div>
-              <p className="font-bold text-sm text-gray-900">{item.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+      <div className="divide-y divide-gray-100 p-4">
+        {items.map((category, catIdx) => (
+          <div key={catIdx} className="py-3 first:pt-0 last:pb-0">
+            <h4 className="font-semibold text-gray-800 mb-2">{category.category}</h4>
+            <div className="space-y-2">
+              {category.items.map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors rounded-lg border border-gray-100">
+                  <div className="flex-1 pr-4">
+                    <p className="font-bold text-sm text-gray-900">{item.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {item.status === 'PASSED' && (
+                      <Badge variant="success" className="bg-emerald-50 text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> PASSED
+                      </Badge>
+                    )}
+                    {item.status === 'FAILED' && (
+                      <Badge variant="destructive" className="bg-red-50 text-red-700 flex items-center gap-1">
+                        <XCircle className="w-3.5 h-3.5" /> FAILED
+                      </Badge>
+                    )}
+                    {(!item.status || item.status === 'PENDING') && (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => onUpdateItem(item.id, 'PASSED')}
+                          className="p-1.5 rounded-full bg-gray-100 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                          title="Aprobar"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => onUpdateItem(item.id, 'FAILED')}
+                          className="p-1.5 rounded-full bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="Rechazar"
+                        >
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            {getStatusBadge(item.status)}
           </div>
         ))}
+      </div>
+      <div className="p-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl text-center">
+        <button 
+          onClick={onOpenModal}  // ← ¡¡¡USA ESTO, NO setShowCustomPointModal!!!
+          className="text-sm font-bold text-gray-700 hover:text-gray-900 transition-colors flex items-center justify-center gap-1 w-full"
+        >
+          <span className="text-lg leading-none">+</span> Add Custom Inspection Point
+        </button>
       </div>
     </Card>
   );
@@ -120,6 +146,13 @@ export default function QualityControl() {
   const [comments, setComments] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Modal para agregar punto de inspección personalizado
+  const [showCustomPointModal, setShowCustomPointModal] = useState(false);
+  const [customPoint, setCustomPoint] = useState({ 
+    title: '', 
+    description: '' 
+  });
+
   const handleSubmitInspection = async (status) => {
     // Convertir checklist a objeto para guardar
     const checklistData = {};
@@ -139,6 +172,31 @@ export default function QualityControl() {
     } else {
       alert('Error: ' + result.error);
     }
+  };
+
+  const addCustomPoint = () => {
+    if (!customPoint.title.trim()) {
+      alert('El título es obligatorio');
+      return;
+    }
+    
+    const newItem = {
+      id: `custom_${Date.now()}`,
+      title: customPoint.title.trim(),
+      description: customPoint.description.trim() || 'Punto de inspección personalizado',
+      status: 'PENDING'
+    };
+    
+    // Crear una nueva categoría para puntos personalizados
+    const newCategory = {
+      id: `custom_category_${Date.now()}`,
+      category: 'Puntos Personalizados',
+      items: [newItem]
+    };
+    
+    setChecklist(prev => [...prev, newCategory]);
+    setCustomPoint({ title: '', description: '' });
+    setShowCustomPointModal(false);
   };
 
   if (loading) {
@@ -173,8 +231,11 @@ export default function QualityControl() {
       </div>
     );
   }
-
-  const allChecklistPassed = checklist.length > 0 && checklist.every(item => item.status === 'PASSED');
+  // Verificar si todos los ítems del checklist están aprobados
+const allChecklistPassed = checklist.length > 0 && 
+  checklist.every(category => 
+    category.items.every(item => item.status === 'PASSED')
+  );
   const canApprove = allChecklistPassed && order.quality_status !== 'PASSED';
 
   return (
@@ -212,10 +273,11 @@ export default function QualityControl() {
 
       <div className="flex gap-8">
         <div className="flex-1 space-y-6">
-          <InspectionChecklist 
-            items={checklist} 
-            onUpdateItem={updateChecklistItem}
-          />
+         <InspectionChecklist 
+  items={checklist} 
+  onUpdateItem={updateChecklistItem}
+  onOpenModal={() => setShowCustomPointModal(true)}  // ← Pasar la función que abre el modal
+/>
 
           <div className="bg-gray-50 rounded-xl p-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -302,6 +364,63 @@ export default function QualityControl() {
           <ActivityLog history={history} />
         </div>
       </div>
+
+      {/* ✅ MODAL PARA AGREGAR PUNTO PERSONALIZADO */}
+      {showCustomPointModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <h3 className="text-lg font-bold mb-4">Agregar Punto de Inspección</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Crea un punto de inspección personalizado para esta orden.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Título <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={customPoint.title}
+                  onChange={(e) => setCustomPoint({ ...customPoint, title: e.target.value })}
+                  placeholder="Ej: Prueba de resistencia al agua"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows="3"
+                  value={customPoint.description}
+                  onChange={(e) => setCustomPoint({ ...customPoint, description: e.target.value })}
+                  placeholder="Describe el punto de inspección..."
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCustomPointModal(false);
+                  setCustomPoint({ title: '', description: '' });
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={addCustomPoint}
+                disabled={!customPoint.title.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Agregar Punto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
