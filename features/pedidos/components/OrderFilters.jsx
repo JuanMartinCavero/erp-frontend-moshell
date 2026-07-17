@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function OrderFilters({
   fases,
   estadoActivo,
@@ -5,13 +7,24 @@ export default function OrderFilters({
   fetchPedidos,
   fetchPedidosPorFase,
 }) {
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+
   const handleFilter = (estado) => {
     setEstadoActivo(estado);
+
     if (estado === "Todos") {
       fetchPedidos();
     } else {
       fetchPedidosPorFase(estado);
     }
+  };
+
+  const handleFecha = () => {
+    fetchPedidos({
+      fechaInicio,
+      fechaFin,
+    });
   };
 
   return (
@@ -28,7 +41,7 @@ export default function OrderFilters({
         Todos
       </button>
 
-      {/* FASES EN LA MISMA FILA */}
+      {/* FASES */}
       {(fases ?? []).map((fase) => (
         <button
           key={fase.id}
@@ -43,19 +56,29 @@ export default function OrderFilters({
         </button>
       ))}
 
-      {/* ACCIONES (se van a la derecha automáticamente) */}
+      {/* FILTRO FECHA */}
       <div className="ml-auto flex items-center gap-3">
-        <div className="flex items-center bg-slate-100 dark:bg-primary/10 rounded-lg px-3 py-2 gap-2 text-xs font-bold cursor-pointer">
-          <span className="material-symbols-outlined text-sm">
-            calendar_month
-          </span>
-          <span>Rango de Fecha</span>
-          <span className="material-symbols-outlined text-sm">expand_more</span>
-        </div>
+        <input
+          type="date"
+          value={fechaInicio}
+          onChange={(e) => setFechaInicio(e.target.value)}
+          className="px-3 py-2 rounded-lg bg-slate-100 text-xs"
+        />
 
-        <button className="flex items-center gap-2 bg-slate-100 dark:bg-primary/10 px-3 py-2 rounded-lg text-xs font-bold">
-          <span className="material-symbols-outlined text-sm">filter_alt</span>
-          <span>Más Filtros</span>
+        <span className="text-xs">hasta</span>
+
+        <input
+          type="date"
+          value={fechaFin}
+          onChange={(e) => setFechaFin(e.target.value)}
+          className="px-3 py-2 rounded-lg bg-slate-100 text-xs"
+        />
+
+        <button
+          onClick={handleFecha}
+          className="bg-primary text-white px-3 py-2 rounded-lg text-xs font-bold"
+        >
+          Buscar
         </button>
       </div>
     </div>
