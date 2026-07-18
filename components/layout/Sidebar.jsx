@@ -45,7 +45,7 @@ const Sidebar = () => {
       requiredPermissions: ["tech-sheet.view"],
       minRoleLevel: 8,
     },
-      {
+    {
       name: "Muestras de Pedido",
       path: "/samples",
       icon: <CardSim className="w-[18px] h-[18px]" />,
@@ -136,7 +136,7 @@ const Sidebar = () => {
       requiredPermissions: ["client.manage"],
       minRoleLevel: 12,
     },
-  
+
     {
       name: "Etiquetas",
       path: "/barcodes",
@@ -248,13 +248,9 @@ const Sidebar = () => {
 
       <div className="p-4">
         <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-          <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
-            System Status
-          </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span className="text-xs text-slate-600">
-              All systems operational
+            <span className="text-xs text-slate-900 ">
+              ERP MOSHELL MANUFACTURING
             </span>
           </div>
         </div>

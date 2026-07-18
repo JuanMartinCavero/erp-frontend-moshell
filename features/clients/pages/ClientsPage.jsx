@@ -16,17 +16,11 @@ const ClientsPage = () => {
     fetchClientes,
     addCliente,
     editCliente,
-    buscar
+    buscar,
   } = useClients();
 
   const [openModal, setOpenModal] = useState(false);
   const [clienteEdit, setClienteEdit] = useState(null);
-
-  const total = clientes.length;
-  const activos = clientes.filter((c) => c.estado).length;
-  const inactivos = clientes.filter((c) => !c.estado).length;
-  const internacionales = clientes.filter((c) => c.es_internacional).length;
-  const nacionales = clientes.filter((c) => !c.es_internacional).length;
 
   useEffect(() => {
     fetchClientes();
@@ -43,7 +37,7 @@ const ClientsPage = () => {
       setOpenModal(false);
       setClienteEdit(null);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -53,39 +47,46 @@ const ClientsPage = () => {
   };
 
   const handleCloseModal = () => {
-    setOpenModal(false);
     setClienteEdit(null);
+    setOpenModal(false);
   };
 
+  const total = clientes.length;
+  const activos = clientes.filter((c) => c.estado).length;
+  const inactivos = total - activos;
+  const internacionales = clientes.filter((c) => c.es_internacional).length;
+  const nacionales = total - internacionales;
 
   return (
-    <div className="p-8 space-y-6">
-      <ClientsHeader onNew={() => setOpenModal(true)} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="w-full p-8 space-y-8">
+        <ClientsHeader onNew={() => setOpenModal(true)} />
 
-      <ClientsStats
-        total={total}
-        activos={activos}
-        inactivos={inactivos}
-        internacionales={internacionales}
-        nacionales={nacionales}
-      />
+        <ClientsStats
+          total={total}
+          activos={activos}
+          inactivos={inactivos}
+          internacionales={internacionales}
+          nacionales={nacionales}
+        />
 
-      <ClientsFilters onSearch={buscar} />
+        <ClientsFilters onSearch={buscar} />
 
-      <ClientsTable
-        clientes={clientes}
-        loading={loading}
-        onDelete={removeCliente}
-        onActivate={activar}
-        onEdit={handleEdit}
-      />
+        <ClientsTable
+          clientes={clientes}
+          loading={loading}
+          onDelete={removeCliente}
+          onActivate={activar}
+          onEdit={handleEdit}
+        />
 
-      <ClientsModal
-        isOpen={openModal}
-        onClose={handleCloseModal}
-        onSave={handleSave}
-        clienteEdit={clienteEdit}
-      />
+        <ClientsModal
+          isOpen={openModal}
+          onClose={handleCloseModal}
+          onSave={handleSave}
+          clienteEdit={clienteEdit}
+        />
+      </div>
     </div>
   );
 };
