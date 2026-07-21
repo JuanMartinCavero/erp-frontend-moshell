@@ -127,11 +127,22 @@ return (
           {data?.length > 0 ? (
             data.map((item) => {
               const isSelected = selectedMaterials.includes(item.id);
-              const stock = Number(item.stock_actual) || 0;
-              const cantidad = Number(item.cantidad) || stock;
-              const pesoKg = Number(item.peso_kg) || 0;
-              const valorUnitario = Number(item.valor_unitario) || 0;
-              const valorTotal = Number(item.valor_total) || (stock * valorUnitario);
+              
+              // ✅ DATOS DEL INVENTARIO
+              const inventario = item.inventario || {};
+              const stock = Number(inventario.stock_actual) || 0;
+              const ubicacion = inventario.ubicacion || '-';
+
+// ✅ DATOS DEL MOVIMIENTO
+const movimientos = item.movimientos || [];
+const ultimoMovimiento = movimientos.length > 0 ? movimientos[0] : {};
+const cantidad = Number(ultimoMovimiento.cantidad) || stock;
+const valorUnitario = Number(ultimoMovimiento.valor_unitario) || 0;
+
+// ✅ PESO: usar el peso del movimiento (ya está en la BD)
+const pesoKg = Number(ultimoMovimiento.peso_kg) || 0;
+              
+              const valorTotal = stock * valorUnitario;
               const porcentaje = totalValorGeneral > 0 
                 ? ((valorTotal / totalValorGeneral) * 100).toFixed(2)
                 : '0.00';
@@ -160,7 +171,7 @@ return (
                   </td>
                   <td className="px-4 py-3 text-sm">{item.calidad || '-'}</td>
                   <td className="px-4 py-3 text-sm text-right font-bold">{stock}</td>
-                  <td className="px-4 py-3 text-sm">{item.inventario?.ubicacion || '-'}</td>
+                  <td className="px-4 py-3 text-sm">{ubicacion}</td>
                   <td className="px-4 py-3 text-sm text-right">{cantidad}</td>
                   <td className="px-4 py-3 text-sm text-right">{pesoKg.toFixed(2)}</td>
                   <td className="px-4 py-3 text-sm text-right">S/ {valorUnitario.toFixed(2)}</td>
