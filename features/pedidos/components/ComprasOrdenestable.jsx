@@ -18,7 +18,12 @@ const TRANSICIONES_ESTADO = {
   anulada: [],
 };
 
-export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
+export function OrdenesTable({
+  ordenes = [],
+  estados = [],
+  loading = false,
+  onBuscar,
+}) {
   // Estados para modales
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -26,6 +31,15 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
   const [editOrden, setEditOrden] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
 
+  const [estado, setEstado] = useState("");
+  const [fecha, setFecha] = useState("");
+
+  const buscar = () => {
+    onBuscar({
+      estado,
+      fecha,
+    });
+  };
   // AGREGADO: Actualizar estado de una orden
   const handleUpdateEstado = async (id, nuevoEstado) => {
     try {
@@ -99,12 +113,45 @@ export function OrdenesTable({ ordenes = [], loading = false, onRefresh }) {
     <>
       <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex gap-4 items-end">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium">Estado:</label>
+              <select
+                value={estado}
+                onChange={(e) => setEstado(e.target.value)}
+                className="border rounded-lg px-3 py-2"
+              >
+                <option value="">Todos</option>
+
+                {estados.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <label className="block text-sm font-medium mb-1">Fecha</label>
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="border rounded-lg px-3 py-2"
+              />
+            </div>
+
+            <button
+              onClick={buscar}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+            >
+              Buscar
+            </button>
+          </div>
+
           <h2 className="text-base font-bold text-gray-900">
-            Órdenes de Compra Recientes
+            Órdenes de Compra
           </h2>
-          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-            Ver todas
-          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
