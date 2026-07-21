@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 
 import Login from "./features/Login/Login";
+import ProfilePage from "./components/ProfilePage";
 import DashboardPage from "./components/dashboard/pages/DashboardPage";
 import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
@@ -15,16 +16,16 @@ import { Compras } from "./features/purchasing/Compras";
 import QualityControl from "./features/quality/QualityControl";
 import { ProductionPipelinePage } from "./features/production";
 import ProductionOrderDetail from "./features/production/pages/ProductionOrderDetail";
-import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard';
+import FichaTecnicaDashboard from "./features/FichaTecnicaDashboard/FichaTecnicaDashboard";
 import FichaTecnica from "./features/FichaTecnica/FichaTecnica";
 import ProviderPage from "./features/providers/pages/ProviderPage";
 import MachineProductPage from "./features/machines/pages/MachineProductPage";
 import FinancePage from "./features/finance/pages/FinancePage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import NuevaFichaTecnica from './features/FichaTecnicaDashboard/components/NuevaFichaTecnica';
+import NuevaFichaTecnica from "./features/FichaTecnicaDashboard/components/NuevaFichaTecnica";
 import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
-import EditarFichaTecnica from './features/FichaTecnicaDashboard/EditarFichaTecnica';
+import EditarFichaTecnica from "./features/FichaTecnicaDashboard/EditarFichaTecnica";
 import QualityDashboard from "./features/quality/QualityDashboard";
 
 import SamplePage from "./features/samples/pages/SamplePage";
@@ -55,10 +56,16 @@ function App() {
         <Route path="/quality" element={<QualityDashboard />} />
         <Route path="/quality/:orderId" element={<QualityControl />} />
         <Route path="/production" element={<ProductionPipelinePage />} />
-        <Route path="/production/orders/:id" element={<ProductionOrderDetail />} />
+        <Route
+          path="/production/orders/:id"
+          element={<ProductionOrderDetail />}
+        />
         <Route path="/FichaTecnica" element={<FichaTecnicaDashboard />} />
         <Route path="/FichaTecnica/nueva" element={<NuevaFichaTecnica />} />
-        <Route path="/FichaTecnica/editar/:id" element={<EditarFichaTecnica />} />
+        <Route
+          path="/FichaTecnica/editar/:id"
+          element={<EditarFichaTecnica />}
+        />
         <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
         <Route path="/compras" element={<Compras />} />
@@ -66,7 +73,8 @@ function App() {
         <Route path="/machines" element={<MachineProductPage />} />
         <Route path="/finance" element={<FinancePage />} />
         <Route path="/samples" element={<SamplePage />} />
-        
+        <Route path="/profile" element={<ProfilePage />} />
+
         {/* ✅ NUEVA RUTA PARA ALERTAS */}
         <Route path="/alerts" element={<AlertsPage />} />
       </Route>
