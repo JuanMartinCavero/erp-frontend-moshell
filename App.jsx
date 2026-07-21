@@ -9,26 +9,26 @@ import RolesPage from "./features/roles/RolesPage";
 import UsersPage from "./features/users/Pages/UsersPage";
 import ClientsPage from "./features/clients/pages/ClientsPage";
 import OrdersPage from "./features/pedidos/pages/OrderPage";
-import OrderDetailPage from "./features/pedidos/pages/OrderDetailPage"; //detalle de ordenes de pedido
-import { Inventory } from "./features/inventory/Inventory"; // ← Agrega esta importación
-import { Compras } from "./features/purchasing/Compras";//compras de insumos o materiasles
-import  QualityControl  from "./features/quality/QualityControl";
-//import Pipeline from "./features/production/production"; //eran datos hardcodeados
-import { ProductionPipelinePage } from "./features/production";//pipeline con datos reales de backend de dashboard de producción con drag and drop y filtros por prioridad
-import ProductionOrderDetail from "./features/production/pages/ProductionOrderDetail"; // ← Importar el detalle de orden de producción
-import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard'; //ficha tecnica tablero general de fichas tecnicas
-import FichaTecnica from "./features/FichaTecnica/FichaTecnica"; //Ficha Tecnica de cada producto
-import ProviderPage from "./features/providers/pages/ProviderPage"; // Proveedores
-import MachineProductPage from "./features/machines/pages/MachineProductPage"; // Página de Producción y Maquinas
-import FinancePage from "./features/finance/pages/FinancePage"; // Página de Finanzas y Pagos
+import OrderDetailPage from "./features/pedidos/pages/OrderDetailPage";
+import { Inventory } from "./features/inventory/Inventory";
+import { Compras } from "./features/purchasing/Compras";
+import QualityControl from "./features/quality/QualityControl";
+import { ProductionPipelinePage } from "./features/production";
+import ProductionOrderDetail from "./features/production/pages/ProductionOrderDetail";
+import FichaTecnicaDashboard from './features/FichaTecnicaDashboard/FichaTecnicaDashboard';
+import FichaTecnica from "./features/FichaTecnica/FichaTecnica";
+import ProviderPage from "./features/providers/pages/ProviderPage";
+import MachineProductPage from "./features/machines/pages/MachineProductPage";
+import FinancePage from "./features/finance/pages/FinancePage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import NuevaFichaTecnica from './features/FichaTecnicaDashboard/components/NuevaFichaTecnica';
 import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
-import EditarFichaTecnica from './features/FichaTecnicaDashboard/EditarFichaTecnica'; //editar ficha tecnica resumen de cada muestra
+import EditarFichaTecnica from './features/FichaTecnicaDashboard/EditarFichaTecnica';
 import QualityDashboard from "./features/quality/QualityDashboard";
 
 import SamplePage from "./features/samples/pages/SamplePage";
+import AlertsPage from "./src/pages/AlertsPage"; // ← Importa la página de alertas
 
 function App() {
   return (
@@ -40,7 +40,7 @@ function App() {
       <Route
         element={
           <ProtectedRoute>
-            <Layout /> 
+            <Layout />
           </ProtectedRoute>
         }
       >
@@ -50,23 +50,25 @@ function App() {
         <Route path="/admin/users" element={<UsersPage />} />
         <Route path="/admin/clients" element={<ClientsPage />} />
         <Route path="admin/orders" element={<OrdersPage />} />
-         <Route path="/admin/orders/:id" element={<OrderDetailPage />} /> {/* ← Ruta de detalle de pedido */}
-        <Route path="/inventory" element={<Inventory />} /> {/* ← Agrega esta línea */}
-        <Route path="/quality" element={<QualityDashboard />} /> {/*Dashboard de control de calidad general*/}
-        <Route path="/quality/:orderId" element={<QualityControl />} /> {/*Detalle de inspección por orden de produccion en calidad*/}
-        {/*<Route path="/production" element={<Pipeline />} />*/}
-        <Route path="/production" element={<ProductionPipelinePage />} /> {/*produccion dinamica*/}
-         <Route path="/production/orders/:id" element={<ProductionOrderDetail />} /> {/* ← NUEVA RUTA para el detalle de orden de producción */}
+        <Route path="/admin/orders/:id" element={<OrderDetailPage />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/quality" element={<QualityDashboard />} />
+        <Route path="/quality/:orderId" element={<QualityControl />} />
+        <Route path="/production" element={<ProductionPipelinePage />} />
+        <Route path="/production/orders/:id" element={<ProductionOrderDetail />} />
         <Route path="/FichaTecnica" element={<FichaTecnicaDashboard />} />
-        <Route path="/FichaTecnica/nueva" element={<NuevaFichaTecnica />} /> {/* ← crear nueva ficha tecnica resumen solamente */}
-        <Route path="/FichaTecnica/editar/:id" element={<EditarFichaTecnica />} /> {/* ← editar ficha tecnica resumen de cada muestra */}
+        <Route path="/FichaTecnica/nueva" element={<NuevaFichaTecnica />} />
+        <Route path="/FichaTecnica/editar/:id" element={<EditarFichaTecnica />} />
         <Route path="/FichaTecnica/:id" element={<FichaTecnica />} />
         <Route path="/barcodes" element={<BarcodePage />} />
-        <Route path="/compras" element={<Compras />} /> {/* ← Agrega esta línea */}
-        <Route path="/admin/providers" element={<ProviderPage />} /> {/* Proveedores */}
-        <Route path="/machines" element={<MachineProductPage />} /> {/* Página de Producción y Maquinas */}
-        <Route path="/finance" element={<FinancePage />} /> {/* Página de Finanzas y Pagos */}
-        <Route path="/samples" element={<SamplePage />} /> {/* Página de ejemplo para pruebas */}
+        <Route path="/compras" element={<Compras />} />
+        <Route path="/admin/providers" element={<ProviderPage />} />
+        <Route path="/machines" element={<MachineProductPage />} />
+        <Route path="/finance" element={<FinancePage />} />
+        <Route path="/samples" element={<SamplePage />} />
+        
+        {/* ✅ NUEVA RUTA PARA ALERTAS */}
+        <Route path="/alerts" element={<AlertsPage />} />
       </Route>
     </Routes>
   );
