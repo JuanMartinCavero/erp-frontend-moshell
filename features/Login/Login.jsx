@@ -51,7 +51,7 @@ const Login = () => {
                 />
               </div>
               <h2 className="text-2xl font-bold tracking-tight dark:text-white">
-                Moshell Manufacturing
+                ERP MOSHELL TEXTIL 
               </h2>
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight mb-6 dark:text-white">

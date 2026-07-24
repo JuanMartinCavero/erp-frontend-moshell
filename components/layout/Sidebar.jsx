@@ -207,13 +207,13 @@ const Sidebar = () => {
         <img
           src={logo}
           alt="Moshell Logo"
-          className="w-10 h-10 object-contain"
+          className="w-22 h-22 object-contain"
         />
         <div className="flex flex-col">
           <span className="text-slate-600 font-bold text-lg leading-tight">
             Moshell
           </span>
-          <span className="text-slate-500 text-xs">Enterprise ERP</span>
+          <span className="text-slate-500 text-xs">ERP Textil</span>
         </div>
       </div>
 
@@ -242,7 +242,7 @@ const Sidebar = () => {
           className="w-full flex items-center gap-2 px-3 py-2 text-red-700 bg-red-100 hover:bg-red-200 rounded-xl font-medium text-sm shadow-md transition-colors"
         >
           <LogOut className="w-[18px] h-[18px]" />
-          Logout
+          Cerrar Sesión
         </button>
       </div>
 
@@ -250,7 +250,7 @@ const Sidebar = () => {
         <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-900 ">
-              ERP MOSHELL MANUFACTURING
+              ERP MOSHELL TEXTIL
             </span>
           </div>
         </div>
