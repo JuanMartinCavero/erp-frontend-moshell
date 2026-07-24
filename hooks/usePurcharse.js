@@ -3,6 +3,7 @@ import {
   ComprasKpi,
   obtenerEstadosOrdenCompra,
   obtenerOrdenesCompra,
+  obtenerInsumosCriticos,
 } from "../services/purcharseApi";
 
 export default function usePurcharse() {
@@ -10,6 +11,7 @@ export default function usePurcharse() {
   const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ordenes, setOrdenes] = useState([]);
+  const [insumosCriticos, setInsumosCriticos] = useState([]);
 
   const fetchKpis = async () => {
     const res = await ComprasKpi();
@@ -26,9 +28,19 @@ export default function usePurcharse() {
     setOrdenes(res);
   };
 
+  const fetchInsumosCriticos = async () => {
+    const res = await obtenerInsumosCriticos();
+    setInsumosCriticos(res);
+  };
+
   const cargarDatos = async () => {
     try {
-      await Promise.all([fetchKpis(), fetchEstados(), fetchOrdenes()]);
+      await Promise.all([
+        fetchKpis(),
+        fetchEstados(),
+        fetchOrdenes(),
+        fetchInsumosCriticos(),
+      ]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -48,5 +60,7 @@ export default function usePurcharse() {
     fetchKpis,
     fetchEstados,
     fetchOrdenes,
+    insumosCriticos,
+    fetchInsumosCriticos,
   };
 }

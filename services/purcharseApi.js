@@ -17,3 +17,9 @@ export const obtenerOrdenesCompra = async (filtros = {}) => {
 
   return response.data;
 };
+
+export const obtenerInsumosCriticos = async () => {
+  const response = await axiosClient.get("/ordenes-compra/insumos-criticos");
+
+  return response.data;
+};
