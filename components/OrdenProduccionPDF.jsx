@@ -296,104 +296,10 @@ export const OrdenProduccionPDF = ({ orden, productos, materiales, cliente, logo
               </View>
             </View>
 
-            <View style={[styles.adelantoBox, { marginTop: 4, backgroundColor: '#F0F4F8' }]}>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>50% RESTANTE</Text>
-                <Text style={styles.adelantoValue}>S/ {restante.toFixed(2)}</Text>
-              </View>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-                <Text style={styles.adelantoValue}>S/ {(restante * 0.18).toFixed(2)}</Text>
-              </View>
-              <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-                <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL RESTANTE</Text>
-                <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(restante + (restante * 0.18)).toFixed(2)}</Text>
-              </View>
-            </View>
           </View>
 
-          {/* ============================================================ */}
-          {/* COLUMNA DERECHA: MATERIALES */}
-          {/* ============================================================ */}
-          <View style={styles.columna}>
-            <Text style={styles.colTitle}>ORDEN DE COMPRA</Text>
 
-            {/* Tabla de Materiales */}
-            <View style={styles.table}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderText, styles.colMatCodigo]}>Material</Text>
-                <Text style={[styles.tableHeaderText, styles.colMatDescripcion]}>Descripción</Text>
-                <Text style={[styles.tableHeaderText, styles.colMatUnidad]}>Unidad</Text>
-                <Text style={[styles.tableHeaderText, styles.colMatPrecio]}>Precio</Text>
-                <Text style={[styles.tableHeaderText, styles.colMatTotal]}>Total</Text>
-              </View>
 
-              {hasMateriales ? (
-                materiales.map((item, i) => (
-                  <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowEven}>
-                    <Text style={[styles.cellLeft, styles.colMatCodigo]}>{item.nombre || '-'}</Text>
-                    <Text style={[styles.cellLeft, styles.colMatDescripcion]}>{item.descripcion || '-'}</Text>
-                    <Text style={[styles.cell, styles.colMatUnidad]}>{item.unidad || 'u'}</Text>
-                    <Text style={[styles.cell, styles.colMatPrecio]}>S/ {(item.precio || 0).toFixed(2)}</Text>
-                    <Text style={[styles.cell, styles.colMatTotal]}>S/ {(item.total || 0).toFixed(2)}</Text>
-                  </View>
-                ))
-              ) : (
-                <View style={styles.tableRow}>
-                  <Text style={{ width: '100%', textAlign: 'center', color: '#94A3B8', fontSize: 7, padding: 4 }}>
-                    No hay materiales registrados
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            {/* Totales Materiales */}
-            <View style={styles.totalesBox}>
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>SUBTOTAL</Text>
-                <Text style={styles.totalValue}>S/ {subtotalMat.toFixed(2)}</Text>
-              </View>
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>IGV (18%)</Text>
-                <Text style={styles.totalValue}>S/ {igvMat.toFixed(2)}</Text>
-              </View>
-              <View style={styles.totalRow}>
-                <Text style={[styles.totalLabel, { fontSize: 11 }]}>TOTAL</Text>
-                <Text style={[styles.totalValue, styles.totalGrande]}>S/ {totalMat.toFixed(2)}</Text>
-              </View>
-            </View>
-
-            {/* Adelantos Materiales */}
-            <View style={styles.adelantoBox}>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>50% ADELANTO</Text>
-                <Text style={styles.adelantoValue}>S/ {adelantoMat.toFixed(2)}</Text>
-              </View>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-                <Text style={styles.adelantoValue}>S/ {(adelantoMat * 0.18).toFixed(2)}</Text>
-              </View>
-              <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-                <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL ADELANTO</Text>
-                <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(adelantoMat + (adelantoMat * 0.18)).toFixed(2)}</Text>
-              </View>
-            </View>
-
-            <View style={[styles.adelantoBox, { marginTop: 4, backgroundColor: '#F0F4F8' }]}>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>50% RESTANTE</Text>
-                <Text style={styles.adelantoValue}>S/ {restanteMat.toFixed(2)}</Text>
-              </View>
-              <View style={styles.adelantoRow}>
-                <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-                <Text style={styles.adelantoValue}>S/ {(restanteMat * 0.18).toFixed(2)}</Text>
-              </View>
-              <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-                <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL RESTANTE</Text>
-                <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(restanteMat + (restanteMat * 0.18)).toFixed(2)}</Text>
-              </View>
-            </View>
-          </View>
 
         </View>
 

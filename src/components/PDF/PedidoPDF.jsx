@@ -336,20 +336,7 @@ const PedidoPDF = ({ pedido, logoBase64 }) => {
           </View>
         </View>
 
-        <View style={[styles.adelantoBox, { marginTop: 4, backgroundColor: '#F0F4F8' }]}>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>50% RESTANTE</Text>
-            <Text style={styles.adelantoValue}>S/ {restante.toFixed(2)}</Text>
-          </View>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-            <Text style={styles.adelantoValue}>S/ {(restante * 0.18).toFixed(2)}</Text>
-          </View>
-          <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-            <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL RESTANTE</Text>
-            <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(restante + (restante * 0.18)).toFixed(2)}</Text>
-          </View>
-        </View>
+      
 
         {/* ===== OBSERVACIONES ===== */}
         {pedido.descripcion && (
