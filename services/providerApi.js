@@ -1,7 +1,10 @@
 import axiosClient from "./axiosClient";
 
-export const getProviders = async () => {
-  const res = await axiosClient.get("/proveedores");
+export const getProviders = async (search = "") => {
+  const res = await axiosClient.get("/proveedores", {
+    params: { search },
+  });
+
   return res.data;
 };
 

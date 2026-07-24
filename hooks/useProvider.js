@@ -16,10 +16,10 @@ export const useProvider = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
 
-  const fetchProviders = async () => {
+  const fetchProviders = async (search = "") => {
     setLoading(true);
     try {
-      const data = await getProviders();
+      const data = await getProviders(search);
       setProviders(data);
     } catch (error) {
       console.error("Error cargando proveedores", error);
