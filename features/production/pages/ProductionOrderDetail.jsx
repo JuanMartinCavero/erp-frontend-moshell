@@ -7,6 +7,7 @@ import {
   Users,
   Package,
   DollarSign,
+  Download,
 } from "lucide-react";
 
 import { productionApi } from "../../../services/productionApi";
@@ -21,6 +22,10 @@ import {
 import { Badge } from "../../../components/ui/Badge";
 import { Progress } from "../../../components/ui/Progress";
 
+// ✅ Importación para PDF
+import { pdf } from '@react-pdf/renderer';
+import { OrdenProduccionPDF } from '../../../components/OrdenProduccionPDF'; // Ajusta la ruta según tu estructura
+
 export default function ProductionOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,6 +34,7 @@ export default function ProductionOrderDetail() {
   const [loading, setLoading] = useState(true);
   const [movingPhase, setMovingPhase] = useState(false);
   const [error, setError] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadOrder();
@@ -62,6 +68,53 @@ export default function ProductionOrderDetail() {
       alert("Error al pasar a la siguiente fase");
     } finally {
       setMovingPhase(false);
+    }
+  };
+
+  // ✅ Función para exportar PDF
+  const handleExportPDF = async () => {
+    try {
+      setExporting(true);
+      
+      if (!order) {
+        alert('No hay datos para exportar');
+        return;
+      }
+
+      // Preparar datos para el PDF
+      const productos = order.technicalSheet?.products || [];
+      const materiales = order.technicalSheet?.materials || [];
+
+      // Generar el PDF
+      const blob = await pdf(
+        <OrdenProduccionPDF 
+          orden={{
+            numero_orden: order.order_number,
+            fecha: order.created_at,
+          }}
+          productos={productos}
+          materiales={materiales}
+          cliente={order.technicalSheet?.client}
+          logoBase64={null} // Puedes agregar el logo aquí si lo tienes
+        />
+      ).toBlob();
+
+      // Crear URL de descarga
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const fileName = `orden_produccion_${order.order_number || order.id}.pdf`;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error al exportar PDF:', error);
+      alert('Error al generar el PDF: ' + error.message);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -142,6 +195,16 @@ export default function ProductionOrderDetail() {
         </div>
 
         <div className="flex gap-2 flex-wrap">
+          {/* ✅ Botón Exportar PDF */}
+          <button
+            onClick={handleExportPDF}
+            disabled={exporting}
+            className="px-4 py-2 bg-[#1A3A5C] text-white rounded-lg hover:bg-[#2D4A6C] transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {exporting ? "Generando..." : "Exportar PDF"}
+          </button>
+
           <span
             className={`px-3 py-1 rounded-full text-sm border ${priorityStyle[order.priority]}`}
           >

@@ -176,6 +176,9 @@ export default function FichaTecnica() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         onExportPDF={exportPDF}
+         pedido={pedido}          // ← NUEVO
+  materiales={materiales}  // ← NUEVO
+  muestras={techSheet?.samples?.filter(s => s.is_active !== false) || []} // ← NUEVO
       />
 
       {/* 👇 NUEVO: Pasamos workflowDetails */}
