@@ -55,45 +55,19 @@ export default function OrderPage() {
 
   const [faseActual, setFaseActual] = useState(null);
 
-  useEffect(() => {
-    if (!selectedPedido) return;
+// useEffect para cargar la fase actual del pedido seleccionado
+ useEffect(() => {
+  if (!selectedPedido) return;
 
-// OrderPage.jsx - loadCurrentPhase
-const loadCurrentPhase = async () => {
-  try {
-    const result = await fetchCurrentPhaseByPedido(id);
-    
-    // ✅ Verificar si la respuesta tiene datos
-    if (result && result.fase_produccion_id !== undefined) {
-      setCurrentPhase(result.fase_produccion_id);
-      
-      // Buscar el nombre de la fase en fasesProduccion
-      const fase = fasesProduccion.find(f => f.id === result.fase_produccion_id);
-      setCurrentPhaseName(fase?.nombre || `Fase ${result.fase_produccion_id}`);
-      setProgress(50);
-    } else {
-      setCurrentPhase(null);
-      setCurrentPhaseName('Sin orden de producción');
-      setProgress(0);
-    }
-  } catch (error) {
-    // ✅ Capturar el error 404 sin romper la página
-    if (error.response?.status === 404) {
-      console.log('ℹ️ No hay orden de producción activa para el pedido:', id);
-      setCurrentPhase(null);
-      setCurrentPhaseName('Sin orden de producción');
-      setProgress(0);
-    } else {
-      console.error('Error al cargar fase:', error);
-      setCurrentPhase(null);
-      setCurrentPhaseName('Error al cargar');
-      setProgress(0);
-    }
-  }
-};
+  const loadCurrentPhase = async () => {
+    const fase = await fetchCurrentPhaseByPedido(selectedPedido.id);
+    setFaseActual(fase);
+  };
 
-    loadCurrentPhase();
-  }, [selectedPedido]);
+  loadCurrentPhase();
+}, [selectedPedido]);
+
+
 
   useEffect(() => {
     fetchPedidos();
