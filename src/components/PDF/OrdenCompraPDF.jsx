@@ -193,7 +193,8 @@ const styles = StyleSheet.create({
 });
 
 const OrdenCompraPDF = ({ orden, logoBase64 }) => {
-  const detalles = orden.detalles || [];
+  // ✅ CAMBIO 1: Usar el nombre correcto de la relación
+  const detalles = orden.detalle_orden_compra || orden.detalles || [];
   const logoSrc = logoBase64 || logoMoshell;
 
   let subtotalCalculado = 0;
