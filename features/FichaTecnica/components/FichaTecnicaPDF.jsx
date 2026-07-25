@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
   },
 
-  // ===== BARRA DE TÍTULO =====
   headerBar: {
     width: '100%',
     backgroundColor: NAVY,
@@ -59,7 +58,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // ===== TARJETA: REFERENCIA + LOGO =====
   topCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -83,7 +81,6 @@ const styles = StyleSheet.create({
   },
   logo: { width: 130, height: 42, objectFit: 'contain' },
 
-  // ===== DATOS CLIENTE / PROVEEDOR =====
   datosWrap: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -101,11 +98,11 @@ const styles = StyleSheet.create({
   datosLineRight: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK, textAlign: 'right' },
   datosLabel: { fontFamily: FONT_TITLE },
 
-  // ===== TABLA - HEADER =====
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: NAVY,
     paddingVertical: 4,
+    marginTop: 6,
   },
   thText: {
     fontFamily: FONT_TITLE,
@@ -114,36 +111,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // ===== ANCHOS DE COLUMNAS (Materiales) =====
-  colMatCodigo: { width: '15%' },
-  colMatNombre: { width: '25%' },
-  colMatUnidad: { width: '15%' },
-  colMatCantidad: { width: '20%' },
-  colMatProveedor: { width: '25%' },
+  colProducto: { width: '22%' },
+  colTalla: { width: '12%' },
+  colColor: { width: '15%' },
+  colCantidad: { width: '12%' },
+  colPrecio: { width: '15%' },
+  colPeso: { width: '12%' },
 
-  // ===== ANCHOS DE COLUMNAS (Muestras) =====
   colMuestraVersion: { width: '15%' },
   colMuestraTipo: { width: '20%' },
   colMuestraEstado: { width: '20%' },
   colMuestraFeedback: { width: '45%' },
 
-  // ===== FILAS DE DATOS =====
   row: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}` },
   rowEven: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}`, backgroundColor: ROW_ALT },
   cell: { fontSize: 7.5, textAlign: 'center', paddingVertical: 4, borderRight: `1px solid ${BORDER}` },
   cellLeft: { fontSize: 7.5, textAlign: 'left', paddingVertical: 4, paddingLeft: 4, borderRight: `1px solid ${BORDER}` },
 
-  // ===== ESTADO BADGE =====
   badgeApproved: { backgroundColor: '#2D8F6F', color: 'white', padding: '2px 8px', borderRadius: 12, fontSize: 7 },
   badgePending: { backgroundColor: '#E8A838', color: 'white', padding: '2px 8px', borderRadius: 12, fontSize: 7 },
   badgeRejected: { backgroundColor: '#C94A4A', color: 'white', padding: '2px 8px', borderRadius: 12, fontSize: 7 },
 
-  // ===== OBSERVACIONES =====
+  coloresWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4, marginBottom: 8 },
+  colorCircle: { width: 14, height: 14, borderRadius: 7 },
+
   obsBox: { marginTop: 8, padding: 6, border: `1px solid ${BORDER}`, borderRadius: 4 },
   obsHeader: { fontFamily: FONT_TITLE, fontSize: 8, color: TEXT_DARK, marginBottom: 2 },
   obsText: { fontSize: 7.5, color: TEXT_DARK },
 
-  // ===== FOOTER =====
   footer: {
     marginTop: 22,
     paddingTop: 8,
@@ -154,19 +149,66 @@ const styles = StyleSheet.create({
   },
 });
 
+// ✅ FUNCIÓN SEGURA PARA FORMATEAR PRECIO
+const formatPrice = (price) => {
+  if (price === null || price === undefined) return 'S/ 0.00';
+  const num = typeof price === 'string' ? parseFloat(price) : price;
+  if (isNaN(num)) return 'S/ 0.00';
+  return `S/ ${num.toFixed(2)}`;
+};
+
+// ✅ FUNCIÓN SEGURA PARA FORMATEAR NÚMEROS
+const formatNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return 0;
+  return num;
+};
+
 export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestras, logoBase64 }) => {
   const logoSrc = logoBase64 || logoMoshell;
+
+  const detallesPedido = pedido?.detalles || [];
+
+  const getColores = () => {
+    if (!detallesPedido.length) return [];
+    const colors = detallesPedido
+      .map(d => d.color)
+      .filter(color => color && color.trim() !== '');
+    return [...new Set(colors)];
+  };
+  const colores = getColores();
+
+  const getTallas = () => {
+    if (!detallesPedido.length) return [];
+    const tallas = detallesPedido
+      .map(d => d.talla)
+      .filter(talla => talla && talla.trim() !== '');
+    return [...new Set(tallas)];
+  };
+  const tallas = getTallas();
+
+  const subtotal = pedido?.subtotal || 0;
+  const igv = pedido?.igv || 0;
+  const total = pedido?.total || 0;
+  const adelanto = pedido?.adelanto_50 || 0;
+  const saldo = pedido?.saldo || 0;
+
+  const imagenes = techSheet?.images ? (
+    typeof techSheet.images === 'string' ? JSON.parse(techSheet.images) : techSheet.images
+  ) : [];
+
+  const muestrasActivas = muestras || [];
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* ===== BARRA DE TÍTULO ===== */}
         <View style={styles.headerBar}>
-          <Text style={styles.headerTitle}>FICHA TÉCNICA RESUMEN - MOSHELL</Text>
+          <Text style={styles.headerTitle}>FICHA TÉCNICA - MOSHELL</Text>
         </View>
 
         <View style={styles.content}>
-          {/* ===== REFERENCIA + LOGO ===== */}
+          {/* REFERENCIA + LOGO */}
           <View style={styles.topCard}>
             <View style={styles.refBox}>
               <Text style={styles.refText}>Ref: {techSheet?.reference || 'N/A'}</Text>
@@ -174,7 +216,7 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
             <Image src={logoSrc} style={styles.logo} />
           </View>
 
-          {/* ===== DATOS CLIENTE / PROVEEDOR ===== */}
+          {/* DATOS CLIENTE / PROVEEDOR */}
           <View style={styles.datosWrap}>
             <View style={styles.datosCol}>
               <Text style={styles.datosHeader}>DATOS DEL CLIENTE:</Text>
@@ -185,7 +227,6 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
               <Text style={styles.datosLine}><Text style={styles.datosLabel}>E-MAIL: </Text>{cliente?.email || ''}</Text>
               <Text style={styles.datosLine}><Text style={styles.datosLabel}>DIRECCIÓN: </Text>{cliente?.direccion || ''}</Text>
             </View>
-
             <View style={styles.datosColRight}>
               <Text style={styles.datosHeader}>DATOS DEL PROVEEDOR</Text>
               <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>RAZÓN SOCIAL: </Text>{MOSHELL_INFO.razonSocial}</Text>
@@ -197,8 +238,8 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
             </View>
           </View>
 
-          {/* ===== INFORMACIÓN DEL PRODUCTO ===== */}
-          <View style={{ marginBottom: 10, padding: 6, backgroundColor: ROW_ALT, borderRadius: 4 }}>
+          {/* INFORMACIÓN DEL PRODUCTO */}
+          <View style={{ marginBottom: 8, padding: 6, backgroundColor: ROW_ALT, borderRadius: 4 }}>
             <View style={{ flexDirection: 'row', marginBottom: 2 }}>
               <Text style={{ width: 80, fontFamily: FONT_TITLE, fontSize: 7.5, color: TEXT_DARK }}>Producto:</Text>
               <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{techSheet?.name || 'N/A'}</Text>
@@ -207,40 +248,117 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
               <Text style={{ width: 80, fontFamily: FONT_TITLE, fontSize: 7.5, color: TEXT_DARK }}>Pedido:</Text>
               <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{pedido?.numero_pedido || 'Sin asignar'}</Text>
             </View>
+            <View style={{ flexDirection: 'row', marginBottom: 2 }}>
+              <Text style={{ width: 80, fontFamily: FONT_TITLE, fontSize: 7.5, color: TEXT_DARK }}>Temporada:</Text>
+              <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{techSheet?.season || 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 2 }}>
+              <Text style={{ width: 80, fontFamily: FONT_TITLE, fontSize: 7.5, color: TEXT_DARK }}>Estado:</Text>
+              <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{techSheet?.development_status || 'N/A'}</Text>
+            </View>
             <View style={{ flexDirection: 'row' }}>
               <Text style={{ width: 80, fontFamily: FONT_TITLE, fontSize: 7.5, color: TEXT_DARK }}>Cantidad:</Text>
               <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{pedido?.cantidad || techSheet?.estimated_quantity || 'N/A'}</Text>
             </View>
           </View>
 
-          {/* ===== MATERIALES ===== */}
-          <View style={styles.tableHeader}>
-            <Text style={[styles.thText, styles.colMatCodigo]}>Código</Text>
-            <Text style={[styles.thText, styles.colMatNombre]}>Material</Text>
-            <Text style={[styles.thText, styles.colMatUnidad]}>Unidad</Text>
-            <Text style={[styles.thText, styles.colMatCantidad]}>Cantidad</Text>
-            <Text style={[styles.thText, styles.colMatProveedor]}>Proveedor</Text>
+          {/* ESPECIFICACIONES TÉCNICAS + COLORES */}
+          <View style={{ marginBottom: 8, padding: 6, border: `1px solid ${BORDER}`, borderRadius: 4 }}>
+            <Text style={{ fontFamily: FONT_TITLE, fontSize: 8, color: TEXT_DARK, marginBottom: 4 }}>ESPECIFICACIONES TÉCNICAS</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
+              <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>Composición: {techSheet?.composition || 'N/A'}</Text>
+              <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>Peso: {techSheet?.weight || 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>Tipo Tejido: {techSheet?.knit_type || 'N/A'}</Text>
+              {colores.length > 0 && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>Colores:</Text>
+                  {colores.map((color, idx) => (
+                    <View key={idx} style={[styles.colorCircle, { backgroundColor: color.toLowerCase() }]} />
+                  ))}
+                </View>
+              )}
+            </View>
+            {tallas.length > 0 && (
+              <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>Tallas: </Text>
+                <Text style={{ fontSize: 7.5, color: TEXT_DARK }}>{tallas.join(', ')}</Text>
+              </View>
+            )}
           </View>
 
-          {(materiales || []).length > 0 ? (
-            materiales.map((material, i) => (
+          {/* DETALLE DE PRODUCTOS */}
+          <Text style={{ fontFamily: FONT_TITLE, fontSize: 9, color: NAVY, marginBottom: 4, marginTop: 6 }}>
+            DETALLE DE PRODUCTOS
+          </Text>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.thText, styles.colProducto]}>Producto</Text>
+            <Text style={[styles.thText, styles.colTalla]}>Talla</Text>
+            <Text style={[styles.thText, styles.colColor]}>Color</Text>
+            <Text style={[styles.thText, styles.colCantidad]}>Cant.</Text>
+            <Text style={[styles.thText, styles.colPrecio]}>Precio</Text>
+            <Text style={[styles.thText, styles.colPeso]}>Peso</Text>
+          </View>
+
+          {detallesPedido.length > 0 ? (
+            detallesPedido.map((detalle, i) => (
               <View key={i} style={i % 2 === 0 ? styles.row : styles.rowEven}>
-                <Text style={[styles.cell, styles.colMatCodigo]}>{material.codigo || '-'}</Text>
-                <Text style={[styles.cellLeft, styles.colMatNombre]}>{material.nombre}</Text>
-                <Text style={[styles.cell, styles.colMatUnidad]}>{material.unidad || 'u'}</Text>
-                <Text style={[styles.cell, styles.colMatCantidad]}>{material.pivot?.cantidad_estimada || '-'}</Text>
-                <Text style={[styles.cellLeft, styles.colMatProveedor]}>{material.proveedor?.nombre || '-'}</Text>
+                <Text style={[styles.cellLeft, styles.colProducto]}>{detalle.producto || '-'}</Text>
+                <Text style={[styles.cell, styles.colTalla]}>{detalle.talla || '-'}</Text>
+                <Text style={[styles.cell, styles.colColor]}>{detalle.color || '-'}</Text>
+                <Text style={[styles.cell, styles.colCantidad]}>{formatNumber(detalle.cantidad)}</Text>
+                <Text style={[styles.cell, styles.colPrecio]}>{formatPrice(detalle.precio_unitario)}</Text>
+                <Text style={[styles.cell, styles.colPeso]}>{formatNumber(detalle.peso)} kg</Text>
               </View>
             ))
           ) : (
             <View style={styles.row}>
               <Text style={{ width: '100%', textAlign: 'center', color: '#7C8AA0', fontSize: 7, padding: 8 }}>
-                No hay materiales definidos
+                No hay productos definidos en el pedido
               </Text>
             </View>
           )}
 
-          {/* ===== MUESTRAS ===== */}
+          {/* TOTALES DEL PEDIDO */}
+          <View style={{ marginTop: 8, padding: 6, backgroundColor: ROW_ALT, borderRadius: 4, border: `1px solid ${BORDER}` }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 15, flexWrap: 'wrap' }}>
+              <Text style={{ fontSize: 7.5, fontFamily: FONT_TITLE, color: TEXT_DARK }}>
+                Subtotal: S/ {formatNumber(subtotal).toFixed(2)}
+              </Text>
+              <Text style={{ fontSize: 7.5, fontFamily: FONT_TITLE, color: TEXT_DARK }}>
+                IGV: S/ {formatNumber(igv).toFixed(2)}
+              </Text>
+              <Text style={{ fontSize: 10, fontFamily: FONT_TITLE, color: NAVY }}>
+                TOTAL: S/ {formatNumber(total).toFixed(2)}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 15, flexWrap: 'wrap', marginTop: 4 }}>
+              <Text style={{ fontSize: 7, color: TEXT_DARK }}>Adelanto: S/ {formatNumber(adelanto).toFixed(2)}</Text>
+              <Text style={{ fontSize: 7, color: TEXT_DARK }}>Saldo: S/ {formatNumber(saldo).toFixed(2)}</Text>
+              <Text style={{ fontSize: 7, fontFamily: FONT_TITLE, color: TEXT_DARK }}>
+                Estado Pago: {pedido?.estado_pago || 'Pendiente'}
+              </Text>
+            </View>
+          </View>
+
+          {/* IMÁGENES DE REFERENCIA */}
+          {imagenes.length > 0 && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={{ fontFamily: FONT_TITLE, fontSize: 8, color: TEXT_DARK, marginBottom: 4 }}>
+                IMÁGENES DE REFERENCIA
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {imagenes.slice(0, 4).map((img, idx) => (
+                  <View key={idx} style={{ width: 40, height: 40, border: `1px solid ${BORDER}`, borderRadius: 4, overflow: 'hidden' }}>
+                    <Image src={img} style={{ width: 40, height: 40, objectFit: 'cover' }} />
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* MUESTRAS */}
           <View style={[styles.tableHeader, { marginTop: 12 }]}>
             <Text style={[styles.thText, styles.colMuestraVersion]}>Versión</Text>
             <Text style={[styles.thText, styles.colMuestraTipo]}>Tipo</Text>
@@ -248,8 +366,8 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
             <Text style={[styles.thText, styles.colMuestraFeedback]}>Feedback</Text>
           </View>
 
-          {(muestras || []).length > 0 ? (
-            muestras.map((muestra, i) => {
+          {muestrasActivas.length > 0 ? (
+            muestrasActivas.map((muestra, i) => {
               const isApproved = muestra.status === 'APPROVED';
               const isRejected = muestra.status === 'REJECTED';
               const isPending = muestra.status === 'PENDING';
@@ -280,7 +398,7 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
             </View>
           )}
 
-          {/* ===== OBSERVACIONES ===== */}
+          {/* OBSERVACIONES */}
           {techSheet?.description && (
             <View style={styles.obsBox}>
               <Text style={styles.obsHeader}>OBSERVACIONES</Text>
@@ -288,7 +406,7 @@ export const FichaTecnicaPDF = ({ techSheet, cliente, pedido, materiales, muestr
             </View>
           )}
 
-          {/* ===== FOOTER ===== */}
+          {/* FOOTER */}
           <View style={styles.footer}>
             <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
             <Text>Documento generado automáticamente el {new Date().toLocaleString('es-PE')}</Text>
