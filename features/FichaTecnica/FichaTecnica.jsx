@@ -233,7 +233,12 @@ export default function FichaTecnica() {
 
          {activeTab === 3 && <SizeSpecsTab sizeSpecs={techSheet.size_specs} pedido={pedido} />} 
 
-          <ReferenceImages images={techSheet.images} />
+         <ReferenceImages 
+  images={techSheet.images} 
+  techSheetId={id}
+  isEditing={isEditing}
+  onRefresh={loadTechSheet}
+/>
         </div>
 
         {/* Sidebar */}
