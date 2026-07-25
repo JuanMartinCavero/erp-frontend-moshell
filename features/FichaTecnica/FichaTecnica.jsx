@@ -215,6 +215,7 @@ export default function FichaTecnica() {
               isEditing={isEditing}
               onUpdate={updateSpecs}
               onUpdateMachine={updateMachine}
+              pedido={pedido} 
             />
           )}
 
@@ -230,7 +231,7 @@ export default function FichaTecnica() {
             />
           )}
 
-          {activeTab === 3 && <SizeSpecsTab sizeSpecs={techSheet.size_specs} />}
+         {activeTab === 3 && <SizeSpecsTab sizeSpecs={techSheet.size_specs} pedido={pedido} />} 
 
           <ReferenceImages images={techSheet.images} />
         </div>
