@@ -2,36 +2,18 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
 
-// Logo real del proyecto: src/logo.png (este componente vive en src/components/)
+// Logo real del proyecto
 import logoMoshell from '../src/logo.png';
 
-// ============================================================
-// TIPOGRAFÍA — si tienes los .ttf de Montserrat en /public/fonts,
-// descomenta esto para acercarte aún más al Excel original.
-// ------------------------------------------------------------
-// Font.register({
-//   family: 'Montserrat',
-//   fonts: [
-//     { src: '/fonts/Montserrat-Regular.ttf', fontWeight: 400 },
-//     { src: '/fonts/Montserrat-Bold.ttf', fontWeight: 700 },
-//   ],
-// });
-// const FONT_TITLE = 'Montserrat';
 const FONT_TITLE = 'Helvetica-Bold';
 const FONT_BODY = 'Helvetica';
 
-// ============================================================
-// PALETA MOSHELL
-// ============================================================
 const NAVY = '#0F3A63';
 const GOLD = '#F2C230';
 const BORDER = '#0F3A63';
 const TEXT_DARK = '#1A2530';
 const ROW_ALT = '#F3F6FA';
 
-// Datos fijos de MOSHELL como emisor/proveedor de la orden de producción.
-// (Sección "DATOS DEL PROVEEDOR" de la plantilla — dato fijo de la empresa,
-// no depende de la orden.)
 const MOSHELL_INFO = {
   razonSocial: 'INDUSTRIA TEXTILES MOSHELL S.A.C',
   ruc: '20449230257',
@@ -39,6 +21,32 @@ const MOSHELL_INFO = {
   celular: '+51 983 443 638',
   email: 'info@textilmoshell.com',
   direccion: 'Jr. Abtao 1357 - La Victoria',
+};
+
+// ✅ Función segura para formatear precio
+const formatPrice = (price) => {
+  if (price === null || price === undefined) return 'S/ 0.00';
+  const num = typeof price === 'string' ? parseFloat(price) : price;
+  if (isNaN(num)) return 'S/ 0.00';
+  return `S/ ${num.toFixed(2)}`;
+};
+
+const formatNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return 0;
+  return num;
+};
+
+// ✅ Formatear fecha
+const formatDate = (date) => {
+  if (!date) return 'Sin fecha';
+  try {
+    const d = new Date(date);
+    return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch {
+    return date;
+  }
 };
 
 const styles = StyleSheet.create({
@@ -55,7 +63,6 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
   },
 
-  // ===== BARRA DE TÍTULO (a todo lo ancho de la página) =====
   headerBar: {
     width: '100%',
     backgroundColor: NAVY,
@@ -70,7 +77,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // ===== TARJETA: N° DE ORDEN + LOGO =====
   topCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -94,7 +100,6 @@ const styles = StyleSheet.create({
   },
   logo: { width: 130, height: 42, objectFit: 'contain' },
 
-  // ===== DATOS CLIENTE / PROVEEDOR =====
   datosWrap: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -112,7 +117,7 @@ const styles = StyleSheet.create({
   datosLineRight: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK, textAlign: 'right' },
   datosLabel: { fontFamily: FONT_TITLE },
 
-  // ===== TABLA — HEADER DE DOBLE FILA =====
+  // ===== TABLA HEADER =====
   theadWrap: { flexDirection: 'row', height: 26 },
   thMerged: {
     backgroundColor: NAVY,
@@ -150,7 +155,6 @@ const styles = StyleSheet.create({
     borderRight: `1px solid ${GOLD}`,
   },
 
-  // Anchos de columnas (coinciden con las proporciones del Excel)
   colModelo: { width: '17%' },
   colDescripcion: { width: '20%' },
   colTallas: { width: '30%' },
@@ -158,13 +162,12 @@ const styles = StyleSheet.create({
   colPrecio: { width: '11%' },
   colTotal: { width: '11%', borderRight: 'none' },
 
-  // ===== FILAS DE DATOS =====
   row: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}` },
   rowEven: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}`, backgroundColor: ROW_ALT },
   cell: { fontSize: 7.5, textAlign: 'center', paddingVertical: 4, borderRight: `1px solid ${BORDER}` },
   cellLeft: { fontSize: 7.5, textAlign: 'left', paddingVertical: 4, paddingLeft: 4, borderRight: `1px solid ${BORDER}` },
 
-  // ===== TOTALES (sin caja general — solo el mini-bloque derecho lleva borde) =====
+  // ===== TOTALES =====
   totalsWrap: { marginTop: 4 },
   totalsRow: { flexDirection: 'row', height: 20 },
   totalBarWide: {
@@ -199,7 +202,7 @@ const styles = StyleSheet.create({
   },
   amountCellText: { fontSize: 8, color: TEXT_DARK },
 
-  // ===== ADELANTO / RESTANTE =====
+  // ===== ADELANTO =====
   adelantoWrap: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
   adelantoCol: { width: '46%' },
   adelantoHeader: { fontFamily: FONT_TITLE, fontSize: 8.5, color: TEXT_DARK, marginBottom: 3 },
@@ -219,7 +222,18 @@ const styles = StyleSheet.create({
   adelantoLabel: { fontSize: 7.5, fontFamily: FONT_TITLE, color: TEXT_DARK, textTransform: 'uppercase' },
   adelantoValue: { fontSize: 7.5, color: TEXT_DARK },
 
-  // ===== FOOTER =====
+  // ===== FECHAS =====
+  fechasWrap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+    padding: 6,
+    backgroundColor: ROW_ALT,
+    borderRadius: 4,
+    border: `1px solid ${BORDER}`,
+  },
+  fechaItem: { fontSize: 7.5, color: TEXT_DARK },
+
   footer: {
     marginTop: 22,
     paddingTop: 8,
@@ -230,35 +244,54 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) => {
-  const hasProductos = productos && productos.length > 0;
+export const OrdenProduccionPDF = ({ orden, productos, cliente, pedido, logoBase64 }) => {
   const logoSrc = logoBase64 || logoMoshell;
 
-  const subtotal = productos?.reduce((sum, p) => sum + (Number(p.total) || 0), 0) || 0;
-  const cantidadTotal =
-    productos?.reduce(
-      (sum, p) =>
-        sum + (Number(p.unidad) || Number(p.talla_s || 0) + Number(p.talla_m || 0) + Number(p.talla_l || 0)),
-      0
-    ) || 0;
+  // ✅ Usar productos o detalles del pedido
+  const productosData = productos && productos.length > 0 
+    ? productos 
+    : (pedido?.detalles || []).map(detalle => ({
+        modelo: detalle.producto || '-',
+        descripcion: `${detalle.color || ''} ${detalle.talla || ''}`.trim() || '-',
+        talla_s: detalle.talla === 'S' ? detalle.cantidad : '-',
+        talla_m: detalle.talla === 'M' ? detalle.cantidad : '-',
+        talla_l: detalle.talla === 'L' ? detalle.cantidad : '-',
+        unidad: detalle.cantidad || 0,
+        precio: detalle.precio_unitario || 0,
+        total: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
+      }));
+
+  const hasProductos = productosData && productosData.length > 0;
+
+  // ✅ Calcular totales
+  const subtotal = productosData?.reduce((sum, p) => sum + (Number(p.total || p.precio * p.unidad || 0)), 0) || 0;
+  const cantidadTotal = productosData?.reduce(
+    (sum, p) => sum + (Number(p.unidad) || Number(p.talla_s || 0) + Number(p.talla_m || 0) + Number(p.talla_l || 0)),
+    0
+  ) || 0;
   const igv = subtotal * 0.18;
   const total = subtotal + igv;
   const mitadSubtotal = subtotal / 2;
   const igvMitad = mitadSubtotal * 0.18;
   const totalMitad = mitadSubtotal + igvMitad;
 
-  const numeroOrden = orden?.numero_orden || '000-0000';
+  const numeroOrden = orden?.order_number || orden?.numero_orden || '000-0000';
+
+  // ✅ Obtener fechas
+  const fechaInicio = orden?.actual_start_date || orden?.scheduled_start_date || orden?.requested_date;
+  const fechaEstimada = orden?.estimated_end_date || orden?.scheduled_end_date;
+  const fechaFinal = orden?.actual_end_date;
+  const faseActual = orden?.current_phase?.nombre || orden?.fase_actual || 'Sin fase';
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* ===== BARRA DE TÍTULO ===== */}
         <View style={styles.headerBar}>
-          <Text style={styles.headerTitle}>ORDEN DE PRODUCCIÓN / MUESTRA  -  MOSHELL</Text>
+          <Text style={styles.headerTitle}>ORDEN DE PRODUCCIÓN / MUESTRA - MOSHELL</Text>
         </View>
 
         <View style={styles.content}>
-          {/* ===== N° ORDEN + LOGO ===== */}
+          {/* N° ORDEN + LOGO */}
           <View style={styles.topCard}>
             <View style={styles.numeroBox}>
               <Text style={styles.numeroText}>N° {numeroOrden}</Text>
@@ -266,7 +299,7 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
             <Image src={logoSrc} style={styles.logo} />
           </View>
 
-          {/* ===== DATOS CLIENTE / PROVEEDOR ===== */}
+          {/* DATOS CLIENTE / PROVEEDOR */}
           <View style={styles.datosWrap}>
             <View style={styles.datosCol}>
               <Text style={styles.datosHeader}>DATOS DE CLIENTE:</Text>
@@ -289,7 +322,15 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
             </View>
           </View>
 
-          {/* ===== TABLA PRODUCTOS ===== */}
+          {/* ✅ FASE ACTUAL Y FECHAS */}
+          <View style={styles.fechasWrap}>
+            <Text style={styles.fechaItem}><Text style={{ fontFamily: FONT_TITLE }}>Fase:</Text> {faseActual}</Text>
+            <Text style={styles.fechaItem}><Text style={{ fontFamily: FONT_TITLE }}>Inicio:</Text> {formatDate(fechaInicio)}</Text>
+            <Text style={styles.fechaItem}><Text style={{ fontFamily: FONT_TITLE }}>Estimada:</Text> {formatDate(fechaEstimada)}</Text>
+            <Text style={styles.fechaItem}><Text style={{ fontFamily: FONT_TITLE }}>Final:</Text> {formatDate(fechaFinal) || 'Pendiente'}</Text>
+          </View>
+
+          {/* TABLA PRODUCTOS */}
           <View style={styles.theadWrap}>
             <View style={[styles.thMerged, styles.colModelo]}>
               <Text style={styles.thMergedText}>Modelo</Text>
@@ -316,34 +357,41 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
             </View>
           </View>
 
-          {hasProductos &&
-            productos.map((item, i) => (
+          {hasProductos ? (
+            productosData.map((item, i) => (
               <View key={i} style={i % 2 === 0 ? styles.row : styles.rowEven}>
                 <Text style={[styles.cell, styles.colModelo]}>{item.modelo || '-'}</Text>
                 <Text style={[styles.cellLeft, styles.colDescripcion]}>{item.descripcion || '-'}</Text>
-                <Text style={[styles.cell, { width: '10%' }]}>{item.talla_s || '-'}</Text>
-                <Text style={[styles.cell, { width: '10%' }]}>{item.talla_m || '-'}</Text>
-                <Text style={[styles.cell, { width: '10%' }]}>{item.talla_l || '-'}</Text>
-                <Text style={[styles.cell, styles.colUnidad]}>{item.unidad || '-'}</Text>
-                <Text style={[styles.cell, styles.colPrecio]}>S/ {(Number(item.precio) || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.colTotal]}>S/ {(Number(item.total) || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, { width: '10%' }]}>{formatNumber(item.talla_s) !== 0 ? formatNumber(item.talla_s) : '-'}</Text>
+                <Text style={[styles.cell, { width: '10%' }]}>{formatNumber(item.talla_m) !== 0 ? formatNumber(item.talla_m) : '-'}</Text>
+                <Text style={[styles.cell, { width: '10%' }]}>{formatNumber(item.talla_l) !== 0 ? formatNumber(item.talla_l) : '-'}</Text>
+                <Text style={[styles.cell, styles.colUnidad]}>{formatNumber(item.unidad)}</Text>
+                <Text style={[styles.cell, styles.colPrecio]}>{formatPrice(item.precio)}</Text>
+                <Text style={[styles.cell, styles.colTotal]}>{formatPrice(item.total || (item.precio * item.unidad))}</Text>
               </View>
-            ))}
+            ))
+          ) : (
+            <View style={styles.row}>
+              <Text style={{ width: '100%', textAlign: 'center', color: '#7C8AA0', fontSize: 7, padding: 8 }}>
+                No hay productos registrados
+              </Text>
+            </View>
+          )}
 
-          {/* ===== TOTALES ===== */}
+          {/* TOTALES */}
           <View style={styles.totalsWrap}>
             <View style={styles.totalsRow}>
               <View style={styles.totalBarWide}>
                 <Text style={styles.totalBarWideText}>TOTAL</Text>
               </View>
               <View style={styles.qtyCell}>
-                <Text style={styles.qtyCellText}>{cantidadTotal}</Text>
+                <Text style={styles.qtyCellText}>{formatNumber(cantidadTotal)}</Text>
               </View>
               <View style={styles.labelCell}>
                 <Text style={styles.labelCellText}>SUBTOTAL</Text>
               </View>
               <View style={styles.amountCell}>
-                <Text style={styles.amountCellText}>S/. {subtotal.toFixed(2)}</Text>
+                <Text style={styles.amountCellText}>{formatPrice(subtotal)}</Text>
               </View>
             </View>
             <View style={styles.totalsRow}>
@@ -353,7 +401,7 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
                 <Text style={styles.labelCellText}>IGV (18%)</Text>
               </View>
               <View style={styles.amountCell}>
-                <Text style={styles.amountCellText}>S/. {igv.toFixed(2)}</Text>
+                <Text style={styles.amountCellText}>{formatPrice(igv)}</Text>
               </View>
             </View>
             <View style={styles.totalsRow}>
@@ -363,26 +411,26 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
                 <Text style={styles.labelCellText}>TOTAL</Text>
               </View>
               <View style={styles.amountCell}>
-                <Text style={[styles.amountCellText, { fontFamily: FONT_TITLE }]}>S/. {total.toFixed(2)}</Text>
+                <Text style={[styles.amountCellText, { fontFamily: FONT_TITLE }]}>{formatPrice(total)}</Text>
               </View>
             </View>
           </View>
 
-          {/* ===== ADELANTO / RESTANTE ===== */}
+          {/* ADELANTO / RESTANTE */}
           <View style={styles.adelantoWrap}>
             <View style={styles.adelantoCol}>
               <Text style={styles.adelantoHeader}>50% ADELANTO</Text>
               <View style={styles.adelantoRow}>
                 <Text style={styles.adelantoLabel}>SUBTOTAL / 2</Text>
-                <Text style={styles.adelantoValue}>S/ {mitadSubtotal > 0 ? mitadSubtotal.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(mitadSubtotal)}</Text>
               </View>
               <View style={styles.adelantoRow}>
                 <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-                <Text style={styles.adelantoValue}>S/ {igvMitad > 0 ? igvMitad.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(igvMitad)}</Text>
               </View>
               <View style={styles.adelantoRowFinal}>
                 <Text style={styles.adelantoLabel}>TOTAL</Text>
-                <Text style={styles.adelantoValue}>S/ {totalMitad > 0 ? totalMitad.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(totalMitad)}</Text>
               </View>
             </View>
 
@@ -390,20 +438,20 @@ export const OrdenProduccionPDF = ({ orden, productos, cliente, logoBase64 }) =>
               <Text style={styles.adelantoHeader}>50% RESTANTE</Text>
               <View style={styles.adelantoRow}>
                 <Text style={styles.adelantoLabel}>SUBTOTAL / 2</Text>
-                <Text style={styles.adelantoValue}>S/ {mitadSubtotal > 0 ? mitadSubtotal.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(mitadSubtotal)}</Text>
               </View>
               <View style={styles.adelantoRow}>
                 <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-                <Text style={styles.adelantoValue}>S/ {igvMitad > 0 ? igvMitad.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(igvMitad)}</Text>
               </View>
               <View style={styles.adelantoRowFinal}>
                 <Text style={styles.adelantoLabel}>TOTAL</Text>
-                <Text style={styles.adelantoValue}>S/ {totalMitad > 0 ? totalMitad.toFixed(2) : '-'}</Text>
+                <Text style={styles.adelantoValue}>{formatPrice(totalMitad)}</Text>
               </View>
             </View>
           </View>
 
-          {/* ===== FOOTER ===== */}
+          {/* FOOTER */}
           <View style={styles.footer}>
             <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
             <Text>Documento generado automáticamente el {new Date().toLocaleString('es-PE')}</Text>

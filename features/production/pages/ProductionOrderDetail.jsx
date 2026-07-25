@@ -25,6 +25,7 @@ import { Progress } from "../../../components/ui/Progress";
 // ✅ Importación para PDF
 import { pdf } from '@react-pdf/renderer';
 import { OrdenProduccionPDF } from '../../../components/OrdenProduccionPDF'; // Ajusta la ruta según tu estructura
+import api from "../../../services/api";
 
 export default function ProductionOrderDetail() {
   const { id } = useParams();
@@ -72,51 +73,88 @@ export default function ProductionOrderDetail() {
   };
 
   // ✅ Función para exportar PDF
-  const handleExportPDF = async () => {
-    try {
-      setExporting(true);
-      
-      if (!order) {
-        alert('No hay datos para exportar');
-        return;
-      }
+// ProductionOrderDetail.jsx - handleExportPDF
 
-      // Preparar datos para el PDF
-      const productos = order.technicalSheet?.products || [];
-      const materiales = order.technicalSheet?.materials || [];
-
-      // Generar el PDF
-      const blob = await pdf(
-        <OrdenProduccionPDF 
-          orden={{
-            numero_orden: order.order_number,
-            fecha: order.created_at,
-          }}
-          productos={productos}
-          materiales={materiales}
-          cliente={order.technicalSheet?.client}
-          logoBase64={null} // Puedes agregar el logo aquí si lo tienes
-        />
-      ).toBlob();
-
-      // Crear URL de descarga
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const fileName = `orden_produccion_${order.order_number || order.id}.pdf`;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error('Error al exportar PDF:', error);
-      alert('Error al generar el PDF: ' + error.message);
-    } finally {
-      setExporting(false);
+const handleExportPDF = async () => {
+  try {
+    setExporting(true);
+    
+    if (!order) {
+      alert('No hay datos para exportar');
+      return;
     }
-  };
+
+    // ✅ Obtener el pedido y sus detalles
+    let pedido = order?.technicalSheet?.pedido;
+    let detalles = pedido?.detalles || [];
+
+    // ✅ Si no hay detalles, hacer una llamada adicional para obtenerlos
+    if (!detalles.length && order?.technicalSheet?.pedido_id) {
+      try {
+        const response = await api.get(`/pedidos/${order.technicalSheet.pedido_id}`);
+        pedido = response.data;
+        detalles = pedido?.detalles || [];
+      } catch (err) {
+        console.warn('No se pudieron cargar los detalles del pedido:', err);
+      }
+    }
+
+    // ✅ Si aún no hay detalles, intentar con la relación desde technicalSheet
+    if (!detalles.length && order?.technicalSheet) {
+      try {
+        const tsResponse = await api.get(`/technical-sheets/${order.technicalSheet.id}`);
+        const tsData = tsResponse.data.data;
+        pedido = tsData?.pedido;
+        detalles = pedido?.detalles || [];
+      } catch (err) {
+        console.warn('No se pudieron cargar los detalles desde technical-sheets:', err);
+      }
+    }
+
+    // ✅ Transformar detalles a productos para el PDF
+    const productos = detalles.map(detalle => ({
+      modelo: detalle.producto || '-',
+      descripcion: `${detalle.color || ''} ${detalle.talla || ''}`.trim() || '-',
+      talla_s: detalle.talla === 'S' ? detalle.cantidad : '-',
+      talla_m: detalle.talla === 'M' ? detalle.cantidad : '-',
+      talla_l: detalle.talla === 'L' ? detalle.cantidad : '-',
+      unidad: detalle.cantidad || 0,
+      precio: detalle.precio_unitario || 0,
+      total: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
+    }));
+
+    const cliente = order?.technicalSheet?.client || order?.technicalSheet?.cliente;
+
+    // ✅ Generar el PDF
+    const blob = await pdf(
+      <OrdenProduccionPDF 
+        orden={order}
+        productos={productos}
+        materiales={[]}
+        cliente={cliente}
+        pedido={pedido}
+        logoBase64={null}
+      />
+    ).toBlob();
+
+    // Crear URL de descarga
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = `orden_produccion_${order.order_number || order.id}.pdf`;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Error al exportar PDF:', error);
+    alert('Error al generar el PDF: ' + error.message);
+  } finally {
+    setExporting(false);
+  }
+};
 
   const formatDate = (date) => {
     if (!date) return "Sin programar";
