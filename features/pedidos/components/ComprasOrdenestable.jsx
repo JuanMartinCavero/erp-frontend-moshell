@@ -23,6 +23,7 @@ export function OrdenesTable({
   estados = [],
   loading = false,
   onBuscar,
+  onRefresh,
 }) {
   // Estados para modales
   const [showViewModal, setShowViewModal] = useState(false);

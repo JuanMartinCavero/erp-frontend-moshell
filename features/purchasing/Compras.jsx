@@ -34,7 +34,7 @@ export function Compras() {
 
   // AGREGADO: Manejar creación de nueva orden
   const handleOrdenCreada = (nuevaOrden) => {
-    cargarOrdenes();
+    fetchOrdenes();
     setShowModal(false);
   };
 
@@ -63,6 +63,7 @@ export function Compras() {
             estados={estados}
             loading={loading}
             onBuscar={fetchOrdenes}
+            onRefresh={fetchOrdenes}
           />
           <InsumosCriticos />
         </div>
