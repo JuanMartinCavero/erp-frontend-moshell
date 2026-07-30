@@ -7,140 +7,184 @@ import {
   ShieldCheck,
   FileCheck2,
   Cpu,
+  Loader,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useState } from "react";
-
+import logo from "../../src/logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const userData = await login(email, password);
     if (userData) {
       navigate("/dashboard");
     } else {
       alert("Login failed. Please check your credentials.");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
-        {/* Header Image Area */}
-        <div className="h-48 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-10" />
-          <img
-            src="https://images.unsplash.com/photo-1701964621103-96fc0dd08d5c?w=800&q=80"
-            alt="Fabric texture"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-6 left-8 z-20 text-white">
-            <h1 className="text-2xl font-bold tracking-tight">TexFlow ERP</h1>
-            <p className="text-sm font-medium text-gray-200">
-              Next Generation Textile Management
+    <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center p-4 font-['Inter',sans-serif]">
+      <div className="relative w-full max-w-[1100px] grid grid-cols-1 md:grid-cols-2 bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+        {/* Left Panel - Branding */}
+        <div className="hidden md:flex flex-col justify-between p-12 bg-primary/10 relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 text-primary mb-12">
+              {/* Logo container sin fondo */}
+              <div className="p-2 rounded-lg flex items-center justify-center">
+                <img
+                  src={logo}
+                  alt="Moshell Logo"
+                  className="w-20 h-20 object-contain"
+                />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight dark:text-white">
+                ERP MOSHELL TEXTIL 
+              </h2>
+            </div>
+            <h1 className="text-4xl font-black leading-tight tracking-tight mb-6 dark:text-white">
+              Optimiza tu producción <br />
+              <span className="text-primary">textil con precisión</span>
+            </h1>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-4">
+            <p className="text-slate-600 dark:text-slate-400 text-lg max-w-sm">
+              Gestione inventarios, órdenes de producción y logística en una
+              sola plataforma integrada.
             </p>
           </div>
+
+          {/* Background Pattern */}
+          <div
+            className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1701964621103-96fc0dd08d5c?w=800&q=80')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
         </div>
 
-        {/* Login Form */}
-        <div className="p-8 flex-1">
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900">
-              Secure Enterprise Login
+        {/* Right Panel - Login Form */}
+        <div className="flex flex-col justify-center p-8 md:p-16">
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold mb-2 dark:text-white">
+              Bienvenido
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Please enter your credentials to access your dashboard
+            <p className="text-slate-500 dark:text-slate-400">
+              Inicie sesión en su cuenta de Moshell
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                Email or Username
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">
+                Correo electrónico
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
                 <input
-                  type="text"
-                  placeholder="admin@gmail.com"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:bg-white focus:ring-2 focus:ring-[#42526E] focus:border-transparent transition-colors"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-100 dark:bg-slate-800 border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl transition-all outline-none text-slate-900 dark:text-white"
+                  placeholder="ejemplo@textil.com"
+                  required
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                Password
-              </label>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Contraseña
+                </label>
+                <a
+                  href="#"
+                  className="text-xs text-primary hover:underline font-semibold"
+                >
+                  ¿Olvidó su contraseña?
+                </a>
+              </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
                 <input
-                  type="password"
-                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 pl-10 pr-10 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:bg-white focus:ring-2 focus:ring-[#42526E] focus:border-transparent transition-colors"
+                  className="w-full pl-12 pr-12 py-4 bg-slate-100 dark:bg-slate-800 border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl transition-all outline-none text-slate-900 dark:text-white"
+                  placeholder="••••••••"
+                  required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-5 w-5" />
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 text-[#42526E] focus:ring-[#42526E]"
-                />
-                <span className="text-gray-600 font-medium">Remember Me</span>
-              </label>
-              <a
-                href="#"
-                className="font-semibold text-[#42526E] hover:underline"
+            <div className="flex items-center gap-2 px-1">
+              <input
+                type="checkbox"
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="rounded border-slate-300 dark:border-slate-700 bg-transparent text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="remember"
+                className="text-sm text-slate-500 dark:text-slate-400"
               >
-                Forgot Password?
-              </a>
+                Recordar mi sesión
+              </label>
             </div>
-
             <button
               type="submit"
-              className="w-full h-12 mt-4 bg-[#42526E] hover:bg-[#344563] text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+              disabled={loading}
+              className={`w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2
+                ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
             >
-              Sign In to System
-              <ArrowRight className="h-4 w-4" />
+              {loading ? (
+                <>
+                  <Loader className="h-5 w-5 animate-spin" />
+                  Ingresando...
+                </>
+              ) : (
+                <>
+                  Ingresar
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
             </button>
           </form>
 
-          {/* Footer area */}
-          <div className="mt-10 pt-6 border-t border-gray-100">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center mb-4">
-              Compliance & Security
-            </p>
-            <div className="flex justify-center gap-6">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                <ShieldCheck className="h-3.5 w-3.5" /> SSO READY
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                <Cpu className="h-3.5 w-3.5" /> AES-256
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                <FileCheck2 className="h-3.5 w-3.5" /> SOC2
-              </div>
-            </div>
-            <p className="text-xs text-center text-gray-400 mt-6">
-              © 2024 TexFlow ERP Systems. All Rights Reserved.
+          <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              ¿No tiene una cuenta?
+              <a
+                href="#"
+                className="text-primary font-bold hover:underline ml-1"
+              >
+                Contacte a soporte
+              </a>
             </p>
           </div>
         </div>
