@@ -1,290 +1,280 @@
 // src/components/PedidoPDF.jsx
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
 
-// Colores MOSHELL
-const COLORS = {
-  primary: '#1A3A5C',
-  secondary: '#4A5A6A',
-  accent: '#2D8F6F',
-  warning: '#E8A838',
-  danger: '#C94A4A',
-  lightBg: '#F5F7FA',
-  border: '#E2E8F0',
+// Logo real del proyecto
+import logoMoshell from '../../../src/logo.png';
+
+// ============================================================
+// TIPOGRAFÍA
+// ============================================================
+const FONT_TITLE = 'Helvetica-Bold';
+const FONT_BODY = 'Helvetica';
+
+// ============================================================
+// PALETA MOSHELL
+// ============================================================
+const NAVY = '#0F3A63';
+const GOLD = '#F2C230';
+const BORDER = '#0F3A63';
+const TEXT_DARK = '#1A2530';
+const ROW_ALT = '#F3F6FA';
+
+// Datos fijos de MOSHELL como emisor
+const MOSHELL_INFO = {
+  razonSocial: 'INDUSTRIA TEXTILES MOSHELL S.A.C',
+  ruc: '20449230257',
+  contacto: 'Mario Suico / Olenka Tasayco / Ana Bautista',
+  celular: '+51 983 443 638',
+  email: 'info@textilmoshell.com',
+  direccion: 'Jr. Abtao 1357 - La Victoria',
 };
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    padding: 0,
     fontSize: 9,
-    fontFamily: 'Helvetica',
+    fontFamily: FONT_BODY,
+    color: TEXT_DARK,
     backgroundColor: '#FFFFFF',
   },
-  // ===== HEADER =====
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottom: '3px solid #1A3A5C',
-    paddingBottom: 8,
-    marginBottom: 12,
+  content: {
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 22,
   },
-  headerLeft: {
-    flexDirection: 'row',
+
+  // ===== BARRA DE TÍTULO =====
+  headerBar: {
+    width: '100%',
+    backgroundColor: NAVY,
+    paddingVertical: 7,
     alignItems: 'center',
-    gap: 10,
-  },
-  logo: {
-    width: 60,
-    height: 40,
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
+    fontSize: 13,
+    fontFamily: FONT_TITLE,
+    color: GOLD,
+    letterSpacing: 1,
   },
-  headerRight: {
-    textAlign: 'right',
-    fontSize: 8,
-    color: '#4A5A6A',
-  },
-  headerRightBold: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
-  },
-  // ===== INFO CLIENTE =====
-  infoGrid: {
+
+  // ===== TARJETA: N° DE PEDIDO + LOGO =====
+  topCard: {
     flexDirection: 'row',
-    gap: 15,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: `1px solid ${BORDER}`,
+    borderRadius: 6,
+    padding: 10,
+    marginTop: 10,
     marginBottom: 10,
-    padding: 8,
-    backgroundColor: '#F5F7FA',
+  },
+  numeroBox: {
+    border: `1px solid ${BORDER}`,
     borderRadius: 4,
-    border: '1px solid #E2E8F0',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
   },
-  infoCol: {
-    flex: 1,
+  numeroText: {
+    fontFamily: FONT_TITLE,
+    fontSize: 11,
+    color: TEXT_DARK,
   },
-  infoRow: {
+  logo: { width: 130, height: 42, objectFit: 'contain' },
+
+  // ===== DATOS CLIENTE (MOSHELL) / CLIENTE =====
+  datosWrap: {
     flexDirection: 'row',
-    marginBottom: 2,
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
-  infoLabel: {
-    width: 70,
-    fontWeight: 'bold',
-    fontSize: 8,
-    color: '#4A5A6A',
+  datosCol: { width: '48%' },
+  datosColRight: { width: '48%', alignItems: 'flex-end' },
+  datosHeader: {
+    fontFamily: FONT_TITLE,
+    fontSize: 8.5,
+    color: TEXT_DARK,
+    marginBottom: 3,
   },
-  infoValue: {
-    fontSize: 8,
-    color: '#1A3A5C',
-  },
-  // ===== TÍTULO DE SECCIÓN =====
-  sectionTitle: {
-    backgroundColor: '#1A3A5C',
-    color: '#FFFFFF',
-    padding: 4,
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginBottom: 6,
-    marginTop: 8,
-  },
-  // ===== TABLA =====
-  table: {
-    width: '100%',
-    marginBottom: 6,
-  },
+  datosLine: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK },
+  datosLineRight: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK, textAlign: 'right' },
+  datosLabel: { fontFamily: FONT_TITLE },
+
+  // ===== TABLA - HEADER =====
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#4A5A6A',
-    padding: 4,
+    backgroundColor: NAVY,
+    paddingVertical: 4,
   },
-  tableHeaderText: {
-    color: '#FFFFFF',
-    fontSize: 7,
-    fontWeight: 'bold',
+  thText: {
+    fontFamily: FONT_TITLE,
+    fontSize: 8,
+    color: GOLD,
     textAlign: 'center',
   },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottom: '1px solid #E2E8F0',
-    padding: 3,
-  },
-  tableRowEven: {
-    flexDirection: 'row',
-    borderBottom: '1px solid #E2E8F0',
-    padding: 3,
-    backgroundColor: '#F5F7FA',
-  },
-  cell: {
-    fontSize: 7,
-    textAlign: 'center',
-  },
-  cellLeft: {
-    fontSize: 7,
-    textAlign: 'left',
-    paddingLeft: 4,
-  },
-  cellRight: {
-    fontSize: 7,
-    textAlign: 'right',
-    paddingRight: 4,
-  },
-  // ===== ANCHOS =====
-  colProducto: { width: '22%' },
+
+  // ===== ANCHOS DE COLUMNAS =====
+  colProducto: { width: '20%' },
   colTalla: { width: '10%' },
   colColor: { width: '13%' },
   colCantidad: { width: '10%' },
-  colPrecio: { width: '15%' },
-  colTotal: { width: '15%' },
-  colPeso: { width: '15%' },
+  colPrecio: { width: '13%' },
+  colTotal: { width: '14%' },
+  colPeso: { width: '20%' },
+
+  // ===== FILAS DE DATOS =====
+  row: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}` },
+  rowEven: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}`, backgroundColor: ROW_ALT },
+  cell: { fontSize: 7.5, textAlign: 'center', paddingVertical: 4, borderRight: `1px solid ${BORDER}` },
+  cellLeft: { fontSize: 7.5, textAlign: 'left', paddingVertical: 4, paddingLeft: 4, borderRight: `1px solid ${BORDER}` },
+  cellRight: { fontSize: 7.5, textAlign: 'right', paddingVertical: 4, paddingRight: 4, borderRight: `1px solid ${BORDER}` },
+
   // ===== TOTALES =====
-  totalesBox: {
-    marginTop: 6,
-    padding: 6,
-    backgroundColor: '#F5F7FA',
-    border: '1px solid #E2E8F0',
-    borderRadius: 4,
+  totalsWrap: { marginTop: 4 },
+  totalsRow: { flexDirection: 'row', height: 20 },
+  totalBarWide: {
+    width: '63%',
+    backgroundColor: NAVY,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 2,
+  totalBarWideText: { fontFamily: FONT_TITLE, fontSize: 10, color: GOLD, letterSpacing: 1 },
+  spacerWide: { width: '63%' },
+  labelCell: {
+    width: '15%',
+    backgroundColor: NAVY,
+    border: `1px solid ${BORDER}`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalLabel: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#4A5A6A',
-    width: 80,
-    textAlign: 'right',
-    marginRight: 10,
+  labelCellText: { fontFamily: FONT_TITLE, fontSize: 8, color: GOLD },
+  amountCell: {
+    width: '22%',
+    border: `1px solid ${BORDER}`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalValue: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
-    width: 70,
-    textAlign: 'right',
-  },
-  totalGrande: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
-  },
-  // ===== ADELANTOS =====
-  adelantoBox: {
-    marginTop: 4,
-    padding: 6,
-    backgroundColor: '#E8F0F8',
-    border: '1px solid #1A3A5C',
-    borderRadius: 4,
-  },
+  amountCellText: { fontSize: 8, color: TEXT_DARK },
+
+  // ===== ADELANTO / RESTANTE =====
+  adelantoWrap: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  adelantoCol: { width: '46%' },
+  adelantoHeader: { fontFamily: FONT_TITLE, fontSize: 8.5, color: TEXT_DARK, marginBottom: 3 },
   adelantoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 2,
+    paddingVertical: 2,
   },
-  adelantoLabel: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
+  adelantoRowFinal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 3,
+    paddingHorizontal: 3,
+    backgroundColor: GOLD,
+    marginTop: 1,
   },
-  adelantoValue: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#1A3A5C',
-  },
+  adelantoLabel: { fontSize: 7.5, fontFamily: FONT_TITLE, color: TEXT_DARK, textTransform: 'uppercase' },
+  adelantoValue: { fontSize: 7.5, color: TEXT_DARK },
+
+  // ===== OBSERVACIONES =====
+  obsBox: { marginTop: 8, padding: 6, border: `1px solid ${BORDER}`, borderRadius: 4 },
+  obsHeader: { fontFamily: FONT_TITLE, fontSize: 8, color: TEXT_DARK, marginBottom: 2 },
+  obsText: { fontSize: 7.5, color: TEXT_DARK },
+
   // ===== FOOTER =====
   footer: {
-    marginTop: 20,
+    marginTop: 22,
     paddingTop: 8,
-    borderTop: '1px solid #E2E8F0',
+    borderTop: `1px solid ${BORDER}`,
     textAlign: 'center',
     fontSize: 7,
-    color: '#94A3B8',
+    color: '#7C8AA0',
   },
 });
 
 const PedidoPDF = ({ pedido, logoBase64 }) => {
   const detalles = pedido.detalles || pedido.items || [];
-  
+  const logoSrc = logoBase64 || logoMoshell;
+
   let subtotalCalculado = 0;
   detalles.forEach(detalle => {
     const cantidad = Number(detalle.cantidad) || 0;
     const precio = Number(detalle.precio_unitario) || 0;
     subtotalCalculado += cantidad * precio;
   });
-  
+
   const subtotal = subtotalCalculado > 0 ? subtotalCalculado : (Number(pedido.subtotal) || Number(pedido.total) || 0);
   const igv = Number(pedido.igv) || (subtotal * 0.18);
   const total = Number(pedido.total) || (subtotal + igv);
-  const adelanto = total / 2;
-  const restante = total / 2;
+  const mitadSubtotal = subtotal / 2;
+  const igvMitad = mitadSubtotal * 0.18;
+  const totalMitad = mitadSubtotal + igvMitad;
 
   const formatFecha = (fecha) => {
     if (!fecha) return "-";
     return new Date(fecha).toLocaleDateString("es-PE");
   };
 
+  const numeroPedido = pedido?.numero_pedido || pedido?.id || '000-0000';
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* ===== HEADER ===== */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
-            <Text style={styles.headerTitle}>MOSHELL</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.headerRightBold}>PEDIDO DE CLIENTE</Text>
-            <Text>N°: {pedido.numero_pedido || pedido.id || 'N/A'}</Text>
-            <Text>Fecha: {formatFecha(pedido.fecha_pedido)}</Text>
-          </View>
+        {/* ===== BARRA DE TÍTULO ===== */}
+        <View style={styles.headerBar}>
+          <Text style={styles.headerTitle}>ORDEN DE PEDIDO DE CLIENTE - MOSHELL</Text>
         </View>
 
-        {/* ===== INFO CLIENTE ===== */}
-        <View style={styles.infoGrid}>
-          <View style={styles.infoCol}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Cliente:</Text>
-              <Text style={styles.infoValue}>{pedido.cliente?.nombre || '-'}</Text>
+        <View style={styles.content}>
+          {/* ===== N° PEDIDO + LOGO ===== */}
+          <View style={styles.topCard}>
+            <View style={styles.numeroBox}>
+              <Text style={styles.numeroText}>N° {numeroPedido}</Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>RUC:</Text>
-              <Text style={styles.infoValue}>{pedido.cliente?.identificacion_fiscal || '-'}</Text>
-            </View>
+            <Image src={logoSrc} style={styles.logo} />
           </View>
-          <View style={styles.infoCol}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Teléfono:</Text>
-              <Text style={styles.infoValue}>{pedido.cliente?.telefono || '-'}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Dirección:</Text>
-              <Text style={styles.infoValue}>{pedido.cliente?.direccion || '-'}</Text>
-            </View>
-          </View>
-        </View>
 
-        {/* ===== TABLA DE PRODUCTOS ===== */}
-        <Text style={styles.sectionTitle}>DETALLE DE PRODUCTOS</Text>
-        <View style={styles.table}>
+          {/* ===== DATOS CLIENTE (MOSHELL) / CLIENTE ===== */}
+          <View style={styles.datosWrap}>
+            <View style={styles.datosCol}>
+              <Text style={styles.datosHeader}>DATOS DEL CLIENTE:</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>RAZÓN SOCIAL: </Text>{pedido.cliente?.razon_social || pedido.cliente?.nombre || ''}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>RUC: </Text>{pedido.cliente?.identificacion_fiscal || ''}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CONTACTO: </Text>{pedido.cliente?.contacto || ''}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CELULAR: </Text>{pedido.cliente?.telefono || ''}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>E-MAIL: </Text>{pedido.cliente?.email || ''}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>DIRECCIÓN: </Text>{pedido.cliente?.direccion || ''}</Text>
+            </View>
+
+            <View style={styles.datosColRight}>
+              <Text style={styles.datosHeader}>DATOS DEL PROVEEDOR</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>RAZÓN SOCIAL: </Text>{MOSHELL_INFO.razonSocial}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>RUC: </Text>{MOSHELL_INFO.ruc}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>CONTACTO: </Text>{MOSHELL_INFO.contacto}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>CELULAR: </Text>{MOSHELL_INFO.celular}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>E-MAIL: </Text>{MOSHELL_INFO.email}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>DIRECCIÓN: </Text>{MOSHELL_INFO.direccion}</Text>
+            </View>
+          </View>
+
+          {/* ===== TABLA DE PRODUCTOS ===== */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, styles.colProducto]}>Producto</Text>
-            <Text style={[styles.tableHeaderText, styles.colTalla]}>Talla</Text>
-            <Text style={[styles.tableHeaderText, styles.colColor]}>Color</Text>
-            <Text style={[styles.tableHeaderText, styles.colCantidad]}>Cant.</Text>
-            <Text style={[styles.tableHeaderText, styles.colPrecio]}>Precio</Text>
-            <Text style={[styles.tableHeaderText, styles.colTotal]}>Total</Text>
-            <Text style={[styles.tableHeaderText, styles.colPeso]}>Peso (kg)</Text>
+            <Text style={[styles.thText, styles.colProducto]}>Producto</Text>
+            <Text style={[styles.thText, styles.colTalla]}>Talla</Text>
+            <Text style={[styles.thText, styles.colColor]}>Color</Text>
+            <Text style={[styles.thText, styles.colCantidad]}>Cant.</Text>
+            <Text style={[styles.thText, styles.colPrecio]}>Precio</Text>
+            <Text style={[styles.thText, styles.colTotal]}>Total</Text>
+            <Text style={[styles.thText, styles.colPeso]}>Peso (kg)</Text>
           </View>
+
           {detalles.map((detalle, idx) => {
             const cantidad = Number(detalle.cantidad) || 0;
             const precio = Number(detalle.precio_unitario) || 0;
             const totalItem = cantidad * precio;
             return (
-              <View key={idx} style={idx % 2 === 0 ? styles.tableRow : styles.tableRowEven}>
+              <View key={idx} style={idx % 2 === 0 ? styles.row : styles.rowEven}>
                 <Text style={[styles.cellLeft, styles.colProducto]}>{detalle.producto || '-'}</Text>
                 <Text style={[styles.cell, styles.colTalla]}>{detalle.talla || '-'}</Text>
                 <Text style={[styles.cell, styles.colColor]}>{detalle.color || '-'}</Text>
@@ -295,76 +285,98 @@ const PedidoPDF = ({ pedido, logoBase64 }) => {
               </View>
             );
           })}
+
           {detalles.length === 0 && (
-            <View style={styles.tableRow}>
-              <Text style={{ width: '100%', textAlign: 'center', color: '#94A3B8', fontSize: 7, padding: 4 }}>
+            <View style={styles.row}>
+              <Text style={{ width: '100%', textAlign: 'center', color: '#7C8AA0', fontSize: 7, padding: 8 }}>
                 No hay productos registrados
               </Text>
             </View>
           )}
-        </View>
 
-        {/* ===== TOTALES ===== */}
-        <View style={styles.totalesBox}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>SUBTOTAL</Text>
-            <Text style={styles.totalValue}>S/ {subtotal.toFixed(2)}</Text>
+          {/* ===== TOTALES ===== */}
+          <View style={styles.totalsWrap}>
+            <View style={styles.totalsRow}>
+              <View style={styles.totalBarWide}>
+                <Text style={styles.totalBarWideText}>TOTAL</Text>
+              </View>
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>SUBTOTAL</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={styles.amountCellText}>S/. {subtotal.toFixed(2)}</Text>
+              </View>
+            </View>
+            <View style={styles.totalsRow}>
+              <View style={styles.spacerWide} />
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>IGV (18%)</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={styles.amountCellText}>S/. {igv.toFixed(2)}</Text>
+              </View>
+            </View>
+            <View style={styles.totalsRow}>
+              <View style={styles.spacerWide} />
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>TOTAL</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={[styles.amountCellText, { fontFamily: FONT_TITLE }]}>S/. {total.toFixed(2)}</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>IGV (18%)</Text>
-            <Text style={styles.totalValue}>S/ {igv.toFixed(2)}</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, { fontSize: 11 }]}>TOTAL</Text>
-            <Text style={[styles.totalValue, styles.totalGrande]}>S/ {total.toFixed(2)}</Text>
-          </View>
-        </View>
 
-        {/* ===== ADELANTOS ===== */}
-        <View style={styles.adelantoBox}>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>50% ADELANTO</Text>
-            <Text style={styles.adelantoValue}>S/ {adelanto.toFixed(2)}</Text>
-          </View>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-            <Text style={styles.adelantoValue}>S/ {(adelanto * 0.18).toFixed(2)}</Text>
-          </View>
-          <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-            <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL ADELANTO</Text>
-            <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(adelanto + (adelanto * 0.18)).toFixed(2)}</Text>
-          </View>
-        </View>
+          {/* ===== ADELANTO / RESTANTE ===== */}
+          <View style={styles.adelantoWrap}>
+            <View style={styles.adelantoCol}>
+              <Text style={styles.adelantoHeader}>50% ADELANTO</Text>
+              <View style={styles.adelantoRow}>
+                <Text style={styles.adelantoLabel}>SUBTOTAL / 2</Text>
+                <Text style={styles.adelantoValue}>S/ {mitadSubtotal > 0 ? mitadSubtotal.toFixed(2) : '-'}</Text>
+              </View>
+              <View style={styles.adelantoRow}>
+                <Text style={styles.adelantoLabel}>IGV (18%)</Text>
+                <Text style={styles.adelantoValue}>S/ {igvMitad > 0 ? igvMitad.toFixed(2) : '-'}</Text>
+              </View>
+              <View style={styles.adelantoRowFinal}>
+                <Text style={styles.adelantoLabel}>TOTAL</Text>
+                <Text style={styles.adelantoValue}>S/ {totalMitad > 0 ? totalMitad.toFixed(2) : '-'}</Text>
+              </View>
+            </View>
 
-        <View style={[styles.adelantoBox, { marginTop: 4, backgroundColor: '#F0F4F8' }]}>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>50% RESTANTE</Text>
-            <Text style={styles.adelantoValue}>S/ {restante.toFixed(2)}</Text>
+            <View style={styles.adelantoCol}>
+              <Text style={styles.adelantoHeader}>50% RESTANTE</Text>
+              <View style={styles.adelantoRow}>
+                <Text style={styles.adelantoLabel}>SUBTOTAL / 2</Text>
+                <Text style={styles.adelantoValue}>S/ {mitadSubtotal > 0 ? mitadSubtotal.toFixed(2) : '-'}</Text>
+              </View>
+              <View style={styles.adelantoRow}>
+                <Text style={styles.adelantoLabel}>IGV (18%)</Text>
+                <Text style={styles.adelantoValue}>S/ {igvMitad > 0 ? igvMitad.toFixed(2) : '-'}</Text>
+              </View>
+              <View style={styles.adelantoRowFinal}>
+                <Text style={styles.adelantoLabel}>TOTAL</Text>
+                <Text style={styles.adelantoValue}>S/ {totalMitad > 0 ? totalMitad.toFixed(2) : '-'}</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.adelantoRow}>
-            <Text style={styles.adelantoLabel}>IGV (18%)</Text>
-            <Text style={styles.adelantoValue}>S/ {(restante * 0.18).toFixed(2)}</Text>
-          </View>
-          <View style={[styles.adelantoRow, { borderTop: '1px solid #1A3A5C', paddingTop: 3 }]}>
-            <Text style={[styles.adelantoLabel, { fontSize: 10 }]}>TOTAL RESTANTE</Text>
-            <Text style={[styles.adelantoValue, { fontSize: 10, fontWeight: 'bold' }]}>S/ {(restante + (restante * 0.18)).toFixed(2)}</Text>
-          </View>
-        </View>
 
-        {/* ===== OBSERVACIONES ===== */}
-        {pedido.descripcion && (
-          <View style={{ marginTop: 8 }}>
-            <Text style={styles.sectionTitle}>OBSERVACIONES</Text>
-            <Text style={{ fontSize: 8, color: '#4A5A6A' }}>{pedido.descripcion}</Text>
-          </View>
-        )}
+          {/* ===== OBSERVACIONES ===== */}
+          {pedido.descripcion && (
+            <View style={styles.obsBox}>
+              <Text style={styles.obsHeader}>OBSERVACIONES</Text>
+              <Text style={styles.obsText}>{pedido.descripcion}</Text>
+            </View>
+          )}
 
-        {/* ===== FOOTER ===== */}
-        <View style={styles.footer}>
-          <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
-          <Text>Documento generado automáticamente el {new Date().toLocaleString('es-ES')}</Text>
-          <Text>___________________________________</Text>
-          <Text style={{ fontWeight: 'bold', color: '#1A3A5C' }}>Firma Autorizada</Text>
+          {/* ===== FOOTER ===== */}
+          <View style={styles.footer}>
+            <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
+            <Text>Documento generado automáticamente el {new Date().toLocaleString('es-PE')}</Text>
+            <Text>___________________________________</Text>
+            <Text style={{ fontFamily: FONT_TITLE, color: NAVY }}>Firma Autorizada</Text>
+          </View>
         </View>
       </Page>
     </Document>
