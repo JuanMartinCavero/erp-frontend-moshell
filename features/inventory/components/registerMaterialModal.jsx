@@ -6,7 +6,7 @@ import { registrarMovimiento } from "../../../services/kardexApi";
 import { useMaterial } from "../../../hooks/useMaterial";
 
 import { TabNuevoMaterial } from "./tabNuevoMaterial";
-import { tabEntradaCompra } from "./TabEntradaCompra";
+import { TabEntradaCompra } from "./TabEntradaCompra";
 
 export function RegisterMaterialModal({ open, onClose, onRefresh }) {
 
