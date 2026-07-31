@@ -24,7 +24,7 @@ import FinancePage from "./features/finance/pages/FinancePage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import NuevaFichaTecnica from "./features/FichaTecnicaDashboard/components/NuevaFichaTecnica";
-import BarcodePage from "./features/barCode-tag/pages/BarCodePage";
+import BarcodePage from "./features/barCode-tag/pages/BarcodePage";
 import EditarFichaTecnica from "./features/FichaTecnicaDashboard/EditarFichaTecnica";
 import QualityDashboard from "./features/quality/QualityDashboard";
 
