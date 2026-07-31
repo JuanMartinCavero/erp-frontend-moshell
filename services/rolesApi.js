@@ -14,7 +14,7 @@ const getHeaders = () => ({
 export const rolesApi = {
   // Obtener todos los roles
   getAll: async () => {
-    const res = await fetch(`${API_URL}/api/roles`, {
+    const res = await fetch(`${API_URL}/roles`, {
       headers: getHeaders()
     });
     if (!res.ok) {
@@ -45,7 +45,7 @@ export const rolesApi = {
 
   // Actualizar un rol
   update: async (id, form) => {
-    const res = await fetch(`${API_URL}/api/roles/${id}`, {
+    const res = await fetch(`${API_URL}/roles/${id}`, {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify({
@@ -79,7 +79,7 @@ export const rolesApi = {
 
   // Recargar todos los datos
   refresh: async () => {
-    const res = await fetch(`${API_URL}/api/roles`, {
+    const res = await fetch(`${API_URL}/roles`, {
       headers: getHeaders()
     });
     const data = await res.json();
