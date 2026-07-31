@@ -1,6 +1,6 @@
 import axiosClient from "./axiosClient";
 // IMPORTANTE: Ajusta esta URL según tu backend
-const API_URL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Función helper para obtener el token
 const getToken = () => localStorage.getItem("token");
