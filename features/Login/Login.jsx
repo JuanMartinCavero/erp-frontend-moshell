@@ -51,7 +51,7 @@ const Login = () => {
                 />
               </div>
               <h2 className="text-2xl font-bold tracking-tight dark:text-white">
-                ERP MOSHELL TEXTIL 
+                ERP MOSHELL TEXTIL
               </h2>
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight mb-6 dark:text-white">
@@ -114,12 +114,6 @@ const Login = () => {
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Contraseña
                 </label>
-                <a
-                  href="#"
-                  className="text-xs text-primary hover:underline font-semibold"
-                >
-                  ¿Olvidó su contraseña?
-                </a>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
@@ -141,21 +135,7 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-1">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded border-slate-300 dark:border-slate-700 bg-transparent text-primary focus:ring-primary"
-              />
-              <label
-                htmlFor="remember"
-                className="text-sm text-slate-500 dark:text-slate-400"
-              >
-                Recordar mi sesión
-              </label>
-            </div>
+            <div className="flex items-center gap-2 px-1"></div>
             <button
               type="submit"
               disabled={loading}
@@ -175,18 +155,6 @@ const Login = () => {
               )}
             </button>
           </form>
-
-          <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              ¿No tiene una cuenta?
-              <a
-                href="#"
-                className="text-primary font-bold hover:underline ml-1"
-              >
-                Contacte a soporte
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </div>
