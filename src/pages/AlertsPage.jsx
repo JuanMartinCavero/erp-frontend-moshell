@@ -36,6 +36,7 @@ const AlertsPage = () => {
     fetchAlerts();
   }, [filters]);
 
+    //  MODIFICADO 
   const fetchAlerts = async () => {
     setLoading(true);
     try {
@@ -44,11 +45,15 @@ const AlertsPage = () => {
         search: searchTerm,
       }).toString();
       
-      const response = await fetch(`/api/alerts?${queryParams}`, {
+      // MODIFICADO: Usar VITE_API_URL desde import.meta.env
+      const baseUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${baseUrl}/alerts?${queryParams}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
         },
       });
+      
       const data = await response.json();
       if (data.success) {
         setAlerts(data.data);
@@ -61,12 +66,15 @@ const AlertsPage = () => {
     }
   };
 
+   //  MODIFICADO
   const handleMarkAsRead = async (alertId) => {
     try {
-      await fetch(`/api/alerts/${alertId}/read`, {
+      const baseUrl = import.meta.env.VITE_API_URL;
+      await fetch(`${baseUrl}/alerts/${alertId}/read`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
         },
       });
       setAlerts(alerts.map(a => 
@@ -77,12 +85,15 @@ const AlertsPage = () => {
     }
   };
 
+  // MODIFICADO
   const handleMarkAllAsRead = async () => {
     try {
-      await fetch("/api/alerts/mark-all-read", {
+      const baseUrl = import.meta.env.VITE_API_URL;
+      await fetch(`${baseUrl}/alerts/mark-all-read`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
         },
       });
       setAlerts(alerts.map(a => ({ ...a, read: true })));
@@ -91,13 +102,16 @@ const AlertsPage = () => {
     }
   };
 
+  // MODIFICADO
   const handleDeleteAlert = async (alertId) => {
     if (!confirm("¿Estás seguro de que deseas eliminar esta alerta?")) return;
     try {
-      await fetch(`/api/alerts/${alertId}`, {
+      const baseUrl = import.meta.env.VITE_API_URL;
+      await fetch(`${baseUrl}/alerts/${alertId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
         },
       });
       setAlerts(alerts.filter(a => a.id !== alertId));
