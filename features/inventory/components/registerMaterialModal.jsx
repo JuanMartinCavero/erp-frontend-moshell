@@ -9,7 +9,7 @@ import { TabNuevoMaterial } from "./tabNuevoMaterial";
 import { TabEntradaCompra } from "./TabEntradaCompra";
 
 export function RegisterMaterialModal({ open, onClose, onRefresh }) {
-
+//hola que tal
   const [tab, setTab] = useState("nuevo");
 
   if (!open) return null;

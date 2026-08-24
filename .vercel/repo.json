@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_BTAmOvnBk359uxYorrekPaVAoUTB",
+      "name": "erp-frontend-moshell",
+      "directory": ".",
+      "orgId": "team_sVJafKvD3X3wV3fuAlWo29h2"
+    }
+  ]
+}
