@@ -16,11 +16,7 @@ export const useFichaTecnica = (id) => {
   });
   const [cantidadPedido, setCantidadPedido] = useState(0);
   const [maquina, setMaquina] = useState(null);
-  
-  // 👇 Estado para orden de producción activa
   const [productionOrder, setProductionOrder] = useState(null);
-
-  // 👇 NUEVO: Estado para workflowDetails
   const [workflowDetails, setWorkflowDetails] = useState(null);
 
   const loadTechSheet = useCallback(async () => {
@@ -29,13 +25,17 @@ export const useFichaTecnica = (id) => {
     try {
       setLoading(true);
       setError(null);
+      
+      // ✅ Cargar ficha técnica (sin modificar)
       const response = await api.get(`/technical-sheets/${id}`);
       const data = response.data.data;
 
       setTechSheet(data.techSheet);
       setCliente(data.cliente);
       setPedido(data.pedido);
-      setMateriales(data.materiales || []);
+      // ❌ Ya no usamos data.materiales
+      // setMateriales(data.materiales || []);
+      
       setWorkflowStatus(
         data.workflow_status || {
           sample_eval: "PENDING",
@@ -46,12 +46,18 @@ export const useFichaTecnica = (id) => {
       );
       setCantidadPedido(data.cantidad_pedido || 0);
       setMaquina(data.techSheet?.machine || null);
-      
-      // 👇 Guardar production_order si existe
       setProductionOrder(data.production_order || null);
-
-      // 👇 NUEVO: Guardar workflowDetails si existe
       setWorkflowDetails(data.workflow_details || null);
+
+      // ✅ Cargar materiales desde el nuevo endpoint (sin afectar otras interfaces)
+      try {
+        const materialesResponse = await api.get(`/technical-sheets/${id}/materiales`);
+        setMateriales(materialesResponse.data.data || []);
+      } catch (materialError) {
+        console.warn("No se pudieron cargar los materiales:", materialError);
+        setMateriales([]);
+      }
+
     } catch (err) {
       console.error("Error:", err);
       setError(err.response?.data?.message || "Error al cargar");
@@ -123,7 +129,7 @@ export const useFichaTecnica = (id) => {
     cantidadPedido,
     materiales,
     workflowStatus,
-    workflowDetails, // 👈 NUEVO
+    workflowDetails,
     maquina,
     productionOrder,
     loadTechSheet,

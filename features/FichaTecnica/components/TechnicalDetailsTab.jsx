@@ -3,7 +3,7 @@ import { FileText, Plus, Factory, Check } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/Card';
 import { useMachines } from '../hooks/useMachines';
 
-export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, onUpdateMachine }) {
+export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, onUpdateMachine, pedido }) {
   const [editedSpecs, setEditedSpecs] = useState({});
   const [showMachineSelector, setShowMachineSelector] = useState(false);
   
@@ -24,6 +24,17 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
   };
 
   const maquinaSeleccionada = techSheet?.machine;
+
+  // ✅ Obtener colores únicos de los detalles del pedido
+  const getColorsFromPedido = () => {
+    if (!pedido?.detalles) return [];
+    const colors = pedido.detalles
+      .map(d => d.color)
+      .filter(color => color && color.trim() !== '');
+    return [...new Set(colors)];
+  };
+
+  const colores = getColorsFromPedido();
 
   return (
     <div className="grid grid-cols-2 gap-6">
@@ -81,21 +92,25 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
         </CardContent>
       </Card>
 
-      {/* Colorways Card */}
+      {/* ✅ Colorways Card - DINAMIZADO con colores del pedido */}
       <Card>
         <CardContent className="pt-6">
           <h4 className="font-bold mb-6 flex items-center gap-2">
             <div className="w-4 h-4 rounded-full border-2 border-gray-300 border-dashed" /> Colorways
           </h4>
           <div className="flex items-center gap-4 flex-wrap">
-            {techSheet.colorways && JSON.parse(techSheet.colorways).map((color, idx) => (
-              <div 
-                key={idx} 
-                className="w-10 h-10 rounded-full shadow-inner ring-2 ring-white ring-offset-1" 
-                style={{ backgroundColor: color }} 
-                title={color} 
-              />
-            ))}
+            {colores.length > 0 ? (
+              colores.map((color, idx) => (
+                <div 
+                  key={idx} 
+                  className="w-10 h-10 rounded-full shadow-inner ring-2 ring-white ring-offset-1" 
+                  style={{ backgroundColor: color.toLowerCase() }} 
+                  title={color} 
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-400">No hay colores definidos en el pedido</p>
+            )}
             {isEditing && (
               <button className="w-10 h-10 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center">
                 <Plus className="w-5 h-5" />
@@ -122,7 +137,6 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
             )}
           </div>
 
-          {/* Selector de máquinas */}
           {showMachineSelector && (
             <div className="mb-6 border rounded-lg overflow-hidden bg-gray-50">
               {loadingMachines ? (
@@ -155,7 +169,6 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
             </div>
           )}
 
-          {/* Vista estática - sin máquina seleccionada */}
           {!isEditing && !maquinaSeleccionada && (
             <div className="text-center py-6 text-gray-400 text-sm">
               <Factory className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -163,7 +176,6 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
             </div>
           )}
 
-          {/* Vista estática - con máquina seleccionada */}
           {!isEditing && maquinaSeleccionada && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
@@ -191,7 +203,6 @@ export default function TechnicalDetailsTab({ techSheet, isEditing, onUpdate, on
             </div>
           )}
 
-          {/* Vista en modo edición con máquina seleccionada (selector cerrado) */}
           {isEditing && !showMachineSelector && maquinaSeleccionada && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>

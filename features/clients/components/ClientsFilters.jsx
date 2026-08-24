@@ -21,7 +21,7 @@ const ClientsFilters = ({ onSearch }) => {
           </h3>
 
           <p className="mt-1 text-sm text-slate-500">
-            Encuentra rápidamente un cliente por su nombre
+            Encuentra cliente por nombre, DNI o Internacional
           </p>
         </div>
 

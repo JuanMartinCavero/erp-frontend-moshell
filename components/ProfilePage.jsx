@@ -58,21 +58,6 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </div>
-
-              <button
-                className="
-                  flex items-center gap-2
-                  px-4 py-2
-                  rounded-lg
-                  bg-blue-600
-                  text-white
-                  hover:bg-blue-700
-                  transition
-                "
-              >
-                <Pencil className="w-4 h-4" />
-                Editar perfil
-              </button>
             </div>
           </div>
         </div>
@@ -131,17 +116,7 @@ const ProfilePage = () => {
 const InfoItem = ({ icon, label, value }) => {
   return (
     <div className="flex items-start gap-3">
-      <div
-        className="
-        w-9 h-9 
-        rounded-lg
-        bg-slate-100
-        flex
-        items-center
-        justify-center
-        text-slate-600
-      "
-      >
+      <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
         {React.cloneElement(icon, {
           className: "w-5 h-5",
         })}
@@ -149,7 +124,6 @@ const InfoItem = ({ icon, label, value }) => {
 
       <div>
         <p className="text-sm text-slate-500">{label}</p>
-
         <p className="font-medium text-slate-900">{value}</p>
       </div>
     </div>

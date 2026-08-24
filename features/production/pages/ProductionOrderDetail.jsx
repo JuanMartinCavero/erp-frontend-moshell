@@ -23,8 +23,9 @@ import { Badge } from "../../../components/ui/Badge";
 import { Progress } from "../../../components/ui/Progress";
 
 // ✅ Importación para PDF
-import { pdf } from '@react-pdf/renderer';
-import { OrdenProduccionPDF } from '../../../components/OrdenProduccionPDF'; // Ajusta la ruta según tu estructura
+import { pdf } from "@react-pdf/renderer";
+import { OrdenProduccionPDF } from "../../../components/OrdenProduccionPDF"; // Ajusta la ruta según tu estructura
+import api from "../../../services/api";
 
 export default function ProductionOrderDetail() {
   const { id } = useParams();
@@ -71,48 +72,112 @@ export default function ProductionOrderDetail() {
     }
   };
 
+  const [starting, setStarting] = useState(false);
+
+  const handleStartProduction = async () => {
+    try {
+      setStarting(true);
+      const response = await productionApi.startProduction(order.id);
+
+      if (response.data.success) {
+        await loadOrder();
+      } else {
+        alert(response.data.message || "No se pudo iniciar la producción");
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Error al iniciar la producción");
+    } finally {
+      setStarting(false);
+    }
+  };
+
   // ✅ Función para exportar PDF
+  // ProductionOrderDetail.jsx - handleExportPDF
+
   const handleExportPDF = async () => {
     try {
       setExporting(true);
-      
+
       if (!order) {
-        alert('No hay datos para exportar');
+        alert("No hay datos para exportar");
         return;
       }
 
-      // Preparar datos para el PDF
-      const productos = order.technicalSheet?.products || [];
-      const materiales = order.technicalSheet?.materials || [];
+      // ✅ Obtener el pedido y sus detalles
+      let pedido = order?.technicalSheet?.pedido;
+      let detalles = pedido?.detalles || [];
 
-      // Generar el PDF
+      // ✅ Si no hay detalles, hacer una llamada adicional para obtenerlos
+      if (!detalles.length && order?.technicalSheet?.pedido_id) {
+        try {
+          const response = await api.get(
+            `/pedidos/${order.technicalSheet.pedido_id}`,
+          );
+          pedido = response.data;
+          detalles = pedido?.detalles || [];
+        } catch (err) {
+          console.warn("No se pudieron cargar los detalles del pedido:", err);
+        }
+      }
+
+      // ✅ Si aún no hay detalles, intentar con la relación desde technicalSheet
+      if (!detalles.length && order?.technicalSheet) {
+        try {
+          const tsResponse = await api.get(
+            `/technical-sheets/${order.technicalSheet.id}`,
+          );
+          const tsData = tsResponse.data.data;
+          pedido = tsData?.pedido;
+          detalles = pedido?.detalles || [];
+        } catch (err) {
+          console.warn(
+            "No se pudieron cargar los detalles desde technical-sheets:",
+            err,
+          );
+        }
+      }
+
+      // ✅ Transformar detalles a productos para el PDF
+      const productos = detalles.map((detalle) => ({
+        modelo: detalle.producto || "-",
+        descripcion:
+          `${detalle.color || ""} ${detalle.talla || ""}`.trim() || "-",
+        talla_s: detalle.talla === "S" ? detalle.cantidad : "-",
+        talla_m: detalle.talla === "M" ? detalle.cantidad : "-",
+        talla_l: detalle.talla === "L" ? detalle.cantidad : "-",
+        unidad: detalle.cantidad || 0,
+        precio: detalle.precio_unitario || 0,
+        total: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
+      }));
+
+      const cliente =
+        order?.technicalSheet?.client || order?.technicalSheet?.cliente;
+
+      // ✅ Generar el PDF
       const blob = await pdf(
-        <OrdenProduccionPDF 
-          orden={{
-            numero_orden: order.order_number,
-            fecha: order.created_at,
-          }}
+        <OrdenProduccionPDF
+          orden={order}
           productos={productos}
-          materiales={materiales}
-          cliente={order.technicalSheet?.client}
-          logoBase64={null} // Puedes agregar el logo aquí si lo tienes
-        />
+          materiales={[]}
+          cliente={cliente}
+          pedido={pedido}
+          logoBase64={null}
+        />,
       ).toBlob();
 
       // Crear URL de descarga
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       const fileName = `orden_produccion_${order.order_number || order.id}.pdf`;
-      link.setAttribute('download', fileName);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-
     } catch (error) {
-      console.error('Error al exportar PDF:', error);
-      alert('Error al generar el PDF: ' + error.message);
+      console.error("Error al exportar PDF:", error);
+      alert("Error al generar el PDF: " + error.message);
     } finally {
       setExporting(false);
     }
@@ -279,7 +344,7 @@ export default function ProductionOrderDetail() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-3">
             <div>
               <p className="font-semibold text-lg">
                 Fase: {order.current_phase?.nombre || "Sin fase"}
@@ -287,13 +352,40 @@ export default function ProductionOrderDetail() {
               <p className="text-sm text-gray-500">Progreso general</p>
             </div>
 
-            <button
-              onClick={handleNextPhase}
-              disabled={movingPhase}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {movingPhase ? "Actualizando..." : "Avanzar fase"}
-            </button>
+            {/* RENDERIZADO CONDICIONAL DE BOTONES Y ESTADOS */}
+            {!order.actual_start_date ? (
+              /* 1. Si no ha iniciado: mostrar "Iniciar Producción" */
+              <button
+                onClick={handleStartProduction}
+                disabled={starting}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {starting ? "Iniciando..." : "Iniciar Producción"}
+              </button>
+            ) : order.actual_end_date ? (
+              /* 2. Si YA finalizó (actual_end_date existe): bloquear y mostrar estado concluido */
+              <div className="flex items-center gap-2">
+                <span className="px-4 py-2 bg-gray-400 text-white rounded-lg">
+                  Última fase
+                </span>
+                <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700 border border-green-200">
+                  Pedido concluido
+                </span>
+              </div>
+            ) : (
+              /* 3. Si está en curso: permitir hacer clic para avanzar o finalizar */
+              <button
+                onClick={handleNextPhase}
+                disabled={movingPhase}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {movingPhase
+                  ? "Actualizando..."
+                  : order.is_last_phase
+                    ? "Finalizar pedido"
+                    : "Avanzar fase"}
+              </button>
+            )}
           </div>
 
           <Progress value={order.progress ?? 0} className="h-3" />

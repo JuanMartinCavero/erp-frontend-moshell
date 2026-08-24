@@ -5,9 +5,12 @@ import axiosClient from "../../../services/axiosClient";
 
 export function TabEntradaCompra({ onClose, onRefresh }) {
   const [material, setMaterial] = useState(null);
+  const [materialId, setMaterialId] = useState(null);
   const [codigo, setCodigo] = useState("");
+  const [esMaterialNuevo, setEsMaterialNuevo] = useState(false);
   const [cantidad, setCantidad] = useState("");
   const [valorUnitario, setValorUnitario] = useState("");
+  const [stockMinimo, setStockMinimo] = useState("");
 
   // AGREGADO: Estado para búsqueda por orden de compra
   const [ordenCompraId, setOrdenCompraId] = useState("");
@@ -36,41 +39,39 @@ export function TabEntradaCompra({ onClose, onRefresh }) {
       const response = await axiosClient.get(
         `/ordenes-compra/buscar/${ordenCompraId}`,
       );
+
       const orden = response.data;
 
-      if (orden.estado !== "aprobada" && orden.estado !== "recibida") {
-        alert(
-          `La orden está en estado "${orden.estado}" y no se puede usar para registrar entrada.`,
-        );
-        setOrdenEncontrada(null);
-        return;
-      }
-
       setOrdenEncontrada(orden);
-
-      if (orden.detalles && orden.detalles.length > 0) {
-        alert(
-          `Orden encontrada: ${orden.orden_id}
-Proveedor: ${orden.razon_social}
-Estado: ${orden.estado}
-Total ítems: ${orden.detalles.length}`,
-        );
-      }
     } catch (error) {
-      console.error("Orden no encontrada");
+      console.error(error);
+      alert("Error buscando orden");
       setOrdenEncontrada(null);
-      alert("Orden de compra no ha sido aprobada o recibida");
     } finally {
       setBuscandoOrden(false);
     }
   };
-
   // AGREGADO: Seleccionar un detalle de la orden para registrar entrada
   const handleSeleccionarDetalle = (detalle) => {
+    console.log("DETALLE SELECCIONADO:", detalle);
+
     setDetalleSeleccionado(detalle);
 
-    setCantidad(detalle.cantidad_conos.toString());
-    setValorUnitario(detalle.precio_unitario.toString());
+    setMaterialId(detalle.material_id);
+
+    if (detalle.material_id) {
+      // Material existente
+      setEsMaterialNuevo(false);
+      setCodigo(detalle.material?.codigo ?? "");
+    } else {
+      // Material nuevo
+      setEsMaterialNuevo(true);
+      setCodigo("");
+    }
+
+    setCantidad(String(detalle.cantidad_conos ?? 0));
+
+    setValorUnitario(String(detalle.precio_unitario ?? 0));
 
     alert(
       `Detalle seleccionado:
@@ -81,7 +82,6 @@ Total ítems: ${orden.detalles.length}`,
       Precio: ${detalle.precio_unitario}`,
     );
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -92,10 +92,12 @@ Total ítems: ${orden.detalles.length}`,
 
     try {
       await registrarMovimiento({
+        material_id: materialId,
         codigo: codigo,
         tipo_movimiento: "entrada",
         cantidad: Number(cantidad),
         valor_unitario: Number(valorUnitario),
+        stock_minimo: Number(stockMinimo),
         lote: ordenEncontrada ? ordenEncontrada.orden_id : null,
         calidad: detalleSeleccionado?.calidad,
         color: detalleSeleccionado?.color,
@@ -179,7 +181,7 @@ Total ítems: ${orden.detalles.length}`,
 
       <div className="flex gap-2">
         <input
-          placeholder="Código"
+          placeholder="Ingrese código del nuevo material"
           value={codigo}
           onChange={(e) => setCodigo(e.target.value)}
           className="input flex-1 border rounded px-3 py-2"
@@ -233,6 +235,14 @@ Total ítems: ${orden.detalles.length}`,
         required
       />
 
+      <input
+        type="number"
+        min="1"
+        placeholder="Stock mínimo"
+        value={stockMinimo}
+        onChange={(e) => setStockMinimo(e.target.value)}
+        className="input border rounded px-3 py-2 w-full"
+      />
       <button
         type="submit"
         className="bg-purple-600 text-white p-3 rounded-lg w-full hover:bg-purple-700"

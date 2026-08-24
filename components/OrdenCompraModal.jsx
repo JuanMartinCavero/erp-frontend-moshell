@@ -4,7 +4,12 @@ import { X, Plus, Trash2 } from "lucide-react";
 import axiosClient from "../services/axiosClient";
 import { useProvider } from "../hooks/useProvider";
 
-export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
+export function OrdenCompraModal({
+  onClose,
+  onSuccess,
+  ordenData = null,
+  materialesIniciales = [],
+}) {
   const [orden, setOrden] = useState(
     ordenData || {
       proveedor_id: "",
@@ -14,11 +19,20 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
       fecha_entrega: "",
       moneda: "PEN",
       observaciones: "",
-      detalles: [],
+      detalles: materialesIniciales.map((item) => ({
+        material_id: item.material_id,
+        calidad: item.calidad,
+        titulo: item.descripcion,
+        color: item.color,
+        cantidad_conos: 1,
+        cantidad_sugerida: item.cantidad_sugerida,
+        precio_unitario: 0,
+        peso_por_cono: 1,
+      })),
     },
   );
   const { providers } = useProvider();
-
+  const esReabastecimiento = materialesIniciales.length > 0;
   const handleSelectProveedor = (e) => {
     const id = e.target.value;
 
@@ -33,6 +47,7 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
   };
 
   const [detalleActual, setDetalleActual] = useState({
+    material_id: null,
     calidad: "",
     titulo: "",
     color: "",
@@ -40,7 +55,7 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
     precio_unitario: 0,
     peso_por_cono: 1,
   });
- 
+
   const agregarDetalle = () => {
     if (!detalleActual.calidad || !detalleActual.titulo) {
       alert("Complete calidad y título");
@@ -53,6 +68,7 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
     });
 
     setDetalleActual({
+      material_id: null,
       calidad: "",
       titulo: "",
       color: "",
@@ -109,14 +125,24 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Nueva Orden de Compra</h2>
+          <h2 className="text-xl font-bold">
+            {esReabastecimiento
+              ? "Reabastecer Insumos Críticos"
+              : "Nueva Compra de Material"}
+          </h2>{" "}
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
             <X size={24} />
           </button>
         </div>
-
+        {esReabastecimiento && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            Se han cargado automáticamente los materiales con stock crítico.
+            Solo debe indicar la cantidad que desea comprar.
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="p-6">
           {/* Datos del Proveedor */}
+
           <div className="mb-6">
             <h3 className="font-semibold mb-3">Datos del Proveedor</h3>
 
@@ -148,87 +174,86 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
           )}
           {/* Detalle de Insumos */}
           <div className="mb-6">
-            <h3 className="font-semibold mb-3">Detalle de Insumos</h3>
+            <h3 className="font-semibold mb-3">
+              {esReabastecimiento
+                ? "Materiales a Reabastecer"
+                : "Nuevo Material"}
+            </h3>{" "}
+            {!esReabastecimiento && (
+              <>
+                <div className="grid grid-cols-5 gap-2 mb-4 p-3 bg-gray-100 rounded">
+                  <input
+                    type="text"
+                    placeholder="Calidad"
+                    value={detalleActual.calidad}
+                    onChange={(e) =>
+                      setDetalleActual({
+                        ...detalleActual,
+                        calidad: e.target.value,
+                      })
+                    }
+                    className="border px-2 py-1 rounded text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Título"
+                    value={detalleActual.titulo}
+                    onChange={(e) =>
+                      setDetalleActual({
+                        ...detalleActual,
+                        titulo: e.target.value,
+                      })
+                    }
+                    className="border px-2 py-1 rounded text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Color"
+                    value={detalleActual.color}
+                    onChange={(e) =>
+                      setDetalleActual({
+                        ...detalleActual,
+                        color: e.target.value,
+                      })
+                    }
+                    className="border px-2 py-1 rounded text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Conos"
+                    value={detalleActual.cantidad_conos}
+                    onChange={(e) =>
+                      setDetalleActual({
+                        ...detalleActual,
+                        cantidad_conos: parseInt(e.target.value),
+                      })
+                    }
+                    className="border px-2 py-1 rounded text-sm"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Peso Kg"
+                    value={detalleActual.peso_por_cono}
+                    onChange={(e) =>
+                      setDetalleActual({
+                        ...detalleActual,
+                        peso_por_cono: parseFloat(e.target.value),
+                      })
+                    }
+                    className="border px-2 py-1 rounded text-sm"
+                  />
+                </div>
 
-            <div className="grid grid-cols-5 gap-2 mb-4 p-3 bg-gray-100 rounded">
-              <input
-                type="text"
-                placeholder="Calidad"
-                value={detalleActual.calidad}
-                onChange={(e) =>
-                  setDetalleActual({
-                    ...detalleActual,
-                    calidad: e.target.value,
-                  })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Título"
-                value={detalleActual.titulo}
-                onChange={(e) =>
-                  setDetalleActual({ ...detalleActual, titulo: e.target.value })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Color"
-                value={detalleActual.color}
-                onChange={(e) =>
-                  setDetalleActual({ ...detalleActual, color: e.target.value })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              />
-              <input
-                type="number"
-                placeholder="Conos"
-                value={detalleActual.cantidad_conos}
-                onChange={(e) =>
-                  setDetalleActual({
-                    ...detalleActual,
-                    cantidad_conos: parseInt(e.target.value),
-                  })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              />
-              {/* <input
-                type="number"
-                step="0.01"
-                placeholder="Kg"
-                value={detalleActual.precio_unitario}
-                onChange={(e) =>
-                  setDetalleActual({
-                    ...detalleActual,
-                    precio_unitario: parseFloat(e.target.value),
-                  })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              /> */}
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Peso Kg"
-                value={detalleActual.peso_por_cono}
-                onChange={(e) =>
-                  setDetalleActual({
-                    ...detalleActual,
-                    peso_por_cono: parseFloat(e.target.value),
-                  })
-                }
-                className="border px-2 py-1 rounded text-sm"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={agregarDetalle}
-              className="bg-green-600 text-white px-4 py-2 rounded text-sm flex items-center gap-2 mb-3"
-            >
-              <Plus size={16} /> Agregar Ítem
-            </button>
-
+                <button
+                  type="button"
+                  onClick={agregarDetalle}
+                  className="bg-green-600 text-white px-4 py-2 rounded text-sm flex items-center gap-2 mb-3"
+                >
+                  <Plus size={16} /> Agregar Ítem
+                </button>
+              </>
+            )}
             {/* Tabla de detalles */}
             {orden.detalles.length > 0 && (
               <div className="overflow-x-auto">
@@ -250,8 +275,31 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
                         <td className="p-2 border">{detalle.calidad}</td>
                         <td className="p-2 border">{detalle.titulo}</td>
                         <td className="p-2 border">{detalle.color}</td>
-                        <td className="p-2 border text-right">
-                          {detalle.cantidad_conos}
+                        <td className="p-2 border text-center">
+                          {esReabastecimiento && (
+                            <div className="text-xs text-gray-500">
+                              Sugerido: {detalle.cantidad_sugerida ?? "-"}
+                            </div>
+                          )}
+
+                          <input
+                            type="number"
+                            min="1"
+                            value={detalle.cantidad_conos}
+                            onChange={(e) => {
+                              const nuevos = [...orden.detalles];
+
+                              nuevos[idx].cantidad_conos = Number(
+                                e.target.value,
+                              );
+
+                              setOrden({
+                                ...orden,
+                                detalles: nuevos,
+                              });
+                            }}
+                            className="border rounded px-2 py-1 w-20"
+                          />
                         </td>
                         <td className="p-2 border text-right">
                           {detalle.peso_por_cono} Kg
@@ -339,8 +387,8 @@ export function OrdenCompraModal({ onClose, onSuccess, ordenData = null }) {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded"
             >
-              Guardar Orden
-            </button>
+              {esReabastecimiento ? "Generar Orden" : "Registrar Material"}
+            </button>{" "}
           </div>
         </form>
       </div>

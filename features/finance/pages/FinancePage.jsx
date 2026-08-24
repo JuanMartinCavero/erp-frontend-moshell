@@ -1,10 +1,7 @@
-import React, { useState } from "react";
-
 import HeaderFinance from "../components/HeaderFinance";
 import MetricCard from "../../finance/components/MetricCard";
 import FinanceTable from "../../finance/components/FinanceTable";
 import CollectionsStatus from "../../finance/components/CollectionsStatus";
-import FinanceTip from "../../finance/components/FinanceTip";
 import FinanceTableProviders from "../components/FinanceTableProviders";
 
 import { useFinance } from "../../../hooks/useFinance";
@@ -17,13 +14,14 @@ export default function FinancePage() {
     hookRegistrarPagoOrden,
   } = useFinance();
 
-  const abrirModalPago = (pedido) => {
-    setPedidoSeleccionado(pedido);
-    setModalPago(true);
-  };
-
   if (loading) {
-    return <div className="p-10">Cargando finanzas...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-slate-500 dark:text-slate-400">
+          Cargando finanzas...
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -32,48 +30,37 @@ export default function FinancePage() {
         <HeaderFinance />
 
         <div className="p-8 space-y-8">
-          {/* Metrics */}
+          {/* Métricas financieras */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
-              title="Flujo de Caja Mensual"
-              value={dashboard.flujoCaja}
-              trend="up"
-              percent="12.5%"
-              progress={75}
+              title="Flujo de Caja"
+              value={`S/ ${dashboard.flujoCaja}`}
             />
 
             <MetricCard
               title="Cuentas por Cobrar"
-              value={dashboard.cuentasPorCobrar}
-              trend="down"
-              percent="3.2%"
-              progress={40}
+              value={`S/ ${dashboard.cuentasPorCobrar}`}
             />
 
             <MetricCard
               title="Cuentas por Pagar"
-              value={dashboard.cuentasPorPagar}
-              trend="up"
-              percent="5%"
-              progress={60}
+              value={`S/ ${dashboard.cuentasPorPagar}`}
             />
 
             <MetricCard
-              title="Saldo Total"
-              value={dashboard.saldoTotal}
-              trend="up"
-              percent="8.4%"
-              progress={85}
+              title="Posición Financiera"
+              value={`S/ ${dashboard.saldoTotal}`}
             />
           </div>
 
+          {/* Información financiera */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 flex flex-col gap-6">
               <FinanceTable
                 transactions={dashboard.facturas}
-                abrirModalPago={abrirModalPago}
                 registrarPago={hookRegistrarPagoPedido}
               />
+
               <FinanceTableProviders
                 orders={dashboard.ordenes}
                 registrarPagoProveedor={hookRegistrarPagoOrden}
@@ -83,9 +70,8 @@ export default function FinancePage() {
             <div className="space-y-6">
               <CollectionsStatus
                 monto={dashboard.cuentasPorCobrar}
-                pedidos={dashboard.facturas}
+                facturas={dashboard.facturas}
               />
-              <FinanceTip />
             </div>
           </div>
         </div>
