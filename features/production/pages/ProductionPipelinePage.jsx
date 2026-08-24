@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import useProductionPipeline from "../hooks/useProductionPipeline";
 import PipelineColumn from "../components/PipelineColumn";
-import PipelineFilters from "../components/PipelineFilters";
+// import PipelineFilters from "../components/PipelineFilters";
 import PipelineSkeleton from "../components/PipelineSkeleton";
 
 export default function ProductionPipelinePage() {
@@ -145,7 +145,6 @@ export default function ProductionPipelinePage() {
 
   return (
     <div className="h-full flex flex-col p-8 bg-slate-50/40 min-h-screen relative font-sans antialiased overflow-hidden">
-
       {/* Título de la sección y stats rápidos */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -160,22 +159,21 @@ export default function ProductionPipelinePage() {
       </div>
 
       {/* Panel de Filtros */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 mb-6 flex-shrink-0">
+      {/* <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 mb-6 flex-shrink-0">
 
-        <PipelineFilters
+        {/* <PipelineFilters
           stats={stats}
           filter={filter}
           onFilterChange={filterByPriority}
           onRefresh={refresh}
           onNewOrder={handleNewOrder}
           refreshing={refreshing}
-        />
-      </div>
+        /> */}
+      {/*  </div> */}
 
       {/* --- PIPELINE PRINCIPAL / ESTADO VACÍO --- */}
       {!columns || columns.length === 0 ? (
         <div className="flex-1 min-w-0 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl bg-white p-12">
-
           <div className="text-center max-w-sm">
             <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <ClipboardList className="w-6 h-6" />
@@ -198,7 +196,6 @@ export default function ProductionPipelinePage() {
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex-1 min-w-0 flex gap-6 overflow-x-auto pb-4 items-start select-none">
-
             {columns.map((column) => (
               <PipelineColumn
                 key={column?.id}
@@ -215,7 +212,6 @@ export default function ProductionPipelinePage() {
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 transition-opacity">
           {/* Sin backdrop-blur para evitar borrosidad/artefactos al mover sidebar */}
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full p-6 m-4 animate-fade-in">
-
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
               <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5" />
