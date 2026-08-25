@@ -1,24 +1,27 @@
 import React, { useState } from "react";
 import { Calendar, ChevronDown, Download, Bell, Settings } from "lucide-react";
 
-export function InventoryHeader({ 
-  onRegister, 
-  periodo, 
-  setPeriodo, 
-  fechaInicio, 
-  setFechaInicio, 
-  fechaFin, 
-  setFechaFin, 
+export function InventoryHeader({
+  onRegister,
+  periodo,
+  setPeriodo,
+  fechaInicio,
+  setFechaInicio,
+  fechaFin,
+  setFechaFin,
   onAplicarFechas,
   onExportExcel,
   onExportPDF,
   loading,
-  showKardex = false
+  showKardex = false,
 }) {
   const [showPeriodoMenu, setShowPeriodoMenu] = useState(false);
-  const [showPersonalizado, setShowPersonalizado] = useState(false);
+  const [showPersonalizado, setShowPersonalizado] = useState(
+    periodo === "custom",
+  );
 
   const opciones = [
+    { label: "Todos (Sin filtro)", value: "all" },
     { label: "Hoy (1 día)", value: 1 },
     { label: "Últimos 7 días", value: 7 },
     { label: "Últimos 15 días", value: 15 },
@@ -27,12 +30,20 @@ export function InventoryHeader({
     { label: "Personalizado", value: "custom" },
   ];
 
-  const labelActual = opciones.find(o => o.value === periodo)?.label || "Últimos 30 días";
+  const labelActual =
+    opciones.find((o) => o.value === periodo)?.label || "Seleccionar período";
 
   const handlePeriodoChange = (value) => {
     setPeriodo(value);
     setShowPeriodoMenu(false);
     setShowPersonalizado(value === "custom");
+
+    // Si selecciona "Todos", limpiamos las fechas automáticamente y recargamos sin filtro
+    if (value === "all") {
+      setFechaInicio("");
+      setFechaFin("");
+      onAplicarFechas("", "");
+    }
   };
 
   const handleAplicar = () => {
@@ -54,7 +65,7 @@ export function InventoryHeader({
         </div>
 
         <div className="flex items-center gap-4">
-          {/* ✅ Dropdown de período - visible SIEMPRE */}
+          {/* ✅ Dropdown de período */}
           <div className="relative">
             <button
               onClick={() => setShowPeriodoMenu(!showPeriodoMenu)}
@@ -82,7 +93,7 @@ export function InventoryHeader({
             )}
           </div>
 
-          {/* ✅ Selector de fechas personalizado - visible SIEMPRE cuando está activo */}
+          {/* ✅ Selector de fechas personalizado - visible cuando se selecciona "Personalizado" */}
           {showPersonalizado && (
             <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
               <input
@@ -108,7 +119,7 @@ export function InventoryHeader({
             </div>
           )}
 
-          {/* ✅ Exportar Excel - visible SIEMPRE */}
+          {/* ✅ Exportar Excel */}
           <button
             onClick={onExportExcel}
             disabled={loading}
@@ -118,7 +129,7 @@ export function InventoryHeader({
             Excel
           </button>
 
-          {/* ✅ Exportar PDF - visible SIEMPRE */}
+          {/* ✅ Exportar PDF */}
           <button
             onClick={onExportPDF}
             disabled={loading}
@@ -127,8 +138,6 @@ export function InventoryHeader({
             <Download className="w-4 h-4" />
             PDF
           </button>
-
-     
 
           {/* Registrar Material */}
           <button
