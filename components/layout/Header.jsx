@@ -112,13 +112,13 @@ const Header = () => {
           )}
         </div>
 
-        <button
+        {/* <button
           onClick={() => navigate("/settings")}
           className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100/80 rounded-xl transition-colors active:scale-95"
           title="Configuración"
         >
           <Settings className="w-5 h-5" />
-        </button>
+        </button> */}
 
         <div className="w-px h-6 bg-slate-200 mx-1"></div>
 

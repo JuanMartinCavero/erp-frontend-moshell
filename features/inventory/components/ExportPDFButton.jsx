@@ -1,177 +1,246 @@
 import React, { useState } from "react";
 import { Download } from "lucide-react";
-import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf,
+} from "@react-pdf/renderer";
 
-// Estilos del PDF
+// Estilos profesionales estilo PDF corporativo (inspirado en la paleta Moshell)
 const styles = StyleSheet.create({
-  page: { 
-    padding: 20, 
+  page: {
+    padding: 25,
     fontSize: 9,
-    fontFamily: "Helvetica"
+    fontFamily: "Helvetica",
+    backgroundColor: "#ffffff",
   },
-  title: { 
-    fontSize: 16, 
-    fontWeight: "bold", 
-    marginBottom: 8, 
-    textAlign: "center" 
+  headerBanner: {
+    backgroundColor: "#112244", // Azul marino corporativo
+    padding: 10,
+    alignItems: "center",
+    marginBottom: 15,
+    borderRadius: 2,
   },
-  subtitle: { 
-    fontSize: 11, 
-    marginBottom: 15, 
-    textAlign: "center", 
-    color: "#555" 
+  headerTitle: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
   },
-  table: { 
-    display: "flex", 
-    flexDirection: "column", 
+  subHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 4,
+    padding: 8,
+  },
+  badgeBox: {
+    borderWidth: 1,
+    borderColor: "#112244",
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    backgroundColor: "#f8fafc",
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#112244",
+  },
+  periodoText: {
+    fontSize: 9,
+    color: "#64748b",
+  },
+  table: {
+    display: "flex",
+    flexDirection: "column",
     width: "100%",
-    marginTop: 10
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#112244",
   },
-  headerRow: { 
-    flexDirection: "row", 
-    borderBottom: "2px solid #000", 
+  headerRow: {
+    flexDirection: "row",
+    backgroundColor: "#112244",
+    paddingVertical: 6,
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+    paddingVertical: 6,
+    alignItems: "center",
+  },
+  cell: { flex: 1, paddingHorizontal: 4, fontSize: 8, color: "#334155" },
+  cellSmall: {
+    flex: 0.7,
+    paddingHorizontal: 4,
+    fontSize: 8,
+    color: "#334155",
+    textAlign: "center",
+  },
+  cellRight: {
+    flex: 1,
+    paddingHorizontal: 4,
+    fontSize: 8,
+    color: "#334155",
+    textAlign: "right",
+  },
+  cellHeader: {
+    flex: 1,
+    paddingHorizontal: 4,
+    fontWeight: "bold",
+    fontSize: 8,
+    color: "#ffffff",
+  },
+  cellHeaderSmall: {
+    flex: 0.7,
+    paddingHorizontal: 4,
+    fontWeight: "bold",
+    fontSize: 8,
+    color: "#ffffff",
+    textAlign: "center",
+  },
+  cellHeaderRight: {
+    flex: 1,
+    paddingHorizontal: 4,
+    fontWeight: "bold",
+    fontSize: 8,
+    color: "#ffffff",
+    textAlign: "right",
+  },
+
+  // Totales section
+  totalesContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 10,
+  },
+  totalesBox: {
+    width: "40%",
+    borderWidth: 1,
+    borderColor: "#112244",
+  },
+  totalRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#cbd5e1",
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    backgroundColor: "#f8fafc",
+  },
+  totalRowFinal: {
+    flexDirection: "row",
     paddingVertical: 5,
-    backgroundColor: "#f0f0f0",
-    fontWeight: "bold"
+    paddingHorizontal: 6,
+    backgroundColor: "#112244",
   },
-  row: { 
-    flexDirection: "row", 
-    borderBottom: "1px solid #e0e0e0", 
-    paddingVertical: 4 
-  },
-  cell: { 
-    flex: 1, 
-    paddingHorizontal: 3,
-    fontSize: 8
-  },
-  cellSmall: { 
-    flex: 0.6, 
-    paddingHorizontal: 3,
-    fontSize: 8
-  },
-  cellMedium: { 
-    flex: 0.8, 
-    paddingHorizontal: 3,
-    fontSize: 8
-  },
-  cellHeader: { 
-    flex: 1, 
-    paddingHorizontal: 3, 
+  totalLabel: {
+    flex: 1,
+    fontSize: 9,
     fontWeight: "bold",
-    fontSize: 8
+    color: "#112244",
   },
-  cellHeaderSmall: { 
-    flex: 0.6, 
-    paddingHorizontal: 3, 
+  totalValue: {
+    flex: 1,
+    fontSize: 9,
     fontWeight: "bold",
-    fontSize: 8
+    color: "#112244",
+    textAlign: "right",
+  },
+  totalLabelFinal: {
+    flex: 1,
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#ffffff",
+  },
+  totalValueFinal: {
+    flex: 1,
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "right",
   },
   footer: {
-    marginTop: 20,
+    marginTop: 30,
     fontSize: 8,
     textAlign: "center",
-    color: "#999"
-  }
+    color: "#94a3b8",
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+    paddingTop: 8,
+  },
 });
 
-// Columnas del PDF
 const columns = [
-  { key: "fecha", label: "FECHA", size: "cell" },
-  { key: "lote", label: "LOTE", size: "cellSmall" },
-  { key: "calidad", label: "CALIDAD", size: "cell" },
+  { key: "codigo", label: "CÓDIGO", size: "cell" },
+  { key: "tipo", label: "TIPO", size: "cellSmall" },
   { key: "color", label: "COLOR", size: "cell" },
-  { key: "titulo", label: "TÍTULO", size: "cell" },
-  { key: "cantidad_conos", label: "CONOS", size: "cellSmall" },
-  { key: "entrada_cantidad", label: "ENTRADA", size: "cellSmall" },
-  { key: "salida_cantidad", label: "SALIDA", size: "cellSmall" },
-  { key: "merma_cantidad", label: "MERMA", size: "cellSmall" },
-  { key: "precio_unitario", label: "PRECIO", size: "cellSmall" },
-  { key: "valor_total", label: "VALOR TOTAL", size: "cell" },
-  { key: "existencia", label: "SALDO", size: "cellSmall" },
+  { key: "calidad", label: "CALIDAD", size: "cell" },
+  { key: "stock_actual", label: "STOCK", size: "cellSmall" },
+  { key: "ubicacion", label: "UBICACIÓN", size: "cellSmall" },
+  { key: "cantidad", label: "CANTIDAD", size: "cellSmall" },
+  { key: "peso", label: "PESO (KG)", size: "cellSmall" },
+  { key: "valor_unitario", label: "V. UNIT.", size: "cellRight" },
+  { key: "valor_total", label: "VALOR TOTAL", size: "cellRight" },
 ];
 
-// Componente del documento PDF
-const MyDocument = ({ data, material, fechas }) => {
-  // Agrupar datos por material para calcular saldos correctamente
-  const materialesData = {};
-  
-  data.forEach(row => {
-    if (!materialesData[row.material_id]) {
-      materialesData[row.material_id] = {
-        material_id: row.material_id,
-        rows: [],
-        saldo: 0
-      };
-    }
-    materialesData[row.material_id].rows.push(row);
-  });
+const MyDocument = ({ data, fechas }) => {
+  const rows = Array.isArray(data) ? data : [];
 
-  // Construir datos con saldos calculados
-  const rowsWithSaldo = [];
-  Object.values(materialesData).forEach(matData => {
-    let saldo = 0;
-    // Ordenar por fecha
-    const sortedRows = matData.rows.sort((a, b) => 
-      new Date(a.fecha) - new Date(b.fecha)
-    );
-    
-    sortedRows.forEach(row => {
-      const entrada = Number(row.entrada_cantidad) || 0;
-      const salida = Number(row.salida_cantidad) || 0;
-      saldo = saldo + entrada - salida;
-      
-      rowsWithSaldo.push({
-        ...row,
-        saldo_calculado: saldo,
-        entrada: entrada,
-        salida: salida
-      });
-    });
-  });
-
-  // Si no hay datos, mostrar el stock actual de los materiales
-  if (rowsWithSaldo.length === 0 && material && material.stock_actual !== undefined) {
-    rowsWithSaldo.push({
-      fecha: new Date().toISOString().split('T')[0],
-      lote: 'INICIAL',
-      calidad: material.calidad || 'N/A',
-      color: material.color || 'N/A',
-      titulo: material.titulo || '-',
-      entrada: material.stock_actual || 0,
-      salida: 0,
-      precio: material.valor_unitario || 0,
-      saldo_calculado: material.stock_actual || 0,
-      valor_total: (material.stock_actual || 0) * (material.valor_unitario || 0)
-    });
-  }
-
-  const hasMerma = rowsWithSaldo.some(row => Number(row.merma_cantidad) > 0);
-  const hasConos = rowsWithSaldo.some(row => Number(row.cantidad_conos) > 0);
-  
-  // Definir columnas visibles
-  const visibleColumns = columns.filter(col => {
-    if (col.key === "merma_cantidad" && !hasMerma) return false;
-    if (col.key === "cantidad_conos" && !hasConos) return false;
-    return true;
-  });
-
-  // Calcular total de valor
-  const totalValor = rowsWithSaldo.reduce((sum, row) => sum + (row.valor_total || 0), 0);
+  // Calcular totales generales
+  const totalStock = rows.reduce(
+    (sum, r) => sum + Number(r.inventario?.stock_actual ?? 0),
+    0,
+  );
+  const totalCantidad = rows.reduce(
+    (sum, r) => sum + Number(r.movimientos?.[0]?.cantidad ?? 0),
+    0,
+  );
+  const totalPeso = rows.reduce(
+    (sum, r) => sum + Number(r.peso_calculado ?? 0),
+    0,
+  );
+  const valorTotalGeneral = rows.reduce((sum, r) => {
+    const mov = r.movimientos?.[0] || {};
+    const cant = Number(mov.cantidad ?? 0);
+    const vU = Number(mov.valor_unitario ?? 0);
+    return sum + cant * vU;
+  }, 0);
 
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
-        <Text style={styles.title}>KARDEX DE INVENTARIO</Text>
-        <Text style={styles.subtitle}>
-          Material: {material?.codigo || 'N/A'} - {material?.calidad || 'N/A'} | 
-          Período: {fechas?.inicio || "Inicio"} al {fechas?.fin || "Fin"}
-        </Text>
+        <View style={styles.headerBanner}>
+          <Text style={styles.headerTitle}>
+            KARDEX DE INVENTARIO - REPORTE GENERAL
+          </Text>
+        </View>
 
+        <View style={styles.subHeaderContainer}>
+          <View style={styles.badgeBox}>
+            <Text style={styles.badgeText}>INVENTARIO ACTUALIZADO</Text>
+          </View>
+          <Text style={styles.periodoText}>
+            Período: {fechas?.inicio || "Inicio"} al {fechas?.fin || "Fin"}
+          </Text>
+        </View>
+
+        {/* TABLA PRINCIPAL */}
         <View style={styles.table}>
           {/* Header */}
           <View style={styles.headerRow}>
-            {visibleColumns.map((col) => {
-              const styleKey = col.size === "cellSmall" ? "cellHeaderSmall" : "cellHeader";
+            {columns.map((col) => {
+              let styleKey = "cellHeader";
+              if (col.size === "cellSmall") styleKey = "cellHeaderSmall";
+              if (col.size === "cellRight") styleKey = "cellHeaderRight";
               return (
                 <Text key={col.key} style={styles[styleKey]}>
                   {col.label}
@@ -180,108 +249,103 @@ const MyDocument = ({ data, material, fechas }) => {
             })}
           </View>
 
-          {/* Data */}
-          {rowsWithSaldo.map((row, i) => {
-            const displayRow = {};
-            visibleColumns.forEach((col) => {
-              let value = row[col.key] ?? "-";
-              if (col.key === 'precio_unitario') {
-                value = `S/ ${Number(row.precio).toFixed(2)}`;
-              } else if (col.key === 'valor_total') {
-                value = `S/ ${Number(row.valor_total || 0).toFixed(2)}`;
-              } else if (col.key === 'saldo_calculado' || col.key === 'existencia') {
-                value = Number(row.saldo_calculado || row.existencia || 0);
-              } else if (col.key === 'entrada_cantidad') {
-                value = row.entrada || 0;
-              } else if (col.key === 'salida_cantidad') {
-                value = row.salida || 0;
-              } else if (col.key === 'merma_cantidad') {
-                value = Number(row.merma_cantidad || 0);
-              } else if (col.key === 'cantidad_conos') {
-                value = Number(row.cantidad_conos || 0);
-              } else if (typeof value === 'number') {
-                if (col.key === 'precio_unitario' || col.key === 'valor_total') {
-                  value = `S/ ${Number(value).toFixed(2)}`;
-                } else {
-                  value = String(value);
-                }
-              }
-              displayRow[col.key] = value;
-            });
+          {/* Data Rows */}
+          {rows.map((row, i) => {
+            const codigo = row.codigo || "-";
+            const tipo = row.tipo || "-";
+            const color = row.color || "-";
+            const calidad = row.calidad || "-";
+
+            const stockActual = Number(row.inventario?.stock_actual ?? 0);
+            const ubicacion = row.inventario?.ubicacion || "-";
+
+            const primerMovimiento = row.movimientos?.[0] || {};
+            const cantidad = Number(primerMovimiento.cantidad ?? 0);
+            const peso = Number(row.peso_calculado ?? 0);
+            const valorUnitario = Number(primerMovimiento.valor_unitario ?? 0);
+            const valorTotal = cantidad * valorUnitario;
 
             return (
-              <View key={i} style={styles.row}>
-                {visibleColumns.map((col) => {
-                  const styleKey = col.size === "cellSmall" ? "cellSmall" : 
-                                   col.size === "cellMedium" ? "cellMedium" : "cell";
-                  return (
-                    <Text key={col.key} style={styles[styleKey]}>
-                      {displayRow[col.key] ?? "-"}
-                    </Text>
-                  );
-                })}
+              <View
+                key={i}
+                style={[
+                  styles.row,
+                  i % 2 === 1 ? { backgroundColor: "#f8fafc" } : {},
+                ]}
+              >
+                <Text style={styles.cell}>{codigo}</Text>
+                <Text style={styles.cellSmall}>{tipo}</Text>
+                <Text style={styles.cell}>{color}</Text>
+                <Text style={styles.cell}>{calidad}</Text>
+                <Text style={styles.cellSmall}>{stockActual}</Text>
+                <Text style={styles.cellSmall}>{ubicacion}</Text>
+                <Text style={styles.cellSmall}>{cantidad}</Text>
+                <Text style={styles.cellSmall}>{peso.toFixed(2)}</Text>
+                <Text style={styles.cellRight}>
+                  S/ {valorUnitario.toFixed(2)}
+                </Text>
+                <Text style={styles.cellRight}>S/ {valorTotal.toFixed(2)}</Text>
               </View>
             );
           })}
-          
-          {/* Fila de totales */}
-          {rowsWithSaldo.length > 0 && (
-            <View style={[styles.row, { backgroundColor: '#f0f0f0', fontWeight: 'bold' }]}>
-              <Text style={[styles.cell, { fontWeight: 'bold' }]}>TOTALES</Text>
-              {visibleColumns.slice(1).map((col) => {
-                let total = 0;
-                if (col.key === 'valor_total') {
-                  total = rowsWithSaldo.reduce((sum, row) => sum + (row.valor_total || 0), 0);
-                } else if (col.key === 'saldo_calculado' || col.key === 'existencia') {
-                  total = rowsWithSaldo.reduce((sum, row) => sum + (row.saldo_calculado || row.existencia || 0), 0);
-                } else if (col.key === 'entrada_cantidad') {
-                  total = rowsWithSaldo.reduce((sum, row) => sum + (row.entrada || 0), 0);
-                } else if (col.key === 'salida_cantidad') {
-                  total = rowsWithSaldo.reduce((sum, row) => sum + (row.salida || 0), 0);
-                }
-                const styleKey = col.size === "cellSmall" ? "cellSmall" : 
-                                 col.size === "cellMedium" ? "cellMedium" : "cell";
-                return (
-                  <Text key={col.key} style={[styles[styleKey], { fontWeight: 'bold' }]}>
-                    {col.key === 'precio_unitario' || col.key === 'valor_total' 
-                      ? `S/ ${total.toFixed(2)}` 
-                      : typeof total === 'number' ? total : '-'}
-                  </Text>
-                );
-              })}
-            </View>
-          )}
         </View>
 
+        {/* BLOQUE DE TOTALES ESTILO FACTURA / RESUMEN */}
+        <View style={styles.totalesContainer}>
+          <View style={styles.totalesBox}>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>TOTAL STOCK:</Text>
+              <Text style={styles.totalValue}>{totalStock}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>TOTAL CANTIDAD:</Text>
+              <Text style={styles.totalValue}>{totalCantidad}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>TOTAL PESO (KG):</Text>
+              <Text style={styles.totalValue}>{totalPeso.toFixed(2)}</Text>
+            </View>
+            <View style={styles.totalRowFinal}>
+              <Text style={styles.totalLabelFinal}>VALOR TOTAL:</Text>
+              <Text style={styles.totalValueFinal}>
+                S/ {valorTotalGeneral.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* PIE DE PÁGINA */}
         <Text style={styles.footer}>
-          Generado el {new Date().toLocaleDateString()} a las {new Date().toLocaleTimeString()}
+          Documento generado automáticamente el{" "}
+          {new Date().toLocaleDateString()} a las{" "}
+          {new Date().toLocaleTimeString()} — Sistema ERP Textil
         </Text>
       </Page>
     </Document>
   );
 };
 
-// ✅ Exportación DEFAULT (principal)
-export default function ExportPDFButton({ data, material, fechas, id }) {
+export default function ExportPDFButton({ data, fechas, id }) {
   const [loading, setLoading] = useState(false);
 
   const handleExportPDF = async () => {
     if (!data || data.length === 0) {
-      alert('No hay datos para exportar');
+      alert(
+        "Por favor, seleccione al menos un material con el check para exportar.",
+      );
       return;
     }
-    
+
     setLoading(true);
     try {
       const blob = await pdf(
-        <MyDocument data={data} material={material} fechas={fechas} />
+        <MyDocument data={data} fechas={fechas} />,
       ).toBlob();
-      
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      const nombreArchivo = `kardex_${material?.codigo || "material"}_${new Date().toISOString().split('T')[0]}.pdf`;
-      link.download = nombreArchivo;
+      link.download = `kardex_inventario_${new Date().toISOString().split("T")[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
