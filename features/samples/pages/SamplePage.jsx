@@ -1,8 +1,5 @@
-// features/samples/pages/SamplePage.jsx
 import React, { useState, useEffect } from "react";
 import axiosClient from "../../../services/axiosClient";
-//import { format } from "date-fns";
-//import { es } from "date-fns/locale";
 
 export default function SamplePage() {
   const [samples, setSamples] = useState([]);
@@ -19,6 +16,15 @@ export default function SamplePage() {
     activas: 0,
     inactivas: 0,
   });
+
+  // Función para formatear fechas 
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const cleanDate = dateString.split("T")[0];
+    const [year, month, day] = cleanDate.split("-");
+    if (!year || !month || !day) return cleanDate;
+    return `${day}/${month}/${year}`;
+  };
 
   // Cargar muestras
   const loadSamples = async () => {
@@ -58,12 +64,12 @@ export default function SamplePage() {
     setSelectedSample(sample);
     setEditForm({
       tipo_muestra: sample.tipo_muestra || "producto",
-      fecha_proyectada_entrega: sample.fecha_proyectada_entrega || "",
-      fecha_real_entrega: sample.fecha_real_entrega || "",
-      monto_adelanto_50: sample.monto_adelanto_50 || "",
-      fecha_adelanto_50: sample.fecha_adelanto_50 || "",
-      monto_restante_50: sample.monto_restante_50 || "",
-      fecha_restante_50: sample.fecha_restante_50 || "",
+      fecha_proyectada_entrega: sample.fecha_proyectada_entrega
+        ? sample.fecha_proyectada_entrega.split("T")[0]
+        : "",
+      fecha_real_entrega: sample.fecha_real_entrega
+        ? sample.fecha_real_entrega.split("T")[0]
+        : "",
       feedback: sample.feedback || "",
       status: sample.status || "PENDING",
     });
@@ -85,7 +91,7 @@ export default function SamplePage() {
 
   // Duplicar muestra
   const duplicateSample = async (id) => {
-    if (!confirm("¿Duplicar esta muestra?")) return;
+    if (!confirm("¿Deseas duplicar esta muestra?")) return;
     try {
       await axiosClient.post(`/samples/${id}/duplicate`);
       loadSamples();
@@ -98,7 +104,7 @@ export default function SamplePage() {
   // Archivar/Activar muestra
   const toggleActive = async (id, isActive) => {
     const action = isActive ? "archivar" : "activar";
-    if (!confirm(`¿${action} esta muestra?`)) return;
+    if (!confirm(`¿Estás seguro de ${action} esta muestra?`)) return;
     try {
       await axiosClient.patch(`/samples/${id}/toggle-active`);
       loadSamples();
@@ -108,82 +114,123 @@ export default function SamplePage() {
     }
   };
 
-  // Obtener badge de estado de pago
-  const getPaymentBadge = (estado) => {
-    switch (estado) {
-      case "pagado_total":
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Pagado Total</span>;
-      case "pagado_adelanto":
-        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">50% Adelanto</span>;
-      default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Pendiente</span>;
-    }
-  };
-
   // Obtener badge de estado de muestra
   const getStatusBadge = (status) => {
     switch (status) {
       case "APPROVED":
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Aprobada</span>;
+        return (
+          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Aprobada
+          </span>
+        );
       case "REJECTED":
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Rechazada</span>;
+        return (
+          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+            Rechazada
+          </span>
+        );
       case "IN_REVIEW":
-        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">En Revisión</span>;
+        return (
+          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+            En Revisión
+          </span>
+        );
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">Pendiente</span>;
+        return (
+          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+            Pendiente
+          </span>
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8 font-sans">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Gestión de Muestras</h1>
-          <p className="text-gray-500">Administra muestras de swatch y producto</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+            Gestión de Muestras
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Administra eficientemente las muestras de swatch y producto.
+          </p>
         </div>
       </div>
 
       {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-purple-500">
-          <p className="text-sm text-gray-500">Muestras Swatch</p>
-          <p className="text-2xl font-bold">{stats.total_swatch}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Muestras Swatch
+          </p>
+          <p className="text-3xl font-bold text-slate-800 mt-2">
+            {stats.total_swatch}
+          </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500">Muestras Producto</p>
-          <p className="text-2xl font-bold">{stats.total_producto}</p>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Muestras Producto
+          </p>
+          <p className="text-3xl font-bold text-slate-800 mt-2">
+            {stats.total_producto}
+          </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-green-500">
-          <p className="text-sm text-gray-500">Activas</p>
-          <p className="text-2xl font-bold">{stats.activas}</p>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow border-l-4 border-l-emerald-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Activas
+          </p>
+          <p className="text-3xl font-bold text-slate-800 mt-2">
+            {stats.activas}
+          </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-500">
-          <p className="text-sm text-gray-500">Archivadas</p>
-          <p className="text-2xl font-bold">{stats.inactivas}</p>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow border-l-4 border-l-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Archivadas
+          </p>
+          <p className="text-3xl font-bold text-slate-800 mt-2">
+            {stats.inactivas}
+          </p>
         </div>
       </div>
 
       {/* FILTERS */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm mb-6">
-        <div className="flex flex-wrap gap-4">
-          <input
-            className="flex-1 outline-none border rounded-lg px-4 py-2"
-            placeholder="Buscar por pedido o cliente..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-100 mb-8">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </span>
+            <input
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              placeholder="Buscar por pedido o cliente..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <select
-            className="border rounded-lg px-4 py-2"
+            className="px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
             value={filterActive}
             onChange={(e) => setFilterActive(e.target.value)}
           >
-            <option value="all">Todas</option>
+            <option value="all">Todas las muestras</option>
             <option value="active">Activas</option>
             <option value="inactive">Archivadas</option>
           </select>
           <select
-            className="border rounded-lg px-4 py-2"
+            className="px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
@@ -195,105 +242,136 @@ export default function SamplePage() {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-100 text-gray-600 text-sm">
-              <tr>
-                <th className="text-left p-4">Tipo</th>
-                <th className="text-left p-4">Versión</th>
-                <th className="text-left p-4">Pedido</th>
-                <th className="text-left p-4">Cliente</th>
-                <th className="text-left p-4">Fechas</th>
-                <th className="text-left p-4">Pagos</th>
-                <th className="text-center p-4">Estado</th>
-                <th className="text-center p-4">Acciones</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                <th className="py-4 px-6">Tipo</th>
+                <th className="py-4 px-6">Versión</th>
+                <th className="py-4 px-6">Pedido</th>
+                <th className="py-4 px-6">Cliente</th>
+                <th className="py-4 px-6">Fechas</th>
+                <th className="py-4 px-6 text-center">Estado</th>
+                <th className="py-4 px-6 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="text-center p-8 text-gray-400">
-                    Cargando muestras...
+                  <td colSpan="7" className="text-center py-12 text-slate-400">
+                    <div className="flex items-center justify-center gap-2">
+                      <svg
+                        className="animate-spin h-5 w-5 text-blue-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                      <span>Cargando muestras...</span>
+                    </div>
                   </td>
                 </tr>
               ) : samples.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center p-8 text-gray-400">
-                    No hay muestras registradas
+                  <td colSpan="7" className="text-center py-12 text-slate-400">
+                    No se encontraron muestras registradas.
                   </td>
                 </tr>
               ) : (
                 samples.map((sample) => (
-                  <tr key={sample.id} className="border-b hover:bg-gray-50 transition">
-                    <td className="p-4">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        sample.tipo_muestra === "swatch" 
-                          ? "bg-purple-100 text-purple-700" 
-                          : "bg-blue-100 text-blue-700"
-                      }`}>
-                        {sample.tipo_muestra === "swatch" ? "Swatch" : "Producto"}
+                  <tr
+                    key={sample.id}
+                    className="hover:bg-slate-50/60 transition-colors"
+                  >
+                    <td className="py-4 px-6">
+                      <span
+                        className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${
+                          sample.tipo_muestra === "swatch"
+                            ? "bg-purple-50 text-purple-700 border border-purple-200"
+                            : "bg-blue-50 text-blue-700 border border-blue-200"
+                        }`}
+                      >
+                        {sample.tipo_muestra === "swatch"
+                          ? "Swatch"
+                          : "Producto"}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-sm">
+                    <td className="py-4 px-6 font-mono font-medium text-slate-700">
                       v{sample.version}
                     </td>
-                    <td className="p-4">
-                      <p className="font-semibold text-gray-800">
-                        {sample.technical_sheet?.pedido?.numero_pedido || "N/A"}
-                      </p>
+                    <td className="py-4 px-6 font-semibold text-slate-800">
+                      {sample.technical_sheet?.pedido?.numero_pedido || "N/A"}
                     </td>
-                    <td className="p-4">
-                      <p className="font-medium text-gray-800">
-                        {sample.technical_sheet?.pedido?.cliente?.name || "N/A"}
-                      </p>
+                    <td className="py-4 px-6 font-medium text-slate-700">
+                      {sample.technical_sheet?.pedido?.cliente?.nombre || "N/A"}
                     </td>
-                    <td className="p-4 text-sm">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-gray-500">Pedido: {sample.fecha_pedido_muestra || "-"}</span>
-                        <span className="text-blue-600">Proyectada: {sample.fecha_proyectada_entrega || "-"}</span>
-                        <span className="text-green-600">Real: {sample.fecha_real_entrega || "-"}</span>
+                    <td className="py-4 px-6 text-xs space-y-1">
+                      <div className="text-slate-500">
+                        Pedido:{" "}
+                        <span className="font-medium text-slate-700">
+                          {formatDate(sample.fecha_pedido_muestra)}
+                        </span>
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex flex-col gap-1">
-                        {getPaymentBadge(sample.estado_pago_muestra)}
-                        <span className="text-xs text-gray-500">
-                          Adelanto: S/ {sample.monto_adelanto_50 || 0}
+                      <div className="text-blue-600">
+                        Proyectada:{" "}
+                        <span className="font-medium">
+                          {formatDate(sample.fecha_proyectada_entrega)}
+                        </span>
+                      </div>
+                      <div className="text-emerald-600">
+                        Real:{" "}
+                        <span className="font-medium">
+                          {formatDate(sample.fecha_real_entrega)}
                         </span>
                       </div>
                     </td>
-                    <td className="p-4 text-center">
-                      <div className="flex flex-col gap-1 items-center">
+                    <td className="py-4 px-6 text-center">
+                      <div className="flex flex-col items-center gap-1.5">
                         {getStatusBadge(sample.status)}
                         {!sample.is_active && (
-                          <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-600">
+                          <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-slate-100 text-slate-500">
                             Archivada
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="p-4">
-                      <div className="flex gap-2 justify-center">
+                    <td className="py-4 px-6 text-center">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => openEditModal(sample)}
-                          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                          className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => duplicateSample(sample.id)}
-                          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                          className="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors"
                         >
                           Duplicar
                         </button>
                         <button
-                          onClick={() => toggleActive(sample.id, sample.is_active)}
-                          className={`px-3 py-1 text-sm rounded-lg ${
+                          onClick={() =>
+                            toggleActive(sample.id, sample.is_active)
+                          }
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                             sample.is_active
-                              ? "bg-yellow-500 hover:bg-yellow-600"
-                              : "bg-green-500 hover:bg-green-600"
-                          } text-white`}
+                              ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                              : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          }`}
                         >
                           {sample.is_active ? "Archivar" : "Activar"}
                         </button>
@@ -309,24 +387,44 @@ export default function SamplePage() {
 
       {/* EDIT MODAL */}
       {showModal && selectedSample && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold">
-                Editar Muestra - Versión {selectedSample.version}
-              </h2>
-              <p className="text-gray-500">
-                Pedido: {selectedSample.technical_sheet?.pedido?.numero_pedido}
-              </p>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">
+                  Editar Muestra{" "}
+                  <span className="text-blue-600 font-mono">
+                    v{selectedSample.version}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Pedido asociado:{" "}
+                  <span className="font-semibold text-slate-700">
+                    {selectedSample.technical_sheet?.pedido?.numero_pedido ||
+                      "N/A"}
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+              >
+                ✕
+              </button>
             </div>
-            <div className="p-6 space-y-4">
+
+            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               {/* Tipo Muestra */}
               <div>
-                <label className="block text-sm font-medium mb-1">Tipo de Muestra</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Tipo de Muestra
+                </label>
                 <select
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                   value={editForm.tipo_muestra}
-                  onChange={(e) => setEditForm({ ...editForm, tipo_muestra: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, tipo_muestra: e.target.value })
+                  }
                 >
                   <option value="swatch">Swatch (Cuadradito)</option>
                   <option value="producto">Producto (Prenda completa)</option>
@@ -334,110 +432,87 @@ export default function SamplePage() {
               </div>
 
               {/* Fechas */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Fecha Proyectada Entrega</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Fecha Proyectada Entrega
+                  </label>
                   <input
                     type="date"
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     value={editForm.fecha_proyectada_entrega}
-                    onChange={(e) => setEditForm({ ...editForm, fecha_proyectada_entrega: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        fecha_proyectada_entrega: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Fecha Real Entrega</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Fecha Real Entrega
+                  </label>
                   <input
                     type="date"
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     value={editForm.fecha_real_entrega}
-                    onChange={(e) => setEditForm({ ...editForm, fecha_real_entrega: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        fecha_real_entrega: e.target.value,
+                      })
+                    }
                   />
-                </div>
-              </div>
-
-              {/* Pagos */}
-              <div className="border-t pt-4">
-                <h3 className="font-semibold mb-3">Pagos (50% - 50%)</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Adelanto 50% (S/)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={editForm.monto_adelanto_50}
-                      onChange={(e) => setEditForm({ ...editForm, monto_adelanto_50: parseFloat(e.target.value) })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Fecha Adelanto</label>
-                    <input
-                      type="date"
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={editForm.fecha_adelanto_50}
-                      onChange={(e) => setEditForm({ ...editForm, fecha_adelanto_50: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Restante 50% (S/)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={editForm.monto_restante_50}
-                      onChange={(e) => setEditForm({ ...editForm, monto_restante_50: parseFloat(e.target.value) })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Fecha Restante</label>
-                    <input
-                      type="date"
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={editForm.fecha_restante_50}
-                      onChange={(e) => setEditForm({ ...editForm, fecha_restante_50: e.target.value })}
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Estado */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Estado Muestra</label>
-                  <select
-                    className="w-full border rounded-lg px-3 py-2"
-                    value={editForm.status}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  >
-                    <option value="PENDING">Pendiente</option>
-                    <option value="IN_REVIEW">En Revisión</option>
-                    <option value="APPROVED">Aprobada</option>
-                    <option value="REJECTED">Rechazada</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Estado Muestra
+                </label>
+                <select
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                  value={editForm.status}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, status: e.target.value })
+                  }
+                >
+                  <option value="PENDING">Pendiente</option>
+                  <option value="IN_REVIEW">En Revisión</option>
+                  <option value="APPROVED">Aprobada</option>
+                  <option value="REJECTED">Rechazada</option>
+                </select>
               </div>
 
               {/* Feedback */}
               <div>
-                <label className="block text-sm font-medium mb-1">Feedback / Observaciones</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Feedback / Observaciones
+                </label>
                 <textarea
                   rows="3"
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                  placeholder="Escribe algún comentario u observación..."
                   value={editForm.feedback}
-                  onChange={(e) => setEditForm({ ...editForm, feedback: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, feedback: e.target.value })
+                  }
                 />
               </div>
             </div>
-            <div className="p-6 border-t flex justify-end gap-3">
+
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                className="px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-100 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={saveChanges}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 shadow-sm shadow-blue-500/20 transition-all"
               >
                 Guardar Cambios
               </button>

@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, ShieldCheck, Calendar, User, Pencil } from "lucide-react";
+import {
+  Mail,
+  ShieldCheck,
+  Calendar,
+  User,
+  Edit3,
+  Lock,
+  CheckCircle2,
+  Camera,
+} from "lucide-react";
+
 import ImageWithFallback from "../components/figma/ImageWithFallback";
 import { meRequest } from "../services/authApi";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -13,48 +24,88 @@ const ProfilePage = () => {
         setUser(data);
       } catch (error) {
         console.error("Error cargando perfil:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadUser();
   }, []);
 
-  if (!user) {
-    return <div className="p-8 text-slate-500">Cargando perfil...</div>;
+  // Estado de carga mejorado (Skeleton / Spinner refinado)
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-full bg-slate-50/50 p-6 md:p-12 flex items-center justify-center">
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100 p-12 max-w-md w-full text-center">
+          <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+          <h2 className="text-base font-semibold text-slate-800">
+            Cargando tu perfil
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Por favor espera un momento...
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="p-8 min-h-full bg-slate-50">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header Perfil */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="h-32 bg-gradient-to-r from-blue-900 to-indigo-300" />
+  const nombreCompleto =
+    `${user.nombre || ""} ${user.apellido || ""}`.trim() || "Usuario";
 
-          <div className="px-8 pb-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 -mt-14">
+  const rol = user.role?.nombre || "Usuario";
+
+  return (
+    <div className="min-h-full bg-slate-50/60 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Banner y Cabecera de Perfil */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden transition-all">
+          {/* Banner superior con patrón o gradiente atractivo */}
+          <div className="h-36 md:h-44 bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-600 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.15),transparent)] pointer-events-none" />
+          </div>
+
+          {/* Contenido principal del perfil */}
+          <div className="px-6 md:px-8 pb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16">
+              {/* Avatar con botón flotante para cambiar foto */}
               <div className="flex items-end gap-5">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md bg-white">
-                  <ImageWithFallback
-                    src={
-                      user.avatar ||
-                      "https://images.unsplash.com/photo-1771050889377-b68415885c64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
-                    }
-                    alt="Usuario"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-2xl border-4 border-white bg-slate-100 shadow-xl overflow-hidden flex items-center justify-center shrink-0">
+                    {user.avatar ? (
+                      <ImageWithFallback
+                        src={user.avatar}
+                        alt={`Foto de perfil de ${nombreCompleto}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User
+                        className="w-16 h-16 text-slate-400"
+                        strokeWidth={1.5}
+                      />
+                    )}
+                  </div>
+                  {/* Botón flotante opcional para cambiar avatar */}
+                  <button
+                    onClick={() => alert("Funcionalidad para cambiar avatar")}
+                    className="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95"
+                    title="Cambiar foto de perfil"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div className="pb-3">
-                  <h1 className="text-3xl font-bold text-slate-900">
-                    {user.nombre} {user.apellido}
+                <div className="pb-1">
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                    {nombreCompleto}
                   </h1>
 
-                  <div className="flex items-center gap-2 mt-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
-
-                    <span className="text-sm text-slate-600">
-                      {user.role?.nombre || "Usuario"}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100/60 text-blue-700">
+                      <ShieldCheck className="w-4 h-4 text-blue-600" />
+                      <span className="text-xs font-semibold uppercase tracking-wider">
+                        {rol}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -62,18 +113,29 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Información */}
+        {/* Cuadrícula de Información */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <h2 className="font-semibold text-lg text-slate-900 mb-5">
-              Información personal
-            </h2>
+          {/* Información personal */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-7 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-slate-100">
+              <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100/60 flex items-center justify-center text-blue-600">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-base text-slate-900">
+                  Información personal
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Datos básicos e identidad en la plataforma
+                </p>
+              </div>
+            </div>
 
             <div className="space-y-5">
               <InfoItem
                 icon={<User />}
                 label="Nombre completo"
-                value={`${user.nombre} ${user.apellido}`}
+                value={nombreCompleto}
               />
 
               <InfoItem
@@ -81,29 +143,44 @@ const ProfilePage = () => {
                 label="Fecha de registro"
                 value={
                   user.created_at
-                    ? new Date(user.created_at).toLocaleDateString()
-                    : "-"
+                    ? new Date(user.created_at).toLocaleDateString("es-PE", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "No disponible"
                 }
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <h2 className="font-semibold text-lg text-slate-900 mb-5">
-              Información de cuenta
-            </h2>
+          {/* Información de cuenta */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-7 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-slate-100">
+              <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100/60 flex items-center justify-center text-indigo-600">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-base text-slate-900">
+                  Información de cuenta
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Credenciales de acceso y privilegios
+                </p>
+              </div>
+            </div>
 
             <div className="space-y-5">
               <InfoItem
                 icon={<Mail />}
                 label="Correo electrónico"
-                value={user.email}
+                value={user.email || "No registrado"}
               />
 
               <InfoItem
                 icon={<ShieldCheck />}
-                label="Rol"
-                value={user.role?.nombre || "Usuario"}
+                label="Rol asignado"
+                value={rol}
               />
             </div>
           </div>
@@ -115,16 +192,21 @@ const ProfilePage = () => {
 
 const InfoItem = ({ icon, label, value }) => {
   return (
-    <div className="flex items-start gap-3">
-      <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+    <div className="flex items-start gap-3.5 group">
+      <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors shrink-0">
         {React.cloneElement(icon, {
           className: "w-5 h-5",
+          strokeWidth: 1.8,
         })}
       </div>
 
-      <div>
-        <p className="text-sm text-slate-500">{label}</p>
-        <p className="font-medium text-slate-900">{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-0.5">
+          {label}
+        </p>
+        <p className="text-sm font-semibold text-slate-800 break-words">
+          {value}
+        </p>
       </div>
     </div>
   );
