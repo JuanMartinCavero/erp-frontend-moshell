@@ -120,7 +120,7 @@ return (
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">PESO (KG)</th>
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">VALOR UNIT.</th>
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">VALOR TOTAL</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">% DEL TOTAL</th>
+         
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -176,7 +176,7 @@ const pesoKg = Number(ultimoMovimiento.peso_kg) || 0;
                   <td className="px-4 py-3 text-sm text-right">{pesoKg.toFixed(2)}</td>
                   <td className="px-4 py-3 text-sm text-right">S/ {valorUnitario.toFixed(2)}</td>
                   <td className="px-4 py-3 text-sm text-right font-semibold">S/ {valorTotal.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-sm text-right">{porcentaje}%</td>
+           
                 </tr>
               );
             })
