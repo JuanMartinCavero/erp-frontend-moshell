@@ -122,7 +122,7 @@ const Header = () => {
             <ImageWithFallback
               src={
                 user?.avatar ||
-                "https://images.unsplash.com/photo-1771050889377-b68415885c64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+                "https://media.istockphoto.com/id/1495088043/es/vector/icono-de-perfil-de-usuario-avatar-o-icono-de-persona-foto-de-perfil-símbolo-de-retrato.jpg?b=1&s=612x612&w=0&k=20&c=p8bIYXvNReAbl7ozkwmKLzfnnVIUZTk87zY-fnq5108="
               }
               alt={user?.name || "Usuario"}
               className="w-full h-full object-cover"

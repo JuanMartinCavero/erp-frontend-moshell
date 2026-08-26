@@ -37,7 +37,7 @@ const ProfilePage = () => {
                   <ImageWithFallback
                     src={
                       user.avatar ||
-                      "https://images.unsplash.com/photo-1771050889377-b68415885c64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"
+                      "https://media.istockphoto.com/id/2041572395/es/vector/icono-de-marcador-de-posición-de-foto-de-avatar-en-blanco-ilustración-vectorial.jpg?s=612x612&w=0&k=20&c=MGnsda6mJZM3pGaBFiLwIRfq-a22RVLhaP2j9DQO7Wc="
                     }
                     alt="Usuario"
                     className="w-full h-full object-cover"
