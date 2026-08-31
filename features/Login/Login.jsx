@@ -72,7 +72,7 @@ const Login = () => {
             className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none"
             style={{
               backgroundImage:
-                "url('https://images.unsplash.com/photo-1701964621103-96fc0dd08d5c?w=800&q=80')",
+                "url('https://media.istockphoto.com/id/1495088043/es/vector/icono-de-perfil-de-usuario-avatar-o-icono-de-persona-foto-de-perfil-símbolo-de-retrato.jpg?b=1&s=612x612&w=0&k=20&c=p8bIYXvNReAbl7ozkwmKLzfnnVIUZTk87zY-fnq5108=')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

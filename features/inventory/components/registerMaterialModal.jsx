@@ -6,7 +6,7 @@ import { registrarMovimiento } from "../../../services/kardexApi";
 import { useMaterial } from "../../../hooks/useMaterial";
 
 import { TabNuevoMaterial } from "./tabNuevoMaterial";
-import { TabEntradaCompra } from "./TabEntradaCompra";
+import { tabEntradaCompra } from "./tabEntradaCompra";
 
 export function RegisterMaterialModal({ open, onClose, onRefresh }) {
 //hola que tal
@@ -51,7 +51,7 @@ export function RegisterMaterialModal({ open, onClose, onRefresh }) {
           )}
 
           {tab === "entrada" && (
-            <TabEntradaCompra onClose={onClose} onRefresh={onRefresh} />
+            <tabEntradaCompra onClose={onClose} onRefresh={onRefresh} />
           )}
 
         </div>

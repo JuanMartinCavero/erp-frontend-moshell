@@ -1,334 +1,432 @@
 import React, { useState } from "react";
 import { Download } from "lucide-react";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image, pdf } from "@react-pdf/renderer";
 
-// Estilos profesionales estilo PDF corporativo (inspirado en la paleta Moshell)
+// ============================================================
+// PALETA MOSHELL
+// ============================================================
+const NAVY = '#0F3A63';
+const GOLD = '#F2C230';
+const BORDER = '#0F3A63';
+const TEXT_DARK = '#1A2530';
+const ROW_ALT = '#F3F6FA';
+const FONT_TITLE = 'Helvetica-Bold';
+const FONT_BODY = 'Helvetica';
+
+// ============================================================
+// ESTILOS
+// ============================================================
 const styles = StyleSheet.create({
   page: {
-    padding: 25,
+    padding: 0,
     fontSize: 9,
-    fontFamily: "Helvetica",
-    backgroundColor: "#ffffff",
+    fontFamily: FONT_BODY,
+    color: TEXT_DARK,
+    backgroundColor: '#FFFFFF',
   },
-  headerBanner: {
-    backgroundColor: "#112244", // Azul marino corporativo
-    padding: 10,
-    alignItems: "center",
-    marginBottom: 15,
-    borderRadius: 2,
+  content: {
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 22,
+  },
+  headerBar: {
+    width: '100%',
+    backgroundColor: NAVY,
+    paddingVertical: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
+    fontSize: 13,
+    fontFamily: FONT_TITLE,
+    color: GOLD,
+    letterSpacing: 1,
   },
-  subHeaderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 4,
-    padding: 8,
-  },
-  badgeBox: {
-    borderWidth: 1,
-    borderColor: "#112244",
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    backgroundColor: "#f8fafc",
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#112244",
-  },
-  periodoText: {
-    fontSize: 9,
-    color: "#64748b",
-  },
-  table: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
+  topCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: `1px solid ${BORDER}`,
+    borderRadius: 6,
+    padding: 10,
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#112244",
+    marginBottom: 10,
   },
-  headerRow: {
-    flexDirection: "row",
-    backgroundColor: "#112244",
+  numeroBox: {
+    border: `1px solid ${BORDER}`,
+    borderRadius: 4,
     paddingVertical: 6,
-    alignItems: "center",
+    paddingHorizontal: 14,
   },
-  row: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    paddingVertical: 6,
-    alignItems: "center",
+  numeroText: {
+    fontFamily: FONT_TITLE,
+    fontSize: 11,
+    color: TEXT_DARK,
   },
-  cell: { flex: 1, paddingHorizontal: 4, fontSize: 8, color: "#334155" },
-  cellSmall: {
-    flex: 0.7,
-    paddingHorizontal: 4,
-    fontSize: 8,
-    color: "#334155",
-    textAlign: "center",
+  logo: { width: 130, height: 42, objectFit: 'contain' },
+  datosWrap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
-  cellRight: {
-    flex: 1,
-    paddingHorizontal: 4,
-    fontSize: 8,
-    color: "#334155",
-    textAlign: "right",
+  datosCol: { width: '48%' },
+  datosColRight: { width: '48%', alignItems: 'flex-end' },
+  datosHeader: {
+    fontFamily: FONT_TITLE,
+    fontSize: 8.5,
+    color: TEXT_DARK,
+    marginBottom: 3,
   },
-  cellHeader: {
-    flex: 1,
-    paddingHorizontal: 4,
-    fontWeight: "bold",
-    fontSize: 8,
-    color: "#ffffff",
-  },
-  cellHeaderSmall: {
-    flex: 0.7,
-    paddingHorizontal: 4,
-    fontWeight: "bold",
-    fontSize: 8,
-    color: "#ffffff",
-    textAlign: "center",
-  },
-  cellHeaderRight: {
-    flex: 1,
-    paddingHorizontal: 4,
-    fontWeight: "bold",
-    fontSize: 8,
-    color: "#ffffff",
-    textAlign: "right",
-  },
-
-  // Totales section
-  totalesContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 10,
-  },
-  totalesBox: {
-    width: "40%",
-    borderWidth: 1,
-    borderColor: "#112244",
-  },
-  totalRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#cbd5e1",
+  datosLine: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK },
+  datosLineRight: { fontSize: 7.5, marginBottom: 2, color: TEXT_DARK, textAlign: 'right' },
+  datosLabel: { fontFamily: FONT_TITLE },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: NAVY,
     paddingVertical: 4,
-    paddingHorizontal: 6,
-    backgroundColor: "#f8fafc",
   },
-  totalRowFinal: {
-    flexDirection: "row",
-    paddingVertical: 5,
-    paddingHorizontal: 6,
-    backgroundColor: "#112244",
+  thText: {
+    fontFamily: FONT_TITLE,
+    fontSize: 8,
+    color: GOLD,
+    textAlign: 'center',
   },
-  totalLabel: {
-    flex: 1,
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#112244",
+  colFecha: { width: '10%' },
+  colDescripcion: { width: '18%' },
+  colQ: { width: '7%' },
+  colCu: { width: '9%' },
+  colCt: { width: '10%' },
+  row: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}` },
+  rowEven: { flexDirection: 'row', borderBottom: `1px solid ${BORDER}`, backgroundColor: ROW_ALT },
+  cell: { fontSize: 7.5, textAlign: 'center', paddingVertical: 4, borderRight: `1px solid ${BORDER}` },
+  cellLeft: { fontSize: 7.5, textAlign: 'left', paddingVertical: 4, paddingLeft: 4, borderRight: `1px solid ${BORDER}` },
+  cellRight: { fontSize: 7.5, textAlign: 'right', paddingVertical: 4, paddingRight: 4, borderRight: `1px solid ${BORDER}` },
+  totalsWrap: { marginTop: 4 },
+  totalsRow: { flexDirection: 'row', height: 20 },
+  totalBarWide: {
+    width: '65%',
+    backgroundColor: NAVY,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalValue: {
-    flex: 1,
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#112244",
-    textAlign: "right",
+  totalBarWideText: { fontFamily: FONT_TITLE, fontSize: 10, color: GOLD, letterSpacing: 1 },
+  spacerWide: { width: '65%' },
+  labelCell: {
+    width: '15%',
+    backgroundColor: NAVY,
+    border: `1px solid ${BORDER}`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalLabelFinal: {
-    flex: 1,
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#ffffff",
+  labelCellText: { fontFamily: FONT_TITLE, fontSize: 8, color: GOLD },
+  amountCell: {
+    width: '20%',
+    border: `1px solid ${BORDER}`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  totalValueFinal: {
-    flex: 1,
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#ffffff",
-    textAlign: "right",
-  },
+  amountCellText: { fontSize: 8, color: TEXT_DARK },
   footer: {
-    marginTop: 30,
-    fontSize: 8,
-    textAlign: "center",
-    color: "#94a3b8",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    marginTop: 22,
     paddingTop: 8,
+    borderTop: `1px solid ${BORDER}`,
+    textAlign: 'center',
+    fontSize: 7,
+    color: '#7C8AA0',
   },
 });
 
-const columns = [
-  { key: "codigo", label: "CÓDIGO", size: "cell" },
-  { key: "tipo", label: "TIPO", size: "cellSmall" },
-  { key: "color", label: "COLOR", size: "cell" },
-  { key: "calidad", label: "CALIDAD", size: "cell" },
-  { key: "stock_actual", label: "STOCK", size: "cellSmall" },
-  { key: "ubicacion", label: "UBICACIÓN", size: "cellSmall" },
-  { key: "cantidad", label: "CANTIDAD", size: "cellSmall" },
-  { key: "peso", label: "PESO (KG)", size: "cellSmall" },
-  { key: "valor_unitario", label: "V. UNIT.", size: "cellRight" },
-  { key: "valor_total", label: "VALOR TOTAL", size: "cellRight" },
-];
+// ============================================================
+// COMPONENTE DEL PDF
+// ============================================================
+const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
+  // ============================================================
+  // ✅ DETECTAR TIPO DE DATOS
+  // ============================================================
+  const isKardexData = data.length > 0 && data[0].entrada_cantidad !== undefined;
+  const isMaterialData = data.length > 0 && data[0].inventario !== undefined;
 
-const MyDocument = ({ data, fechas }) => {
-  const rows = Array.isArray(data) ? data : [];
+  let rowsWithSaldo = [];
+  let totalEntradasQ = 0;
+  let totalSalidasQ = 0;
+  let totalSalidasCT = 0;
+  let saldoFinalQ = 0;
+  let esMultiple = false;
 
-  // Calcular totales generales
-  const totalStock = rows.reduce(
-    (sum, r) => sum + Number(r.inventario?.stock_actual ?? 0),
-    0,
-  );
-  const totalCantidad = rows.reduce(
-    (sum, r) => sum + Number(r.movimientos?.[0]?.cantidad ?? 0),
-    0,
-  );
-  const totalPeso = rows.reduce(
-    (sum, r) => sum + Number(r.peso_calculado ?? 0),
-    0,
-  );
-  const valorTotalGeneral = rows.reduce((sum, r) => {
-    const mov = r.movimientos?.[0] || {};
-    const cant = Number(mov.cantidad ?? 0);
-    const vU = Number(mov.valor_unitario ?? 0);
-    return sum + cant * vU;
-  }, 0);
+  if (isKardexData) {
+    // ============================================================
+    // 🔵 TIPO 1: DATOS DE KARDEX (movimientos)
+    // ============================================================
+    let saldo = 0;
+    let costoPromedio = 0;
 
+    const sortedData = [...data].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+    sortedData.forEach(row => {
+      const entrada = Number(row.entrada_cantidad) || 0;
+      const salida = Number(row.salida_cantidad) || 0;
+      const precio = Number(row.costo_unitario) || Number(row.precio_unitario) || Number(row.valor_unitario) || 0;
+      
+      let costoUnitario = 0;
+      let costoTotal = 0;
+
+      if (entrada > 0) {
+        const stockAnterior = saldo;
+        const costoAnterior = costoPromedio;
+        
+        saldo += entrada;
+        
+        if (stockAnterior === 0 || costoAnterior === 0) {
+          costoPromedio = precio;
+        } else {
+          const valorTotalAnterior = stockAnterior * costoAnterior;
+          const valorTotalNuevo = entrada * precio;
+          costoPromedio = (valorTotalAnterior + valorTotalNuevo) / saldo;
+        }
+        
+        costoUnitario = precio;
+        costoTotal = entrada * precio;
+        
+      } else if (salida > 0) {
+        saldo -= salida;
+        costoUnitario = costoPromedio;
+        costoTotal = salida * costoPromedio;
+      }
+
+      rowsWithSaldo.push({
+        fecha: row.fecha || '-',
+        descripcion: row.titulo || row.descripcion || '-',
+        entrada_q: entrada,
+        entrada_cu: costoUnitario,
+        entrada_ct: costoTotal,
+        salida_q: salida,
+        salida_cu: costoUnitario,
+        salida_ct: costoTotal,
+        saldo_q: saldo,
+        saldo_cu: costoPromedio,
+        saldo_ct: saldo * costoPromedio
+      });
+    });
+
+    totalEntradasQ = rowsWithSaldo.reduce((sum, r) => sum + r.entrada_q, 0);
+    totalSalidasQ = rowsWithSaldo.reduce((sum, r) => sum + r.salida_q, 0);
+    totalSalidasCT = rowsWithSaldo.reduce((sum, r) => sum + r.salida_ct, 0);
+    saldoFinalQ = rowsWithSaldo.length > 0 ? rowsWithSaldo[rowsWithSaldo.length - 1].saldo_q : 0;
+
+  } else if (isMaterialData) {
+    // ============================================================
+    // 🟢 TIPO 2: DATOS DE MATERIALES (resumen de stock)
+    // ============================================================
+    esMultiple = true;
+    let stockTotal = 0;
+    let valorTotal = 0;
+
+    data.forEach(item => {
+      const inventario = item.inventario || {};
+      const stock = Number(inventario.stock_actual) || 0;
+      const valorUnitario = Number(inventario.valor_unitario) || 0;
+      stockTotal += stock;
+      valorTotal += stock * valorUnitario;
+
+      rowsWithSaldo.push({
+        fecha: fechas?.inicio || '-',
+        descripcion: item.descripcion || item.nombre || 'Material',
+        entrada_q: stock,
+        entrada_cu: 0,
+        entrada_ct: 0,
+        salida_q: 0,
+        salida_cu: 0,
+        salida_ct: 0,
+        saldo_q: stock,
+        saldo_cu: valorUnitario,
+        saldo_ct: stock * valorUnitario
+      });
+    });
+
+    totalEntradasQ = stockTotal;
+    totalSalidasQ = 0;
+    totalSalidasCT = 0;
+    saldoFinalQ = stockTotal;
+
+  } else {
+    // ============================================================
+    // ⚪ TIPO 3: DATOS VACÍOS O DESCONOCIDOS
+    // ============================================================
+    // Mostrar mensaje de que no hay datos
+    return (
+      <Document>
+        <Page size="A4" orientation="landscape" style={styles.page}>
+          <View style={styles.headerBar}>
+            <Text style={styles.headerTitle}>KARDEX DE INVENTARIO - MOSHELL</Text>
+          </View>
+          <View style={styles.content}>
+            <View style={styles.topCard}>
+              <View style={styles.numeroBox}>
+                <Text style={styles.numeroText}>Material: {material?.codigo || 'N/A'}</Text>
+              </View>
+              {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
+            </View>
+            <Text style={{ textAlign: "center", marginTop: 40, color: '#7C8AA0', fontSize: 10 }}>
+              No hay datos disponibles para exportar
+            </Text>
+            <View style={styles.footer}>
+              <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
+              <Text>Documento generado automáticamente el {new Date().toLocaleString('es-PE')}</Text>
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  // ============================================================
+  // RENDERIZAR PDF
+  // ============================================================
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
-        <View style={styles.headerBanner}>
-          <Text style={styles.headerTitle}>
-            KARDEX DE INVENTARIO - REPORTE GENERAL
-          </Text>
+        {/* BARRA DE TÍTULO */}
+        <View style={styles.headerBar}>
+          <Text style={styles.headerTitle}>KARDEX DE INVENTARIO - MOSHELL</Text>
         </View>
 
-        <View style={styles.subHeaderContainer}>
-          <View style={styles.badgeBox}>
-            <Text style={styles.badgeText}>INVENTARIO ACTUALIZADO</Text>
-          </View>
-          <Text style={styles.periodoText}>
-            Período: {fechas?.inicio || "Inicio"} al {fechas?.fin || "Fin"}
-          </Text>
-        </View>
-
-        {/* TABLA PRINCIPAL */}
-        <View style={styles.table}>
-          {/* Header */}
-          <View style={styles.headerRow}>
-            {columns.map((col) => {
-              let styleKey = "cellHeader";
-              if (col.size === "cellSmall") styleKey = "cellHeaderSmall";
-              if (col.size === "cellRight") styleKey = "cellHeaderRight";
-              return (
-                <Text key={col.key} style={styles[styleKey]}>
-                  {col.label}
-                </Text>
-              );
-            })}
+        <View style={styles.content}>
+          {/* N° + LOGO */}
+          <View style={styles.topCard}>
+            <View style={styles.numeroBox}>
+              <Text style={styles.numeroText}>Material: {material?.codigo || 'N/A'} - {material?.calidad || 'N/A'}</Text>
+            </View>
+            {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
           </View>
 
-          {/* Data Rows */}
-          {rows.map((row, i) => {
-            const codigo = row.codigo || "-";
-            const tipo = row.tipo || "-";
-            const color = row.color || "-";
-            const calidad = row.calidad || "-";
+          {/* DATOS DEL MATERIAL */}
+          <View style={styles.datosWrap}>
+            <View style={styles.datosCol}>
+              <Text style={styles.datosHeader}>DATOS DEL MATERIAL:</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CÓDIGO: </Text>{material?.codigo || '-'}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CALIDAD: </Text>{material?.calidad || '-'}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>COLOR: </Text>{material?.color || '-'}</Text>
+              {esMultiple && (
+                <Text style={styles.datosLine}><Text style={styles.datosLabel}>TIPO: </Text>RESUMEN DE STOCK</Text>
+              )}
+            </View>
+            <View style={styles.datosColRight}>
+              <Text style={styles.datosHeader}>PERÍODO:</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>INICIO: </Text>{fechas?.inicio || 'Inicio'}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>FIN: </Text>{fechas?.fin || 'Fin'}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>STOCK ACTUAL: </Text>{material?.stock_actual || 0}</Text>
+            </View>
+          </View>
 
-            const stockActual = Number(row.inventario?.stock_actual ?? 0);
-            const ubicacion = row.inventario?.ubicacion || "-";
+          {/* TABLA - ENCABEZADO */}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.thText, styles.colFecha]}>FECHA</Text>
+            <Text style={[styles.thText, styles.colDescripcion]}>DESCRIPCIÓN</Text>
+            <Text style={[styles.thText, styles.colQ, { width: '23%', textAlign: 'center' }]} colSpan={3}>ENTRADAS</Text>
+            <Text style={[styles.thText, styles.colQ, { width: '23%', textAlign: 'center' }]} colSpan={3}>SALIDAS</Text>
+            <Text style={[styles.thText, styles.colQ, { width: '23%', textAlign: 'center' }]} colSpan={3}>SALDOS</Text>
+          </View>
 
-            const primerMovimiento = row.movimientos?.[0] || {};
-            const cantidad = Number(primerMovimiento.cantidad ?? 0);
-            const peso = Number(row.peso_calculado ?? 0);
-            const valorUnitario = Number(primerMovimiento.valor_unitario ?? 0);
-            const valorTotal = cantidad * valorUnitario;
+          {/* TABLA - SUB-ENCABEZADO */}
+          <View style={[styles.tableHeader, { backgroundColor: NAVY }]}>
+            <Text style={[styles.thText, styles.colFecha]}></Text>
+            <Text style={[styles.thText, styles.colDescripcion]}></Text>
+            <Text style={[styles.thText, styles.colQ]}>Q</Text>
+            <Text style={[styles.thText, styles.colCu]}>Cu</Text>
+            <Text style={[styles.thText, styles.colCt]}>CT</Text>
+            <Text style={[styles.thText, styles.colQ]}>Q</Text>
+            <Text style={[styles.thText, styles.colCu]}>Cu</Text>
+            <Text style={[styles.thText, styles.colCt]}>CT</Text>
+            <Text style={[styles.thText, styles.colQ]}>Q</Text>
+            <Text style={[styles.thText, styles.colCu]}>Cu</Text>
+            <Text style={[styles.thText, styles.colCt]}>CT</Text>
+          </View>
 
-            return (
-              <View
-                key={i}
-                style={[
-                  styles.row,
-                  i % 2 === 1 ? { backgroundColor: "#f8fafc" } : {},
-                ]}
-              >
-                <Text style={styles.cell}>{codigo}</Text>
-                <Text style={styles.cellSmall}>{tipo}</Text>
-                <Text style={styles.cell}>{color}</Text>
-                <Text style={styles.cell}>{calidad}</Text>
-                <Text style={styles.cellSmall}>{stockActual}</Text>
-                <Text style={styles.cellSmall}>{ubicacion}</Text>
-                <Text style={styles.cellSmall}>{cantidad}</Text>
-                <Text style={styles.cellSmall}>{peso.toFixed(2)}</Text>
-                <Text style={styles.cellRight}>
-                  S/ {valorUnitario.toFixed(2)}
-                </Text>
-                <Text style={styles.cellRight}>S/ {valorTotal.toFixed(2)}</Text>
+          {/* FILAS DE DATOS */}
+          {rowsWithSaldo.map((row, index) => (
+            <View key={index} style={index % 2 === 0 ? styles.row : styles.rowEven}>
+              <Text style={[styles.cell, styles.colFecha]}>{row.fecha}</Text>
+              <Text style={[styles.cellLeft, styles.colDescripcion]}>{row.descripcion}</Text>
+              <Text style={[styles.cellRight, styles.colQ]}>{row.entrada_q > 0 ? row.entrada_q : ''}</Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.entrada_q > 0 ? row.entrada_cu.toFixed(2) : ''}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.entrada_q > 0 ? row.entrada_ct.toFixed(2) : ''}</Text>
+              <Text style={[styles.cellRight, styles.colQ]}>{row.salida_q > 0 ? row.salida_q : ''}</Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.salida_q > 0 ? row.salida_cu.toFixed(2) : ''}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.salida_q > 0 ? row.salida_ct.toFixed(2) : ''}</Text>
+              <Text style={[styles.cellRight, styles.colQ]}>{row.saldo_q}</Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.saldo_cu.toFixed(2)}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.saldo_ct.toFixed(2)}</Text>
+            </View>
+          ))}
+
+          {/* TOTALES */}
+          <View style={styles.totalsWrap}>
+            <View style={styles.totalsRow}>
+              <View style={styles.totalBarWide}>
+                <Text style={styles.totalBarWideText}>TOTALES</Text>
               </View>
-            );
-          })}
-        </View>
-
-        {/* BLOQUE DE TOTALES ESTILO FACTURA / RESUMEN */}
-        <View style={styles.totalesContainer}>
-          <View style={styles.totalesBox}>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>TOTAL STOCK:</Text>
-              <Text style={styles.totalValue}>{totalStock}</Text>
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>ENTRADAS</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={styles.amountCellText}>{totalEntradasQ} u</Text>
+              </View>
             </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>TOTAL CANTIDAD:</Text>
-              <Text style={styles.totalValue}>{totalCantidad}</Text>
+            <View style={styles.totalsRow}>
+              <View style={styles.spacerWide} />
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>SALIDAS</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={styles.amountCellText}>{totalSalidasQ} u</Text>
+              </View>
             </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>TOTAL PESO (KG):</Text>
-              <Text style={styles.totalValue}>{totalPeso.toFixed(2)}</Text>
+            <View style={styles.totalsRow}>
+              <View style={styles.spacerWide} />
+              <View style={styles.labelCell}>
+                <Text style={styles.labelCellText}>SALDO FINAL</Text>
+              </View>
+              <View style={styles.amountCell}>
+                <Text style={styles.amountCellText}>{saldoFinalQ} u</Text>
+              </View>
             </View>
-            <View style={styles.totalRowFinal}>
-              <Text style={styles.totalLabelFinal}>VALOR TOTAL:</Text>
-              <Text style={styles.totalValueFinal}>
-                S/ {valorTotalGeneral.toFixed(2)}
-              </Text>
+            <View style={styles.totalsRow}>
+              <View style={styles.spacerWide} />
+              <View style={[styles.labelCell, { backgroundColor: GOLD }]}>
+                <Text style={[styles.labelCellText, { color: NAVY }]}>COSTO DE VENTAS</Text>
+              </View>
+              <View style={[styles.amountCell, { backgroundColor: GOLD }]}>
+                <Text style={[styles.amountCellText, { fontFamily: FONT_TITLE, color: NAVY }]}>S/ {totalSalidasCT.toFixed(2)}</Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* PIE DE PÁGINA */}
-        <Text style={styles.footer}>
-          Documento generado automáticamente el{" "}
-          {new Date().toLocaleDateString()} a las{" "}
-          {new Date().toLocaleTimeString()} — Sistema ERP Textil
-        </Text>
+          {/* FOOTER */}
+          <View style={styles.footer}>
+            <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
+            <Text>Documento generado automáticamente el {new Date().toLocaleString('es-PE')}</Text>
+            <Text>___________________________________</Text>
+            <Text style={{ fontFamily: FONT_TITLE, color: NAVY }}>Firma Autorizada</Text>
+          </View>
+        </View>
       </Page>
     </Document>
   );
 };
 
+<<<<<<< HEAD
 export default function ExportPDFButton({ data, fechas, id }) {
+=======
+// ============================================================
+// BOTÓN DE EXPORTACIÓN
+// ============================================================
+export default function ExportPDFButton({ data, material, fechas, id, logoBase64 }) {
+>>>>>>> Martin3
   const [loading, setLoading] = useState(false);
 
   const handleExportPDF = async () => {
+    console.log("📦 Datos para PDF:", { data, material, fechas });
+
     if (!data || data.length === 0) {
       alert(
         "Por favor, seleccione al menos un material con el check para exportar.",
@@ -339,7 +437,16 @@ export default function ExportPDFButton({ data, fechas, id }) {
     setLoading(true);
     try {
       const blob = await pdf(
+<<<<<<< HEAD
         <MyDocument data={data} fechas={fechas} />,
+=======
+        <KardexDocument 
+          data={data} 
+          material={material} 
+          fechas={fechas}
+          logoBase64={logoBase64}
+        />
+>>>>>>> Martin3
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
