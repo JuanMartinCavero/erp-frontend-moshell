@@ -84,14 +84,6 @@ const ProfilePage = () => {
                       />
                     )}
                   </div>
-                  {/* Botón flotante opcional para cambiar avatar */}
-                  <button
-                    onClick={() => alert("Funcionalidad para cambiar avatar")}
-                    className="absolute bottom-1 right-1 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95"
-                    title="Cambiar foto de perfil"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </button>
                 </div>
 
                 <div className="pb-1">

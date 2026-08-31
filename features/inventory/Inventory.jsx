@@ -13,7 +13,7 @@ import {
   getResumenGeneral,
 } from "../../services/kardexApi";
 import ExportPDFButton from "./components/ExportPDFButton";
-import logoMoshell from '../../src/logo.png';
+import logoMoshell from "../../src/logo.png";
 
 export function Inventory() {
   const [codigo, setCodigo] = useState("");
@@ -86,49 +86,52 @@ export function Inventory() {
     }
   }, [periodo, mostrandoKardex]);
 
- const cargarMateriales = async () => {
-  setLoadingMateriales(true);
-  try {
-    const data = await obtenerMateriales();
-    setMateriales(Array.isArray(data) ? data : []);
-    const totalStock = data.reduce((sum, m) => sum + (m.inventario?.stock_actual || 0), 0);
-    const totalValor = data.reduce((sum, m) => {
-      const stock = m.inventario?.stock_actual || 0;
-      const valorUnitario = m.inventario?.valor_unitario || 0;
-      return sum + (stock * valorUnitario);
-    }, 0);
-    setResumen({
-      total_materiales: data.length,
-      total_stock: totalStock,
-      total_valor: totalValor,
-    });
-  } catch (error) {
-    console.error("Error cargando materiales:", error);
-  } finally {
-    setLoadingMateriales(false);
-  }
-};
+  const cargarMateriales = async () => {
+    setLoadingMateriales(true);
+    try {
+      const data = await obtenerMateriales();
+      setMateriales(Array.isArray(data) ? data : []);
+      const totalStock = data.reduce(
+        (sum, m) => sum + (m.inventario?.stock_actual || 0),
+        0,
+      );
+      const totalValor = data.reduce((sum, m) => {
+        const stock = m.inventario?.stock_actual || 0;
+        const valorUnitario = m.inventario?.valor_unitario || 0;
+        return sum + stock * valorUnitario;
+      }, 0);
+      setResumen({
+        total_materiales: data.length,
+        total_stock: totalStock,
+        total_valor: totalValor,
+      });
+    } catch (error) {
+      console.error("Error cargando materiales:", error);
+    } finally {
+      setLoadingMateriales(false);
+    }
+  };
 
-const handleBuscar = async () => {
-  if (!codigo) {
-    setMostrandoKardex(false);
-    cargarMateriales();
-    return;
-  }
+  const handleBuscar = async () => {
+    if (!codigo) {
+      setMostrandoKardex(false);
+      cargarMateriales();
+      return;
+    }
 
-  try {
-    await buscarMaterial(codigo);
-    setMostrandoKardex(true);
-  } catch (error) {
-    console.log("Buscando en materiales...");
-    setMostrandoKardex(false);
-    setFiltros(prev => ({
-      ...prev,
-      search: codigo,
-      page: 1
-    }));
-  }
-};
+    try {
+      await buscarMaterial(codigo);
+      setMostrandoKardex(true);
+    } catch (error) {
+      console.log("Buscando en materiales...");
+      setMostrandoKardex(false);
+      setFiltros((prev) => ({
+        ...prev,
+        search: codigo,
+        page: 1,
+      }));
+    }
+  };
 
   const handleLimpiar = () => {
     setCodigo("");
@@ -157,52 +160,52 @@ const handleBuscar = async () => {
     }));
   };
 
-const handleToggleSelectAll = (checked) => {
-  if (checked) {
-    setSelectedMaterials(materiales.map(m => m.id));
-  } else {
-    setSelectedMaterials([]);
-  }
-};
-
-const handleToggleSelect = (id) => {
-  setSelectedMaterials(prev => {
-    // ✅ Asegurar que prev es un array
-    const current = Array.isArray(prev) ? prev : [];
-    if (current.includes(id)) {
-      return current.filter(item => item !== id);
+  const handleToggleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedMaterials(materiales.map((m) => m.id));
     } else {
-      return [...current, id];
+      setSelectedMaterials([]);
     }
-  });
-};
+  };
 
-const handleExportExcel = async () => {
-  // ✅ Asegurar que selectedMaterials es un array
-  const ids = Array.isArray(selectedMaterials) ? selectedMaterials : [];
-  
-  console.log('📤 Exportando Excel con IDs:', ids);
-  
-  if (mostrandoKardex && material?.id) {
-    // ... exportar un solo material
-  } else if (ids.length > 0) {
-    // ✅ Usar ids en lugar de selectedMaterials
-    setExportLoading(true);
-    try {
-      await exportMultipleExcel(ids, {
-        fecha_inicio: fechasAplicadas.inicio,
-        fecha_fin: fechasAplicadas.fin
-      });
-    } catch (error) {
-      console.error("Error al exportar Excel:", error);
-      alert("Error al exportar Excel");
-    } finally {
-      setExportLoading(false);
+  const handleToggleSelect = (id) => {
+    setSelectedMaterials((prev) => {
+      // ✅ Asegurar que prev es un array
+      const current = Array.isArray(prev) ? prev : [];
+      if (current.includes(id)) {
+        return current.filter((item) => item !== id);
+      } else {
+        return [...current, id];
+      }
+    });
+  };
+
+  const handleExportExcel = async () => {
+    // ✅ Asegurar que selectedMaterials es un array
+    const ids = Array.isArray(selectedMaterials) ? selectedMaterials : [];
+
+    console.log("📤 Exportando Excel con IDs:", ids);
+
+    if (mostrandoKardex && material?.id) {
+      // ... exportar un solo material
+    } else if (ids.length > 0) {
+      // ✅ Usar ids en lugar de selectedMaterials
+      setExportLoading(true);
+      try {
+        await exportMultipleExcel(ids, {
+          fecha_inicio: fechasAplicadas.inicio,
+          fecha_fin: fechasAplicadas.fin,
+        });
+      } catch (error) {
+        console.error("Error al exportar Excel:", error);
+        alert("Error al exportar Excel");
+      } finally {
+        setExportLoading(false);
+      }
+    } else {
+      alert("Selecciona al menos un material para exportar");
     }
-  } else {
-    alert("Selecciona al menos un material para exportar");
-  }
-};
+  };
 
   const handleExportPDF = () => {
     const pdfButton = document.getElementById("pdf-export-button-header");
@@ -254,7 +257,7 @@ const handleExportExcel = async () => {
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
             className="border px-3 py-2 rounded flex-1 min-w-[200px]"
-            onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
+            onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
           />
           <button
             onClick={handleBuscar}
@@ -321,14 +324,14 @@ const handleExportExcel = async () => {
                 <InventoryTable data={kardex} tipo="kardex" />
                 {/* ✅ Botón PDF visible */}
                 <div className="mt-4 flex justify-end">
-                  <ExportPDFButton 
+                  <ExportPDFButton
                     id="pdf-export-button-header"
-                    data={kardex} 
+                    data={kardex}
                     material={{
                       codigo: material.codigo,
                       calidad: material.calidad,
                       color: material.color,
-                      stock_actual: material.inventario?.stock_actual || 0
+                      stock_actual: material.inventario?.stock_actual || 0,
                     }}
                     fechas={fechasAplicadas}
                     logoBase64={logoMoshell}
@@ -341,7 +344,9 @@ const handleExportExcel = async () => {
           <div>
             <div className="mb-4 p-3 bg-gray-50 rounded-lg flex justify-between items-center">
               <div>
-                <span className="font-bold">Total: {pagination?.total || materiales.length} materiales</span>
+                <span className="font-bold">
+                  Total: {materiales.length} materiales
+                </span>{" "}
                 {selectedMaterials.length > 0 && (
                   <span className="ml-4 text-blue-600">
                     {selectedMaterials.length} seleccionados
@@ -381,20 +386,25 @@ const handleExportExcel = async () => {
                   showCheckboxes={true}
                   resumen={resumen}
                 />
-                
+
                 {/* ✅ Botón PDF visible para múltiples materiales seleccionados */}
                 {selectedMaterials.length > 0 && (
                   <div className="mt-4 flex justify-end">
-                    <ExportPDFButton 
+                    <ExportPDFButton
                       id="pdf-export-button-header"
-                      data={materiales.filter(m => selectedMaterials.includes(m.id))} 
-                      material={{ 
+                      data={materiales.filter((m) =>
+                        selectedMaterials.includes(m.id),
+                      )}
+                      material={{
                         codigo: `${selectedMaterials.length}_materiales`,
-                        calidad: 'Múltiple',
-                        color: 'Varios',
+                        calidad: "Múltiple",
+                        color: "Varios",
                         stock_actual: materiales
-                          .filter(m => selectedMaterials.includes(m.id))
-                          .reduce((sum, m) => sum + (m.inventario?.stock_actual || 0), 0)
+                          .filter((m) => selectedMaterials.includes(m.id))
+                          .reduce(
+                            (sum, m) => sum + (m.inventario?.stock_actual || 0),
+                            0,
+                          ),
                       }}
                       fechas={fechasAplicadas}
                       logoBase64={logoMoshell}
