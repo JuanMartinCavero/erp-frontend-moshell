@@ -176,12 +176,79 @@ const styles = StyleSheet.create({
 });
 
 // ============================================================
+// ✅ FUNCIÓN CORREGIDA: CALCULAR COSTO PROMEDIO PONDERADO
+// ============================================================
+const calculateWeightedAverageCost = (data) => {
+  const sortedData = [...data].sort(
+    (a, b) => new Date(a.fecha) - new Date(b.fecha),
+  );
+
+  const rowsWithSaldo = [];
+  let saldoQ = 0;
+  let saldoCT = 0;
+  let costoPromedio = 0;
+
+  sortedData.forEach((row) => {
+    const entrada = Number(row.entrada_cantidad ?? row.cantidad) || 0;
+    const salida = Number(row.salida_cantidad) || 0;
+
+    const precioEntrada =
+      Number(row.entrada_valor_unitario) ||
+      Number(row.valor_unitario) ||
+      Number(row.precio_unitario) ||
+      0;
+
+    let entradaCu = 0;
+    let entradaCt = 0;
+    let salidaCu = 0;
+    let salidaCt = 0;
+
+    if (row.tipo_movimiento === "entrada" || entrada > 0) {
+      const ctEntrada = entrada * precioEntrada;
+
+      saldoCT += ctEntrada;
+      saldoQ += entrada;
+
+      costoPromedio = saldoQ > 0 ? saldoCT / saldoQ : precioEntrada;
+
+      entradaCu = precioEntrada;
+      entradaCt = ctEntrada;
+    } else if (row.tipo_movimiento === "salida" || salida > 0) {
+      salidaCu = costoPromedio;
+      salidaCt = salida * costoPromedio;
+
+      saldoCT -= salidaCt;
+      saldoQ -= salida;
+
+      if (saldoQ <= 0) {
+        saldoQ = 0;
+        saldoCT = 0;
+        costoPromedio = 0;
+      }
+    }
+
+    rowsWithSaldo.push({
+      fecha: row.fecha || "-",
+      descripcion: row.titulo || row.descripcion || row.referencia || "-",
+      entrada_q: entrada,
+      entrada_cu: entrada > 0 ? entradaCu : 0,
+      entrada_ct: entrada > 0 ? entradaCt : 0,
+      salida_q: salida,
+      salida_cu: salida > 0 ? salidaCu : 0,
+      salida_ct: salida > 0 ? salidaCt : 0,
+      saldo_q: Math.max(0, row.saldo_q ?? saldoQ),
+      saldo_cu: Math.max(0, row.saldo_cu ?? costoPromedio),
+      saldo_ct: Math.max(0, row.saldo_ct ?? saldoCT),
+    });
+  });
+
+  return rowsWithSaldo;
+};
+
+// ============================================================
 // COMPONENTE DEL PDF
 // ============================================================
 const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
-  // ============================================================
-  // ✅ DETECTAR TIPO DE DATOS
-  // ============================================================
   const isKardexData =
     data.length > 0 && data[0].entrada_cantidad !== undefined;
   const isMaterialData = data.length > 0 && data[0].inventario !== undefined;
@@ -194,64 +261,7 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
   let esMultiple = false;
 
   if (isKardexData) {
-    // ============================================================
-    // 🔵 TIPO 1: DATOS DE KARDEX (movimientos)
-    // ============================================================
-    let saldo = 0;
-    let costoPromedio = 0;
-
-    const sortedData = [...data].sort(
-      (a, b) => new Date(a.fecha) - new Date(b.fecha),
-    );
-
-    sortedData.forEach((row) => {
-      const entrada = Number(row.entrada_cantidad) || 0;
-      const salida = Number(row.salida_cantidad) || 0;
-      const precio =
-        Number(row.costo_unitario) ||
-        Number(row.precio_unitario) ||
-        Number(row.valor_unitario) ||
-        0;
-
-      let costoUnitario = 0;
-      let costoTotal = 0;
-
-      if (entrada > 0) {
-        const stockAnterior = saldo;
-        const costoAnterior = costoPromedio;
-
-        saldo += entrada;
-
-        if (stockAnterior === 0 || costoAnterior === 0) {
-          costoPromedio = precio;
-        } else {
-          const valorTotalAnterior = stockAnterior * costoAnterior;
-          const valorTotalNuevo = entrada * precio;
-          costoPromedio = (valorTotalAnterior + valorTotalNuevo) / saldo;
-        }
-
-        costoUnitario = precio;
-        costoTotal = entrada * precio;
-      } else if (salida > 0) {
-        saldo -= salida;
-        costoUnitario = costoPromedio;
-        costoTotal = salida * costoPromedio;
-      }
-
-      rowsWithSaldo.push({
-        fecha: row.fecha || "-",
-        descripcion: row.titulo || row.descripcion || "-",
-        entrada_q: entrada,
-        entrada_cu: costoUnitario,
-        entrada_ct: costoTotal,
-        salida_q: salida,
-        salida_cu: costoUnitario,
-        salida_ct: costoTotal,
-        saldo_q: saldo,
-        saldo_cu: costoPromedio,
-        saldo_ct: saldo * costoPromedio,
-      });
-    });
+    rowsWithSaldo = calculateWeightedAverageCost(data);
 
     totalEntradasQ = rowsWithSaldo.reduce((sum, r) => sum + r.entrada_q, 0);
     totalSalidasQ = rowsWithSaldo.reduce((sum, r) => sum + r.salida_q, 0);
@@ -262,7 +272,7 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
         : 0;
   } else if (isMaterialData) {
     // ============================================================
-    // 🟢 TIPO 2: DATOS DE MATERIALES (resumen de stock)
+    // 🟢 TIPO 2: DATOS DE MATERIALES (RESUMEN DE STOCK)
     // ============================================================
     esMultiple = true;
     let stockTotal = 0;
@@ -271,22 +281,36 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
     data.forEach((item) => {
       const inventario = item.inventario || {};
       const stock = Number(inventario.stock_actual) || 0;
-      const valorUnitario = Number(inventario.valor_unitario) || 0;
+
+      // Rescata el valor unitario de la tabla inventario o del primer movimiento
+      const primerMovimiento =
+        Array.isArray(item.movimientos) && item.movimientos.length > 0
+          ? item.movimientos[0]
+          : {};
+
+      const valorUnitario =
+        Number(inventario.valor_unitario) ||
+        Number(primerMovimiento.valor_unitario) ||
+        Number(primerMovimiento.precio_unitario) ||
+        0;
+
+      const costoTotal = stock * valorUnitario;
+
       stockTotal += stock;
-      valorTotal += stock * valorUnitario;
+      valorTotal += costoTotal;
 
       rowsWithSaldo.push({
         fecha: fechas?.inicio || "-",
-        descripcion: item.descripcion || item.nombre || "Material",
+        descripcion: item.calidad,
         entrada_q: stock,
-        entrada_cu: 0,
-        entrada_ct: 0,
+        entrada_cu: valorUnitario,
+        entrada_ct: costoTotal,
         salida_q: 0,
         salida_cu: 0,
         salida_ct: 0,
         saldo_q: stock,
         saldo_cu: valorUnitario,
-        saldo_ct: stock * valorUnitario,
+        saldo_ct: costoTotal,
       });
     });
 
@@ -295,10 +319,6 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
     totalSalidasCT = 0;
     saldoFinalQ = stockTotal;
   } else {
-    // ============================================================
-    // ⚪ TIPO 3: DATOS VACÍOS O DESCONOCIDOS
-    // ============================================================
-    // Mostrar mensaje de que no hay datos
     return (
       <Document>
         <Page size="A4" orientation="landscape" style={styles.page}>
@@ -339,9 +359,6 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
     );
   }
 
-  // ============================================================
-  // RENDERIZAR PDF
-  // ============================================================
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
