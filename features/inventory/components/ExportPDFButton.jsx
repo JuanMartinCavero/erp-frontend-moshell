@@ -189,21 +189,24 @@ const calculateWeightedAverageCost = (data) => {
   let costoPromedio = 0;
 
   sortedData.forEach((row) => {
-    const entrada = Number(row.entrada_cantidad ?? row.cantidad) || 0;
-    const salida = Number(row.salida_cantidad) || 0;
-
-    const precioEntrada =
-      Number(row.entrada_valor_unitario) ||
-      Number(row.valor_unitario) ||
-      Number(row.precio_unitario) ||
-      0;
+    // ✅ Extraer valores con múltiples formatos posibles
+    const entrada = Number(row.entrada_cantidad ?? row.cantidad ?? 0);
+    const salida = Number(row.salida_cantidad ?? 0);
+    
+    // ✅ Para entrada: buscar precio en varias propiedades
+    const precioEntrada = Number(row.entrada_valor_unitario ?? row.valor_unitario ?? row.precio_unitario ?? 0);
+    
+    // ✅ Para salida: buscar cantidad y precio en varias propiedades
+    const salidaCantidad = Number(row.salida_cantidad ?? 0);
+    const salidaPrecio = Number(row.salida_valor_unitario ?? row.valor_unitario ?? row.precio_unitario ?? costoPromedio);
 
     let entradaCu = 0;
     let entradaCt = 0;
     let salidaCu = 0;
     let salidaCt = 0;
 
-    if (row.tipo_movimiento === "entrada" || entrada > 0) {
+    // ✅ PROCESAR ENTRADA
+    if (entrada > 0) {
       const ctEntrada = entrada * precioEntrada;
 
       saldoCT += ctEntrada;
@@ -213,12 +216,15 @@ const calculateWeightedAverageCost = (data) => {
 
       entradaCu = precioEntrada;
       entradaCt = ctEntrada;
-    } else if (row.tipo_movimiento === "salida" || salida > 0) {
-      salidaCu = costoPromedio;
-      salidaCt = salida * costoPromedio;
+    } 
+    // ✅ PROCESAR SALIDA
+    else if (salidaCantidad > 0) {
+      // ✅ USAR costoPromedio si está disponible, si no usar salidaPrecio
+      salidaCu = costoPromedio > 0 ? costoPromedio : salidaPrecio;
+      salidaCt = salidaCantidad * salidaCu;
 
       saldoCT -= salidaCt;
-      saldoQ -= salida;
+      saldoQ -= salidaCantidad;
 
       if (saldoQ <= 0) {
         saldoQ = 0;
@@ -228,17 +234,17 @@ const calculateWeightedAverageCost = (data) => {
     }
 
     rowsWithSaldo.push({
-      fecha: row.fecha || "-",
-      descripcion: row.titulo || row.descripcion || row.referencia || "-",
+      fecha: row.fecha || row.fecha_movimiento || "-",
+      descripcion: row.titulo || row.descripcion || row.referencia || row.calidad || "-",
       entrada_q: entrada,
       entrada_cu: entrada > 0 ? entradaCu : 0,
       entrada_ct: entrada > 0 ? entradaCt : 0,
-      salida_q: salida,
-      salida_cu: salida > 0 ? salidaCu : 0,
-      salida_ct: salida > 0 ? salidaCt : 0,
-      saldo_q: Math.max(0, row.saldo_q ?? saldoQ),
-      saldo_cu: Math.max(0, row.saldo_cu ?? costoPromedio),
-      saldo_ct: Math.max(0, row.saldo_ct ?? saldoCT),
+      salida_q: salidaCantidad,
+      salida_cu: salidaCantidad > 0 ? salidaCu : 0,
+      salida_ct: salidaCantidad > 0 ? salidaCt : 0,
+      saldo_q: saldoQ,
+      saldo_cu: costoPromedio,
+      saldo_ct: saldoCT,
     });
   });
 
