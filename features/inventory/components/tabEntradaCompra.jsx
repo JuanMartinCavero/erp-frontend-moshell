@@ -3,7 +3,7 @@ import { registrarMovimiento } from "../../../services/kardexApi";
 import { buscarMaterialPorCodigo } from "../../../services/materialApi";
 import axiosClient from "../../../services/axiosClient";
 
-export function tabEntradaCompra({ onClose, onRefresh }) {
+export function TabEntradaCompra({ onClose, onRefresh }) {
   const [material, setMaterial] = useState(null);
   const [materialId, setMaterialId] = useState(null);
   const [codigo, setCodigo] = useState("");
