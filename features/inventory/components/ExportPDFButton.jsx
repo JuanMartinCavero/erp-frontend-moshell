@@ -9,7 +9,7 @@ import {
   Image,
   pdf,
 } from "@react-pdf/renderer";
-
+import api from "../../../services/api";
 // ============================================================
 // PALETA MOSHELL
 // ============================================================
@@ -246,54 +246,125 @@ const calculateWeightedAverageCost = (data) => {
 };
 
 // ============================================================
-// COMPONENTE DEL PDF
+// ✅ FUNCIÓN: PROCESAR SOLO SALIDAS (CORREGIDA V2)
 // ============================================================
-const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
-  const isKardexData =
-    data.length > 0 && data[0].entrada_cantidad !== undefined;
-  const isMaterialData = data.length > 0 && data[0].inventario !== undefined;
+const processOnlyOutputs = (movimientos) => {
+  console.log("🔄 processOnlyOutputs - movimientos recibidos:", movimientos);
+  
+  // Filtrar solo movimientos de tipo 'salida'
+  const salidas = movimientos.filter(mov => mov.tipo_movimiento === 'salida');
+  console.log("🔄 salidas encontradas:", salidas);
+  
+  // Ordenar por fecha
+  const sorted = [...salidas].sort(
+    (a, b) => new Date(a.fecha_movimiento) - new Date(b.fecha_movimiento)
+  );
 
-  let rowsWithSaldo = [];
-  let totalEntradasQ = 0;
+  const rows = [];
   let totalSalidasQ = 0;
   let totalSalidasCT = 0;
-  let saldoFinalQ = 0;
-  let esMultiple = false;
 
+  sorted.forEach((mov) => {
+    // ✅ BUSCAR CANTIDAD EN CUALQUIER PROPIEDAD
+    const cantidad = Number(mov.cantidad ?? mov.cantidad_conos ?? mov.salida_cantidad ?? 0);
+    const valorUnitario = Number(mov.valor_unitario ?? mov.precio_unitario ?? mov.salida_cu ?? 0);
+    const valorTotal = cantidad * valorUnitario;
+
+    console.log(`🔄 Procesando salida: cantidad=${cantidad}, valorUnitario=${valorUnitario}, valorTotal=${valorTotal}`);
+    console.log(`🔄 Movimiento completo:`, mov);
+
+    totalSalidasQ += cantidad;
+    totalSalidasCT += valorTotal;
+
+    rows.push({
+      fecha: mov.fecha_movimiento ? new Date(mov.fecha_movimiento).toLocaleDateString('es-PE') : mov.fecha || '-',
+      descripcion: mov.titulo || mov.calidad || mov.referencia || mov.descripcion || 'Salida',
+      entrada_q: 0,
+      entrada_cu: 0,
+      entrada_ct: 0,
+      salida_q: cantidad,
+      salida_cu: valorUnitario,
+      salida_ct: valorTotal,
+      saldo_q: 0,
+      saldo_cu: 0,
+      saldo_ct: 0,
+    });
+  });
+
+  console.log("🔄 rows generadas:", rows);
+  console.log("🔄 totalSalidasQ:", totalSalidasQ);
+  console.log("🔄 totalSalidasCT:", totalSalidasCT);
+
+  return {
+    rows,
+    totalSalidasQ,
+    totalSalidasCT
+  };
+};
+// ============================================================
+// COMPONENTE DEL PDF
+// ============================================================
+const KardexDocument = ({ 
+  data, 
+  material, 
+  fechas, 
+  logoBase64,
+  totalEntradasQ = 0,
+  totalSalidasQ = 0,
+  totalSalidasCT = 0,
+  saldoFinalQ = 0,
+  esMultiple = false
+}) => {
+  // ✅ DETECTAR CUALQUIER TIPO DE DATOS
+  const isKardexData = data.length > 0 && data[0].entrada_cantidad !== undefined;
+  const isMaterialData = data.length > 0 && data[0].inventario !== undefined;
+  const isProcessedData = data.length > 0 && data[0].salida_q !== undefined;
+
+  let rowsWithSaldo = [];
+
+  // ✅ SI data está vacío, mostrar mensaje
+  if (!data || data.length === 0) {
+    return (
+      <Document>
+        <Page size="A4" orientation="landscape" style={styles.page}>
+          <View style={styles.headerBar}>
+            <Text style={styles.headerTitle}>KARDEX DE INVENTARIO - MOSHELL</Text>
+          </View>
+          <View style={styles.content}>
+            <View style={styles.topCard}>
+              <View style={styles.numeroBox}>
+                <Text style={styles.numeroText}>
+                  Material: {material?.codigo || "N/A"}
+                </Text>
+              </View>
+              {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
+            </View>
+            <Text style={{ textAlign: "center", marginTop: 40, color: "#7C8AA0", fontSize: 10 }}>
+              No hay datos disponibles para exportar
+            </Text>
+            <View style={styles.footer}>
+              <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
+              <Text>Documento generado automáticamente el {new Date().toLocaleString("es-PE")}</Text>
+            </View>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
+
+  // ✅ SI tiene entrada_cantidad -> kardex
   if (isKardexData) {
     rowsWithSaldo = calculateWeightedAverageCost(data);
-
-    totalEntradasQ = rowsWithSaldo.reduce((sum, r) => sum + r.entrada_q, 0);
-    totalSalidasQ = rowsWithSaldo.reduce((sum, r) => sum + r.salida_q, 0);
-    totalSalidasCT = rowsWithSaldo.reduce((sum, r) => sum + r.salida_ct, 0);
-    saldoFinalQ =
-      rowsWithSaldo.length > 0
-        ? rowsWithSaldo[rowsWithSaldo.length - 1].saldo_q
-        : 0;
-  } else if (isMaterialData) {
-    // ============================================================
-    // 🟢 TIPO 2: DATOS DE MATERIALES (RESUMEN DE STOCK)
-    // ============================================================
-    esMultiple = true;
+  } 
+  // ✅ SI tiene inventario anidado -> materiales con inventario
+  else if (isMaterialData) {
     let stockTotal = 0;
     let valorTotal = 0;
 
     data.forEach((item) => {
       const inventario = item.inventario || {};
       const stock = Number(inventario.stock_actual) || 0;
-
-      // Rescata el valor unitario de la tabla inventario o del primer movimiento
-      const primerMovimiento =
-        Array.isArray(item.movimientos) && item.movimientos.length > 0
-          ? item.movimientos[0]
-          : {};
-
-      const valorUnitario =
-        Number(inventario.valor_unitario) ||
-        Number(primerMovimiento.valor_unitario) ||
-        Number(primerMovimiento.precio_unitario) ||
-        0;
-
+      const valorUnitario = Number(inventario.valor_unitario) || 0;
       const costoTotal = stock * valorUnitario;
 
       stockTotal += stock;
@@ -301,7 +372,7 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
 
       rowsWithSaldo.push({
         fecha: fechas?.inicio || "-",
-        descripcion: item.calidad,
+        descripcion: item.calidad || item.descripcion || item.nombre || '-',
         entrada_q: stock,
         entrada_cu: valorUnitario,
         entrada_ct: costoTotal,
@@ -313,45 +384,61 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
         saldo_ct: costoTotal,
       });
     });
+  } 
+  // ✅ NUEVO: SI tiene salida_q (datos ya procesados por processOnlyOutputs)
+  else if (isProcessedData) {
+    rowsWithSaldo = data.map((item) => ({
+      fecha: item.fecha || '-',
+      descripcion: item.descripcion || '-',
+      entrada_q: item.entrada_q || 0,
+      entrada_cu: item.entrada_cu || 0,
+      entrada_ct: item.entrada_ct || 0,
+      salida_q: item.salida_q || 0,
+      salida_cu: item.salida_cu || 0,
+      salida_ct: item.salida_ct || 0,
+      saldo_q: item.saldo_q || 0,
+      saldo_cu: item.saldo_cu || 0,
+      saldo_ct: item.saldo_ct || 0,
+    }));
+  }
+  // ✅ ÚLTIMO RECURSO: intentar procesar cualquier cosa
+  else {
+    rowsWithSaldo = data.map((item) => ({
+      fecha: item.fecha || "-",
+      descripcion: item.descripcion || item.calidad || item.nombre || '-',
+      entrada_q: item.entrada_q || 0,
+      entrada_cu: item.entrada_cu || 0,
+      entrada_ct: item.entrada_ct || 0,
+      salida_q: item.salida_q || 0,
+      salida_cu: item.salida_cu || 0,
+      salida_ct: item.salida_ct || 0,
+      saldo_q: item.saldo_q || 0,
+      saldo_cu: item.saldo_cu || 0,
+      saldo_ct: item.saldo_ct || 0,
+    }));
+  }
 
-    totalEntradasQ = stockTotal;
-    totalSalidasQ = 0;
-    totalSalidasCT = 0;
-    saldoFinalQ = stockTotal;
-  } else {
+  // ✅ Si rowsWithSaldo está vacío, mostrar mensaje
+  if (rowsWithSaldo.length === 0) {
     return (
       <Document>
         <Page size="A4" orientation="landscape" style={styles.page}>
           <View style={styles.headerBar}>
-            <Text style={styles.headerTitle}>
-              KARDEX DE INVENTARIO - MOSHELL
-            </Text>
+            <Text style={styles.headerTitle}>KARDEX DE INVENTARIO - MOSHELL</Text>
           </View>
           <View style={styles.content}>
             <View style={styles.topCard}>
               <View style={styles.numeroBox}>
-                <Text style={styles.numeroText}>
-                  Material: {material?.codigo || "N/A"}
-                </Text>
+                <Text style={styles.numeroText}>Material: {material?.codigo || "N/A"}</Text>
               </View>
               {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
             </View>
-            <Text
-              style={{
-                textAlign: "center",
-                marginTop: 40,
-                color: "#7C8AA0",
-                fontSize: 10,
-              }}
-            >
+            <Text style={{ textAlign: "center", marginTop: 40, color: "#7C8AA0", fontSize: 10 }}>
               No hay datos disponibles para exportar
             </Text>
             <View style={styles.footer}>
               <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
-              <Text>
-                Documento generado automáticamente el{" "}
-                {new Date().toLocaleString("es-PE")}
-              </Text>
+              <Text>Documento generado automáticamente el {new Date().toLocaleString("es-PE")}</Text>
             </View>
           </View>
         </Page>
@@ -359,104 +446,50 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
     );
   }
 
+  // ============================================================
+  // RENDERIZAR EL PDF CON DATOS
+  // ============================================================
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
-        {/* BARRA DE TÍTULO */}
         <View style={styles.headerBar}>
           <Text style={styles.headerTitle}>KARDEX DE INVENTARIO - MOSHELL</Text>
         </View>
 
         <View style={styles.content}>
-          {/* N° + LOGO */}
           <View style={styles.topCard}>
             <View style={styles.numeroBox}>
               <Text style={styles.numeroText}>
-                Material: {material?.codigo || "N/A"} -{" "}
-                {material?.calidad || "N/A"}
+                Material: {material?.codigo || "N/A"} - {material?.calidad || "N/A"}
               </Text>
             </View>
             {logoBase64 && <Image src={logoBase64} style={styles.logo} />}
           </View>
 
-          {/* DATOS DEL MATERIAL */}
           <View style={styles.datosWrap}>
             <View style={styles.datosCol}>
               <Text style={styles.datosHeader}>DATOS DEL MATERIAL:</Text>
-              <Text style={styles.datosLine}>
-                <Text style={styles.datosLabel}>CÓDIGO: </Text>
-                {material?.codigo || "-"}
-              </Text>
-              <Text style={styles.datosLine}>
-                <Text style={styles.datosLabel}>CALIDAD: </Text>
-                {material?.calidad || "-"}
-              </Text>
-              <Text style={styles.datosLine}>
-                <Text style={styles.datosLabel}>COLOR: </Text>
-                {material?.color || "-"}
-              </Text>
-              {esMultiple && (
-                <Text style={styles.datosLine}>
-                  <Text style={styles.datosLabel}>TIPO: </Text>RESUMEN DE STOCK
-                </Text>
-              )}
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CÓDIGO: </Text>{material?.codigo || "-"}</Text>
+              <Text style={styles.datosLine}><Text style={styles.datosLabel}>CALIDAD: </Text>{material?.calidad || "-"}</Text>
+              {esMultiple && <Text style={styles.datosLine}><Text style={styles.datosLabel}>TIPO: </Text>RESUMEN DE STOCK</Text>}
             </View>
             <View style={styles.datosColRight}>
               <Text style={styles.datosHeader}>PERÍODO:</Text>
-              <Text style={styles.datosLineRight}>
-                <Text style={styles.datosLabel}>INICIO: </Text>
-                {fechas?.inicio || "Inicio"}
-              </Text>
-              <Text style={styles.datosLineRight}>
-                <Text style={styles.datosLabel}>FIN: </Text>
-                {fechas?.fin || "Fin"}
-              </Text>
-              <Text style={styles.datosLineRight}>
-                <Text style={styles.datosLabel}>STOCK ACTUAL: </Text>
-                {material?.stock_actual || 0}
-              </Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>INICIO: </Text>{fechas?.inicio || "Inicio"}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>FIN: </Text>{fechas?.fin || "Fin"}</Text>
+              <Text style={styles.datosLineRight}><Text style={styles.datosLabel}>STOCK ACTUAL: </Text>{material?.stock_actual || 0}</Text>
             </View>
           </View>
 
           {/* TABLA - ENCABEZADO */}
           <View style={styles.tableHeader}>
             <Text style={[styles.thText, styles.colFecha]}>FECHA</Text>
-            <Text style={[styles.thText, styles.colDescripcion]}>
-              DESCRIPCIÓN
-            </Text>
-            <Text
-              style={[
-                styles.thText,
-                styles.colQ,
-                { width: "23%", textAlign: "center" },
-              ]}
-              colSpan={3}
-            >
-              ENTRADAS
-            </Text>
-            <Text
-              style={[
-                styles.thText,
-                styles.colQ,
-                { width: "23%", textAlign: "center" },
-              ]}
-              colSpan={3}
-            >
-              SALIDAS
-            </Text>
-            <Text
-              style={[
-                styles.thText,
-                styles.colQ,
-                { width: "23%", textAlign: "center" },
-              ]}
-              colSpan={3}
-            >
-              SALDOS
-            </Text>
+            <Text style={[styles.thText, styles.colDescripcion]}>DESCRIPCIÓN</Text>
+            <Text style={[styles.thText, styles.colQ, { width: "23%", textAlign: "center" }]} colSpan={3}>ENTRADAS</Text>
+            <Text style={[styles.thText, styles.colQ, { width: "23%", textAlign: "center" }]} colSpan={3}>SALIDAS</Text>
+            <Text style={[styles.thText, styles.colQ, { width: "23%", textAlign: "center" }]} colSpan={3}>SALDOS</Text>
           </View>
 
-          {/* TABLA - SUB-ENCABEZADO */}
           <View style={[styles.tableHeader, { backgroundColor: NAVY }]}>
             <Text style={[styles.thText, styles.colFecha]}></Text>
             <Text style={[styles.thText, styles.colDescripcion]}></Text>
@@ -471,106 +504,56 @@ const KardexDocument = ({ data, material, fechas, logoBase64 }) => {
             <Text style={[styles.thText, styles.colCt]}>CT</Text>
           </View>
 
-          {/* FILAS DE DATOS */}
           {rowsWithSaldo.map((row, index) => (
-            <View
-              key={index}
-              style={index % 2 === 0 ? styles.row : styles.rowEven}
-            >
+            <View key={index} style={index % 2 === 0 ? styles.row : styles.rowEven}>
               <Text style={[styles.cell, styles.colFecha]}>{row.fecha}</Text>
-              <Text style={[styles.cellLeft, styles.colDescripcion]}>
-                {row.descripcion}
-              </Text>
-              <Text style={[styles.cellRight, styles.colQ]}>
-                {row.entrada_q > 0 ? row.entrada_q : ""}
-              </Text>
-              <Text style={[styles.cellRight, styles.colCu]}>
-                {row.entrada_q > 0 ? row.entrada_cu.toFixed(2) : ""}
-              </Text>
-              <Text style={[styles.cellRight, styles.colCt]}>
-                {row.entrada_q > 0 ? row.entrada_ct.toFixed(2) : ""}
-              </Text>
-              <Text style={[styles.cellRight, styles.colQ]}>
-                {row.salida_q > 0 ? row.salida_q : ""}
-              </Text>
-              <Text style={[styles.cellRight, styles.colCu]}>
-                {row.salida_q > 0 ? row.salida_cu.toFixed(2) : ""}
-              </Text>
-              <Text style={[styles.cellRight, styles.colCt]}>
-                {row.salida_q > 0 ? row.salida_ct.toFixed(2) : ""}
-              </Text>
+              <Text style={[styles.cellLeft, styles.colDescripcion]}>{row.descripcion}</Text>
+              <Text style={[styles.cellRight, styles.colQ]}>{row.entrada_q > 0 ? row.entrada_q : ""}</Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.entrada_q > 0 ? row.entrada_cu.toFixed(2) : ""}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.entrada_q > 0 ? row.entrada_ct.toFixed(2) : ""}</Text>
+              <Text style={[styles.cellRight, styles.colQ]}>{row.salida_q > 0 ? row.salida_q : ""}</Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.salida_q > 0 ? row.salida_cu.toFixed(2) : ""}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.salida_q > 0 ? row.salida_ct.toFixed(2) : ""}</Text>
               <Text style={[styles.cellRight, styles.colQ]}>{row.saldo_q}</Text>
-              <Text style={[styles.cellRight, styles.colCu]}>
-                {row.saldo_cu.toFixed(2)}
-              </Text>
-              <Text style={[styles.cellRight, styles.colCt]}>
-                {row.saldo_ct.toFixed(2)}
-              </Text>
+              <Text style={[styles.cellRight, styles.colCu]}>{row.saldo_cu.toFixed(2)}</Text>
+              <Text style={[styles.cellRight, styles.colCt]}>{row.saldo_ct.toFixed(2)}</Text>
             </View>
           ))}
 
-          {/* TOTALES */}
           <View style={styles.totalsWrap}>
             <View style={styles.totalsRow}>
-              <View style={styles.totalBarWide}>
-                <Text style={styles.totalBarWideText}>TOTALES</Text>
-              </View>
-              <View style={styles.labelCell}>
-                <Text style={styles.labelCellText}>ENTRADAS</Text>
-              </View>
-              <View style={styles.amountCell}>
-                <Text style={styles.amountCellText}>{totalEntradasQ} u</Text>
-              </View>
+              <View style={styles.totalBarWide}><Text style={styles.totalBarWideText}>TOTALES</Text></View>
+              <View style={styles.labelCell}><Text style={styles.labelCellText}>ENTRADAS</Text></View>
+              <View style={styles.amountCell}><Text style={styles.amountCellText}>{totalEntradasQ} u</Text></View>
             </View>
             <View style={styles.totalsRow}>
               <View style={styles.spacerWide} />
-              <View style={styles.labelCell}>
-                <Text style={styles.labelCellText}>SALIDAS</Text>
-              </View>
-              <View style={styles.amountCell}>
-                <Text style={styles.amountCellText}>{totalSalidasQ} u</Text>
-              </View>
+              <View style={styles.labelCell}><Text style={styles.labelCellText}>SALIDAS</Text></View>
+              <View style={styles.amountCell}><Text style={styles.amountCellText}>{totalSalidasQ} u</Text></View>
             </View>
             <View style={styles.totalsRow}>
               <View style={styles.spacerWide} />
-              <View style={styles.labelCell}>
-                <Text style={styles.labelCellText}>SALDO FINAL</Text>
-              </View>
-              <View style={styles.amountCell}>
-                <Text style={styles.amountCellText}>{saldoFinalQ} u</Text>
-              </View>
+              <View style={styles.labelCell}><Text style={styles.labelCellText}>SALDO FINAL</Text></View>
+              <View style={styles.amountCell}><Text style={styles.amountCellText}>{saldoFinalQ} u</Text></View>
             </View>
             <View style={styles.totalsRow}>
               <View style={styles.spacerWide} />
               <View style={[styles.labelCell, { backgroundColor: GOLD }]}>
-                <Text style={[styles.labelCellText, { color: NAVY }]}>
-                  COSTO DE VENTAS
-                </Text>
+                <Text style={[styles.labelCellText, { color: NAVY }]}>COSTO DE VENTAS</Text>
               </View>
               <View style={[styles.amountCell, { backgroundColor: GOLD }]}>
-                <Text
-                  style={[
-                    styles.amountCellText,
-                    { fontFamily: FONT_TITLE, color: NAVY },
-                  ]}
-                >
+                <Text style={[styles.amountCellText, { fontFamily: FONT_TITLE, color: NAVY }]}>
                   S/ {totalSalidasCT.toFixed(2)}
                 </Text>
               </View>
             </View>
           </View>
 
-          {/* FOOTER */}
           <View style={styles.footer}>
             <Text>MOSHELL — ERP de Gestión de Producción Textil</Text>
-            <Text>
-              Documento generado automáticamente el{" "}
-              {new Date().toLocaleString("es-PE")}
-            </Text>
+            <Text>Documento generado automáticamente el {new Date().toLocaleString("es-PE")}</Text>
             <Text>___________________________________</Text>
-            <Text style={{ fontFamily: FONT_TITLE, color: NAVY }}>
-              Firma Autorizada
-            </Text>
+            <Text style={{ fontFamily: FONT_TITLE, color: NAVY }}>Firma Autorizada</Text>
           </View>
         </View>
       </Page>
@@ -590,42 +573,207 @@ export default function ExportPDFButton({
 }) {
   const [loading, setLoading] = useState(false);
 
-  const handleExportPDF = async () => {
-    console.log("📦 Datos para PDF:", { data, material, fechas });
+ const handleExportPDF = async () => {
+  console.log("📦 Datos para PDF:", { data, material, fechas });
 
-    if (!data || data.length === 0) {
-      alert(
-        "Por favor, seleccione al menos un material con el check para exportar.",
-      );
-      return;
+  if (!data || data.length === 0) {
+    alert("No hay datos para exportar.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    let processedData = [];
+    let totalSalidasQ = 0;
+    let totalSalidasCT = 0;
+    let totalEntradasQ = 0;
+    let saldoFinalQ = 0;
+    let esMultiple = false;
+
+    // ✅ Verificar si son movimientos (tienen tipo_movimiento) - KARDEX
+    if (data[0]?.tipo_movimiento) {
+      const result = processOnlyOutputs(data);
+      processedData = result.rows;
+      totalSalidasQ = result.totalSalidasQ;
+      totalSalidasCT = result.totalSalidasCT;
+      esMultiple = true;
+    }
+    // ✅ Verificar si son materiales (tienen id, codigo, calidad) - LISTA DE MATERIALES SELECCIONADOS
+    else if (data[0]?.id && data[0]?.codigo) {
+      console.log("🔄 Procesando lista de materiales seleccionados:", data.length);
+      
+      // ✅ OBTENER MOVIMIENTOS DE TODOS LOS MATERIALES
+      const allMovimientos = [];
+      let totalStock = 0;
+      let totalValor = 0;
+
+      for (const material of data) {
+        try {
+          console.log(`🔄 Obteniendo movimientos del material ${material.codigo} (ID: ${material.id})`);
+          
+          // ✅ Llamar al backend para obtener el kardex de este material
+          const response = await api.get(`/kardex/${material.id}`);
+          const kardexData = response.data;
+          
+          if (kardexData && kardexData.kardex) {
+            console.log(`✅ Material ${material.codigo}: ${kardexData.kardex.length} movimientos`);
+            
+            // ✅ Agregar los movimientos de este material
+            kardexData.kardex.forEach((mov) => {
+              allMovimientos.push({
+                ...mov,
+                material_codigo: material.codigo,
+                material_calidad: material.calidad,
+              });
+            });
+          } else {
+            console.warn(`⚠️ Material ${material.codigo} sin movimientos`);
+          }
+        } catch (error) {
+          console.error(`❌ Error obteniendo movimientos del material ${material.id}:`, error);
+        }
+      }
+
+      console.log(`📦 Total de movimientos obtenidos: ${allMovimientos.length}`);
+
+      // ✅ Si hay movimientos, procesarlos
+  if (allMovimientos.length > 0) {
+  // ✅ USAR calculateWeightedAverageCost para mostrar entradas Y salidas
+  processedData = calculateWeightedAverageCost(allMovimientos);
+  
+  totalEntradasQ = processedData.reduce((sum, r) => sum + r.entrada_q, 0);
+  totalSalidasQ = processedData.reduce((sum, r) => sum + r.salida_q, 0);
+  totalSalidasCT = processedData.reduce((sum, r) => sum + r.salida_ct, 0);
+  saldoFinalQ = processedData.length > 0 ? processedData[processedData.length - 1].saldo_q : 0;
+  esMultiple = true;
+  console.log(`✅ Procesadas ${processedData.length} filas de kardex completo`);
+} else {
+  // ✅ Si no hay movimientos, mostrar resumen de stock
+  processedData = data.map((item) => {
+    const stock = Number(item.stock_actual || item.inventario?.stock_actual || 0);
+    const valorUnitario = Number(item.valor_unitario || item.inventario?.valor_unitario || 0);
+    return {
+      fecha: '-',
+      descripcion: item.calidad || item.descripcion || item.nombre || '-',
+      entrada_q: stock,
+      entrada_cu: valorUnitario,
+      entrada_ct: stock * valorUnitario,
+      salida_q: 0,
+      salida_cu: 0,
+      salida_ct: 0,
+      saldo_q: stock,
+      saldo_cu: valorUnitario,
+      saldo_ct: stock * valorUnitario,
+    };
+  });
+  totalEntradasQ = processedData.reduce((sum, r) => sum + r.entrada_q, 0);
+  saldoFinalQ = processedData.length > 0 ? processedData[processedData.length - 1].saldo_q : 0;
+  esMultiple = true;
+}
+    }
+    // ✅ Verificar si tienen inventario anidado
+    else if (data[0]?.inventario) {
+      processedData = data.map((item) => {
+        const inventario = item.inventario || {};
+        const stock = Number(inventario.stock_actual) || 0;
+        const valorUnitario = Number(inventario.valor_unitario) || 0;
+        return {
+          fecha: '-',
+          descripcion: item.calidad || item.descripcion || '-',
+          entrada_q: stock,
+          entrada_cu: valorUnitario,
+          entrada_ct: stock * valorUnitario,
+          salida_q: 0,
+          salida_cu: 0,
+          salida_ct: 0,
+          saldo_q: stock,
+          saldo_cu: valorUnitario,
+          saldo_ct: stock * valorUnitario,
+        };
+      });
+      totalEntradasQ = processedData.reduce((sum, r) => sum + r.entrada_q, 0);
+      saldoFinalQ = processedData.length > 0 ? processedData[processedData.length - 1].saldo_q : 0;
+      esMultiple = true;
+    }
+    // ✅ NUEVA CONDICIÓN: detectar si tienen stock_actual directo (múltiples materiales)
+    else if (data[0]?.stock_actual !== undefined) {
+      processedData = data.map((item) => {
+        const stock = Number(item.stock_actual) || 0;
+        const valorUnitario = Number(item.valor_unitario) || 0;
+        return {
+          fecha: '-',
+          descripcion: item.calidad || item.descripcion || item.nombre || '-',
+          entrada_q: stock,
+          entrada_cu: valorUnitario,
+          entrada_ct: stock * valorUnitario,
+          salida_q: 0,
+          salida_cu: 0,
+          salida_ct: 0,
+          saldo_q: stock,
+          saldo_cu: valorUnitario,
+          saldo_ct: stock * valorUnitario,
+        };
+      });
+      totalEntradasQ = processedData.reduce((sum, r) => sum + r.entrada_q, 0);
+      saldoFinalQ = processedData.length > 0 ? processedData[processedData.length - 1].saldo_q : 0;
+      esMultiple = true;
+    }
+    // ✅ ÚLTIMO RECURSO: procesar lo que venga
+    else {
+      processedData = data.map((item) => {
+        const stock = Number(item.stock_actual ?? item.stock ?? item.cantidad ?? 0);
+        const valorUnitario = Number(item.valor_unitario ?? item.precio_unitario ?? 0);
+        const descripcion = item.calidad || item.descripcion || item.nombre || '-';
+        return {
+          fecha: '-',
+          descripcion: descripcion,
+          entrada_q: stock,
+          entrada_cu: valorUnitario,
+          entrada_ct: stock * valorUnitario,
+          salida_q: 0,
+          salida_cu: 0,
+          salida_ct: 0,
+          saldo_q: stock,
+          saldo_cu: valorUnitario,
+          saldo_ct: stock * valorUnitario,
+        };
+      });
+      totalEntradasQ = processedData.reduce((sum, r) => sum + r.entrada_q, 0);
+      saldoFinalQ = processedData.length > 0 ? processedData[processedData.length - 1].saldo_q : 0;
+      esMultiple = true;
     }
 
-    setLoading(true);
-    try {
-      const blob = await pdf(
-        <KardexDocument
-          data={data}
-          material={material}
-          fechas={fechas}
-          logoBase64={logoBase64}
-        />,
-      ).toBlob();
+    console.log("✅ processedData generado:", processedData);
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `kardex_inventario_${new Date().toISOString().split("T")[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error al exportar PDF:", error);
-      alert("Error al generar el PDF: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const blob = await pdf(
+      <KardexDocument
+        data={processedData}
+        material={material}
+        fechas={fechas}
+        logoBase64={logoBase64}
+        totalEntradasQ={totalEntradasQ}
+        totalSalidasQ={totalSalidasQ}
+        totalSalidasCT={totalSalidasCT}
+        saldoFinalQ={saldoFinalQ}
+        esMultiple={esMultiple}
+      />
+    ).toBlob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kardex_inventario_${new Date().toISOString().split("T")[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error al exportar PDF:", error);
+    alert("Error al generar el PDF: " + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <button
